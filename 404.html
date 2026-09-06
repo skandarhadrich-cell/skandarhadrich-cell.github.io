@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Segment fault | 0xmrerror</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+    .err-wrap { text-align:center; }
+    .err-code { font-size:clamp(4rem,15vw,8rem); font-weight:700; color:var(--red); line-height:1; margin-bottom:8px; }
+    .err-msg  { font-size:.9rem; color:var(--text-dim); margin-bottom:24px; }
+    .err-cmd  { font-size:.78rem; color:var(--green); margin-bottom:16px; }
+    .back-btn {
+      display:inline-block;
+      font-family:var(--mono);
+      font-size:.8rem;
+      padding:8px 20px;
+      border:1px solid var(--green-dim);
+      border-radius:var(--radius);
+      color:var(--green);
+      background:var(--green-faint);
+      cursor:pointer;
+      text-decoration:none;
+      transition:all .15s;
+    }
+    .back-btn:hover { background:rgba(0,255,102,.15); text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="err-wrap">
+    <div class="err-code">404</div>
+    <div class="err-cmd">
+      <span class="prompt-host">0xmrerror</span>@terminal:~$ ls <span style="color:var(--red)">this_path_does_not_exist</span><br>
+      <span style="color:var(--text-dim)">ls: cannot access 'this_path_does_not_exist': No such file or directory</span>
+    </div>
+    <div class="err-msg">Segmentation fault (core dumped) — page not found</div>
+    <a href="/" class="back-btn">cd ~/ &nbsp;# go home</a>
+  </div>
+</body>
+</html>
