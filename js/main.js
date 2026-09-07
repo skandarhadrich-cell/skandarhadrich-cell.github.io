@@ -64,21 +64,88 @@
 
 /* ── skill bar animation ──────────────────────────────────── */
 (function () {
-  const bars = document.querySelectorAll('.skill-fill');
-  if (!bars.length) return;
+  const grids = document.querySelectorAll('.skill-grid');
+  if (!grids.length) return;
 
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        e.target.style.animationPlayState = 'running';
+        e.target.querySelectorAll('.skill-fill').forEach(bar => {
+          bar.style.animationPlayState = 'running';
+        });
         io.unobserve(e.target);
       }
     });
-  }, { threshold: 0.3 });
+  }, { threshold: 0.08 });
 
-  bars.forEach(bar => {
-    bar.style.animationPlayState = 'paused';
-    io.observe(bar);
+  grids.forEach(grid => {
+    grid.querySelectorAll('.skill-fill').forEach(bar => {
+      bar.style.animationPlayState = 'paused';
+    });
+    io.observe(grid);
+  });
+})();
+
+/* ── writeup filters ─────────────────────────────────────── */
+(function () {
+  const btns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.writeup-card');
+  if (!btns.length || !cards.length) return;
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      cards.forEach(card => {
+        const show = f === 'all'
+          || card.dataset.diff === f
+          || card.dataset.platform === f;
+        card.style.display = show ? '' : 'none';
+      });
+    });
+  });
+})();
+
+/* ── writeup modal ───────────────────────────────────────── */
+
+(function () {
+  const overlay = document.getElementById('writeupModal');
+  const content = document.getElementById('writeupContent');
+  const title = document.getElementById('modalTitle');
+  const closeBtn = document.getElementById('modalClose');
+  if (!overlay || !content || !closeBtn) return;
+
+  const cards = document.querySelectorAll('.writeup-card');
+
+  const open = (id) => {
+    const w = WRITEUPS[id];
+    if (!w) return;
+    content.innerHTML = w.content;
+    title.textContent = '0xmrerror@terminal:~$ cat ' + id + '.md';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const close = () => {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  cards.forEach(card => {
+    const id = card.dataset.writeup;
+    card.addEventListener('click', () => open(id));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(id); }
+    });
+  });
+
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
   });
 })();
 

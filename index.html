@@ -34,6 +34,7 @@
       <li><a href="#arsenal">arsenal</a></li>
       <li><a href="#experience">experience</a></li>
       <li><a href="#projects">projects</a></li>
+      <li><a href="#writeups">writeups</a></li>
       <li><a href="#certs">certs</a></li>
       <li><a href="#contact">contact</a></li>
     </ul>
@@ -564,6 +565,62 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
+     WRITEUPS
+═══════════════════════════════════════════════════════════ -->
+<section id="writeups">
+  <div class="container">
+    <div class="section-cmd">
+      <span class="prompt-host">0xmrerror</span><span style="color:var(--text-dim)">@terminal</span>:<span style="color:var(--cyan)">~</span>$ <span style="color:var(--text)">ls -lt ~/writeups/ | head -20</span>
+      <span class="cmd-layout-hint">ctf-writeups.md</span>
+    </div>
+    <div class="section-title">
+      <span class="green">&gt;</span> writeups<span class="prompt-dot" style="color:var(--cyan)">_</span>
+    </div>
+    <p class="section-tag">selected CTF writeups — from recon to root.</p>
+
+    <div class="writeup-filters">
+      <button class="filter-btn active" data-filter="all">all</button>
+      <button class="filter-btn" data-filter="easy">easy</button>
+      <button class="filter-btn" data-filter="medium">medium</button>
+      <button class="filter-btn" data-filter="hard">hard</button>
+      <span class="filter-sep"></span>
+      <button class="filter-btn" data-filter="thm">TryHackMe</button>
+      <button class="filter-btn" data-filter="htb">Hack The Box</button>
+      <button class="filter-btn" data-filter="ctf">CTF</button>
+    </div>
+
+    <div class="writeup-list">
+      <div class="writeup-card" data-writeup="mr-robot" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+        <span class="writeup-idx">01.</span>
+        <div class="writeup-info">
+          <div class="writeup-title">Mr Robot CTF — WordPress to Root</div>
+          <div class="writeup-meta">
+            <span class="diff-badge diff-medium">Medium</span>
+            <span class="platform-tag thm">TryHackMe</span>
+            <span class="read-time">⏱ 20 min read</span>
+          </div>
+        </div>
+        <span class="writeup-arrow">→</span>
+      </div>
+
+      <div class="writeup-card" data-writeup="ww-buddy" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+        <span class="writeup-idx">02.</span>
+        <div class="writeup-info">
+          <div class="writeup-title">WWBuddy — SQLi to Env-Var Privesc</div>
+          <div class="writeup-meta">
+            <span class="diff-badge diff-medium">Medium</span>
+            <span class="platform-tag thm">TryHackMe</span>
+            <span class="read-time">⏱ 20 min read</span>
+          </div>
+        </div>
+        <span class="writeup-arrow">→</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
      CERTIFICATIONS
 ═══════════════════════════════════════════════════════════ -->
 <section id="certs">
@@ -695,6 +752,23 @@
   </div>
 </footer>
 
+<!-- ── writeup modal ──────────────────────────────────────── -->
+<div id="writeupModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-window">
+    <div class="term-header">
+      <span class="term-dot"></span>
+      <span class="term-dot"></span>
+      <span class="term-dot"></span>
+      <span class="term-title" id="modalTitle">0xmrerror@terminal:~$ cat writeup.md</span>
+      <span class="modal-close" id="modalClose">[esc] close</span>
+    </div>
+    <div class="modal-body">
+      <div class="writeup-content" id="writeupContent"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/writeups.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
