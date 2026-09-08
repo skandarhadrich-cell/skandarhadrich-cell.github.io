@@ -22,7 +22,10 @@ Fonts loaded from Google Fonts (Fira Code). Everything else is self-contained.
 │   └── main.js         # Nav, scroll reveal, filter, modal, uptime
 ├── writeups/
 │   ├── template.html   # Copy this to add a new writeup
+│   ├── images/         # Screenshots copied here by the script
 │   └── *.html          # One content fragment per writeup
+├── tools/
+│   └── add-writeup.py  # Markdown → fragment + card + push
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml  # Auto-deploy to GitHub Pages on push to main
@@ -75,13 +78,61 @@ Each writeup is its own content fragment in the `writeups/` folder
 (e.g. `writeups/smol.html`). The modal on `index.html` fetches the file
 when you click a card — no JS data object to touch.
 
+### Fast path — the script
+
+`tools/add-writeup.py` does the whole flow from a Markdown file:
+
+```sh
+python3 tools/add-writeup.py my-writeup.md [--slug my-ctf] \
+  [--diff medium] [--platform thm] [--title "My CTF — Technique"]
 ```
-writeups/
-├── template.html   # START HERE — copy this skeleton
-├── mr-robot.html
-├── smol.html
-└── ...             # one file per writeup
+
+It:
+
+1. Converts the Markdown into `writeups/<slug>.html` —
+   `#`→`<h2>`, `##`→`<h3>` phases, paragraphs, code blocks, lists,
+   blockquotes, links, inline code, `THM{...}`/`HTB{...}` flags, and
+   best-effort bash highlighting (comments + known commands + `$` prompts).
+2. Copies any **screenshots** referenced in the Markdown
+   (`![alt](shot.png)`) into `writeups/images/<slug>/` and fixes the paths.
+3. Adds the matching **card** in `index.html` with the next index number,
+   difficulty/platform badges, and an auto-estimated read time.
+4. **Commits and pushes** to main — GitHub Actions redeploys.
+
+Markdown conventions:
+
+```md
+# Title                    →  <h2>  (the modal heading)
+## 1 · Reconnaissance      →  <h3>  (numbered phase)
+```sh
+nmap -sC -sV host
+# a comment gets styled
+$ whoami
 ```
+![TLS scan](shot.png)     →  local image copied + re-homed
+The flag was THM{...}     →  styled flag span
+```
+
+Optional front matter at the top is also honored:
+
+```md
+---
+slug: my-ctf
+title: My CTF — Technique to Root
+diff: medium
+platform: thm
+---
+```
+
+Options: `--slug`, `--title`, `--diff easy|medium|hard`, `--platform thm|htb|ctf`,
+`--time <min>`, `--no-highlight`, `--no-commit` (write files only),
+`--no-push` (commit, don't push).
+
+> Skip the commit/push and preview locally:
+> `python3 tools/add-writeup.py my-writeup.md --no-commit`
+> then serve with `python3 -m http.server` and click the new card.
+
+### Manual path
 
 1. **Create the file** — copy the template and fill it in:
 
