@@ -1,26 +1,35 @@
 #!/usr/bin/env python3
-"""0xmrerror add-writeup — turn a Markdown writeup into the live site.
+"""0xmrerror add-writeup — turn a CTF writeup folder into the live site.
 
 Usage:
-    python3 tools/add-writeup.py my-writeup.md [options]
+    python3 tools/add-writeup.py <ctf-name> [options]
 
-It automates the whole add-a-writeup flow:
+Give it the CTF folder (name or path) and it does everything:
 
-  A) Converts the Markdown into writeups/<slug>.html
-     (h2/h3 headings, paragraphs, code blocks, lists, blockquotes,
-      links, inline code, and screenshots copied into writeups/images/<slug>/)
+  A) Finds the writeup .md inside that folder and converts it into
+     writeups/<slug>.html — h2/h3 headings, paragraphs, code blocks,
+     lists, blockquotes, links, inline code, THM{...}/HTB{...} flag
+     styling, and screenshots copied into writeups/images/<slug>/
   B) Adds the matching card in index.html with the next index number
   C) Commits and pushes to main, so GitHub Actions redeploys
 
-Markdown conventions:
-    #  Title              -> <h2>  (the modal heading)
-    ## 1 · Phase Name     -> <h3>  (numbered phase)
-    ``` ... ```            -> <pre><code> with best-effort bash highlighting
-    ![alt](shot.png)      -> <img> (local files are copied + re-homed)
-    THM{...} HTB{...}     -> styled flag spans
+The <ctf-name> is resolved like this:
+  * a path to the folder or a direct .md file   (as given)
+  * a folder name searched in the CTF base dir
+    (default ~/Desktop/ctf-writeups — override with --base or the
+     CTF_WRITEUPS_DIR environment variable)
+
+Typical layout (asset/screenshot folders are skipped automatically):
+
+    ctf-writeups/
+    └── my-ctf/
+        ├── my-ctf.md          <- the writeup
+        └── assets/            <- screenshots, ignored for discovery
 
 Options:
-    --slug <s>          Fragment slug (default: derived from file name)
+    --base <dir>        CTF base directory (default: ~/Desktop/ctf-writeups,
+                        or the CTF_WRITEUPS_DIR environment variable)
+    --slug <s>          Fragment slug (default: from the CTF folder name)
     --title "..."       Card title (default: the first # heading)
     --diff easy|medium|hard    (default: medium)
     --platform thm|htb|ctf     (default: thm)
@@ -89,6 +98,65 @@ def parse_frontmatter(text):
             k, v = line.split(':', 1)
             fm[k.strip().lower()] = v.strip()
     return fm, text[end + 4:].lstrip('\n')
+
+
+# ── writeup folder discovery ─────────────────────────────────────────
+
+def is_ignored_dir(name):
+    return name.lower().rstrip('s') in {'asset', 'asstet', 'screenshot'} or name.startswith('.')
+
+
+def find_md(root):
+    hits = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if not is_ignored_dir(d)]
+        for fn in sorted(filenames):
+            if fn.lower().endswith('.md'):
+                hits.append(os.path.join(dirpath, fn))
+    return hits
+
+
+def find_dir_under(base, name):
+    name_l = name.lower()
+    for root, dirnames, _ in os.walk(base):
+        dirnames[:] = [d for d in dirnames if not is_ignored_dir(d)]
+        for d in dirnames:
+            if d.lower() == name_l:
+                return os.path.join(root, d)
+    for root, dirnames, _ in os.walk(base):
+        dirnames[:] = [d for d in dirnames if not is_ignored_dir(d)]
+        for d in dirnames:
+            if name_l in d.lower():
+                return os.path.join(root, d)
+    return None
+
+
+def resolve_md(target, base):
+    if os.path.isfile(target):
+        return target
+
+    folder = None
+    if os.path.isdir(target):
+        folder = target
+    elif base and os.path.isdir(os.path.join(base, target)):
+        folder = os.path.join(base, target)
+    elif base and os.path.isdir(base):
+        folder = find_dir_under(base, target)
+    if folder is None:
+        fail('cannot find a writeup folder for "%s" (searched: %s)' % (target, base or '<none>'))
+
+    hits = find_md(folder)
+    if not hits:
+        fail('no .md writeup found in %s' % folder)
+    if len(hits) == 1:
+        return hits[0]
+
+    fav = os.path.basename(os.path.normpath(folder)).lower()
+    for h in hits:
+        if os.path.splitext(os.path.basename(h))[0].lower() == fav:
+            return h
+    fail('multiple .md files in %s — pick one with --markdown or point the folder right:\n  %s'
+         % (folder, '\n  '.join(os.path.relpath(h, folder) for h in hits)))
 
 
 # ── inline markdown → html ──────────────────────────────────────────
@@ -272,8 +340,11 @@ def git(*args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('markdown', help='path to your .md writeup')
-    ap.add_argument('--slug', help='fragment slug (default: from file name)')
+    ap.add_argument('ctf', help='CTF folder name or path (a .md path also works)')
+    ap.add_argument('--base', help='CTF base dir (default: ~/Desktop/ctf-writeups '
+                                   'or $CTF_WRITEUPS_DIR)')
+    ap.add_argument('--markdown', help='explicit path to the .md inside the folder')
+    ap.add_argument('--slug', help='fragment slug (default: from the CTF folder name)')
     ap.add_argument('--title', help='card title (default: first # heading)')
     ap.add_argument('--diff', choices=['easy', 'medium', 'hard'])
     ap.add_argument('--platform', choices=['thm', 'htb', 'ctf'])
@@ -283,10 +354,13 @@ def main():
     ap.add_argument('--no-push', action='store_true', help='commit but do not push')
     args = ap.parse_args()
 
-    if not os.path.exists(args.markdown):
-        fail('the file %s does not exist' % args.markdown)
+    base = args.base or os.environ.get('CTF_WRITEUPS_DIR') or os.path.expanduser('~/Desktop/ctf-writeups')
 
-    md_text = open(args.markdown, encoding='utf-8').read()
+    md_path = args.markdown if args.markdown else resolve_md(args.ctf, base if os.path.isdir(base) else None)
+    if not os.path.isfile(md_path):
+        fail('writeup file not found: %s' % md_path)
+
+    md_text = open(md_path, encoding='utf-8').read()
     fm, md_body = parse_frontmatter(md_text)
 
     def pick(arg_flag, fm_key):
@@ -295,7 +369,7 @@ def main():
 
     slug = args.slug or fm.get('slug')
     if not slug:
-        slug = slugify(os.path.splitext(os.path.basename(args.markdown))[0])
+        slug = slugify(os.path.basename(os.path.dirname(os.path.abspath(md_path))))
 
     diff = pick('diff', 'diff') or 'medium'
     platform = pick('platform', 'platform') or 'thm'
@@ -308,7 +382,7 @@ def main():
         m = re.search(r'^#\s+(.+)$', md_body, re.M)
         title = m.group(1).strip() if m else slug.capitalize().replace('-', ' ')
 
-    remap = copy_images(os.path.dirname(os.path.abspath(args.markdown)), md_body, slug)
+    remap = copy_images(os.path.dirname(os.path.abspath(md_path)), md_body, slug)
     for old, new in remap.items():
         md_body = md_body.replace(old, new)
 

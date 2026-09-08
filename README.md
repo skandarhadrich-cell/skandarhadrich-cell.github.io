@@ -80,24 +80,37 @@ when you click a card — no JS data object to touch.
 
 ### Fast path — the script
 
-`tools/add-writeup.py` does the whole flow from a Markdown file:
+`tools/add-writeup.py` does the whole flow from your CTF writeup folder:
 
 ```sh
-python3 tools/add-writeup.py my-writeup.md [--slug my-ctf] \
-  [--diff medium] [--platform thm] [--title "My CTF — Technique"]
+python3 tools/add-writeup.py Brute
 ```
 
-It:
+Give it the CTF's folder name and it:
 
-1. Converts the Markdown into `writeups/<slug>.html` —
+1. **Finds your writeup** inside that folder — it looks in `~/Desktop/ctf-writeups`
+   (override with `--base <dir>` or the `CTF_WRITEUPS_DIR` env var), matching the
+   folder name (case-insensitive). Asset/screenshot folders are skipped:
+
+   ```
+   ~/Desktop/ctf-writeups/
+   └── Brute/
+       ├── Brute.md              # picked up automatically
+       └── assets/               # screenshots — ignored for discovery
+   ```
+
+   A direct path to the folder (or to a `.md` file) also works:
+   `python3 tools/add-writeup.py ~/Desktop/ctf-writeups/Reverse-challenge/Brute`
+
+2. Converts the Markdown into `writeups/<slug>.html` —
    `#`→`<h2>`, `##`→`<h3>` phases, paragraphs, code blocks, lists,
    blockquotes, links, inline code, `THM{...}`/`HTB{...}` flags, and
    best-effort bash highlighting (comments + known commands + `$` prompts).
-2. Copies any **screenshots** referenced in the Markdown
+3. Copies any **screenshots** referenced in the Markdown
    (`![alt](shot.png)`) into `writeups/images/<slug>/` and fixes the paths.
-3. Adds the matching **card** in `index.html` with the next index number,
+4. Adds the matching **card** in `index.html` with the next index number,
    difficulty/platform badges, and an auto-estimated read time.
-4. **Commits and pushes** to main — GitHub Actions redeploys.
+5. **Commits and pushes** to main — GitHub Actions redeploys.
 
 Markdown conventions:
 
@@ -124,12 +137,12 @@ platform: thm
 ---
 ```
 
-Options: `--slug`, `--title`, `--diff easy|medium|hard`, `--platform thm|htb|ctf`,
-`--time <min>`, `--no-highlight`, `--no-commit` (write files only),
-`--no-push` (commit, don't push).
+Options: `--base`, `--markdown`, `--slug`, `--title`, `--diff easy|medium|hard`,
+`--platform thm|htb|ctf`, `--time <min>`, `--no-highlight`, `--no-commit`
+(write files only), `--no-push` (commit, don't push).
 
 > Skip the commit/push and preview locally:
-> `python3 tools/add-writeup.py my-writeup.md --no-commit`
+> `python3 tools/add-writeup.py Brute --no-commit`
 > then serve with `python3 -m http.server` and click the new card.
 
 ### Manual path
