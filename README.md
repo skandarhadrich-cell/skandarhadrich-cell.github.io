@@ -20,6 +20,9 @@ Fonts loaded from Google Fonts (Fira Code). Everything else is self-contained.
 │   └── style.css       # Full design system + responsive styles
 ├── js/
 │   └── main.js         # Nav, scroll reveal, filter, modal, uptime
+├── writeups/
+│   ├── template.html   # Copy this to add a new writeup
+│   └── *.html          # One content fragment per writeup
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml  # Auto-deploy to GitHub Pages on push to main
@@ -68,40 +71,57 @@ Allow 5–10 minutes for DNS propagation (up to 48h for full global propagation)
 
 ## Adding Writeups
 
-Writeups live in `js/main.js` in the `WRITEUPS` object. Each entry is keyed by a slug:
+Each writeup is its own content fragment in the `writeups/` folder
+(e.g. `writeups/smol.html`). The modal on `index.html` fetches the file
+when you click a card — no JS data object to touch.
 
-```js
-const WRITEUPS = {
-  'my-writeup-slug': {
-    title: 'Machine Name — Technique',
-    meta: { diff: 'easy|medium|hard', platform: 'thm|htb|ctf', time: 'N min' },
-    content: `
-      <h2>Title</h2>
-      <p>Intro paragraph...</p>
-      <h3>Section</h3>
-      <pre><code>your command here</code></pre>
-    `
-  }
-};
+```
+writeups/
+├── template.html   # START HERE — copy this skeleton
+├── mr-robot.html
+├── smol.html
+└── ...             # one file per writeup
 ```
 
-Then add a matching card in `index.html`:
+1. **Create the file** — copy the template and fill it in:
 
-```html
-<div class="writeup-card" data-writeup="my-writeup-slug"
-     data-diff="medium" data-platform="htb" role="button" tabindex="0">
-  <span class="writeup-idx">06.</span>
-  <div class="writeup-info">
-    <div class="writeup-title">Machine Name — Technique</div>
-    <div class="writeup-meta">
-      <span class="diff-badge diff-medium">Medium</span>
-      <span class="platform-tag htb">Hack The Box</span>
-      <span class="read-time">⏱ 12 min read</span>
-    </div>
-  </div>
-  <span class="writeup-arrow">→</span>
-</div>
-```
+   ```sh
+   cp writeups/template.html writeups/my-ctf.html
+   ```
+
+   The template contains full instructions in its header comment
+   (phase structure, syntax tokens, flag format). A fragment is plain HTML —
+   no `<html>`, `<head>`, or `<link>`, only the body content, because it is
+   rendered inside the terminal modal.
+
+2. **Add a matching card** in `index.html` inside the `#writeups` section:
+
+   ```html
+   <div class="writeup-card" data-writeup="my-ctf"
+        data-src="writeups/my-ctf.html"
+        data-diff="medium" data-platform="thm" role="button" tabindex="0">
+     <span class="writeup-idx">09.</span>
+     <div class="writeup-info">
+       <div class="writeup-title">My CTF — Technique to Root</div>
+       <div class="writeup-meta">
+         <span class="diff-badge diff-medium">Medium</span>
+         <span class="platform-tag thm">TryHackMe</span>
+         <span class="read-time">⏱ 15 min read</span>
+       </div>
+     </div>
+     <span class="writeup-arrow">→</span>
+   </div>
+   ```
+
+   - `data-writeup` && `data-src` must line up (`writeups/<slug>.html`)
+   - `writeup-idx` numbers the cards in order (01., 02., …)
+   - `data-diff`: `easy` | `medium` | `hard` ↦ badge `diff-easy|medium|hard`
+   - `data-platform`: `thm` | `htb` | `ctf` ↦ tag `platform-tag thm|htb|ctf`
+
+3. **Push to main** — GitHub Actions redeploys the site (takes a minute).
+
+> Note: fragments are loaded via `fetch()`, so preview the site locally with
+> `python3 -m http.server` (opening `index.html` straight from disk won't work).
 
 ---
 

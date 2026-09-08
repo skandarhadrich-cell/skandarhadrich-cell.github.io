@@ -1,0 +1,87 @@
+<!--
+  ============================================================
+  writeups/template.html — NEW WRITEUP TEMPLATE
+  ============================================================
+  HOW TO ADD A WRITEUP (takes ~2 minutes):
+
+  1. Copy this file:
+       cp writeups/template.html writeups/my-ctf.html
+
+  2. Replace the <h2> intro and add your own sections below.
+     Structure is free-form. The site styles h2/h3/p/pre/code
+     automatically — you only write the tags below, no <html>,
+     no <head>, no <link>. This file is rendered INSIDE the
+     terminal modal on index.html.
+
+  3. Add a card in index.html inside the #writeups section:
+
+       <div class="writeup-card" data-writeup="my-ctf"
+            data-src="writeups/my-ctf.html"
+            data-diff="medium" data-platform="thm"
+            role="button" tabindex="0">
+         <span class="writeup-idx">09.</span>
+         <div class="writeup-info">
+           <div class="writeup-title">My CTF — Technique to Root</div>
+           <div class="writeup-meta">
+             <span class="diff-badge diff-medium">Medium</span>
+             <span class="platform-tag thm">TryHackMe</span>
+             <span class="read-time">⏱ 15 min read</span>
+           </div>
+         </div>
+         <span class="writeup-arrow">→</span>
+       </div>
+
+     - data-src must point at your new file: writeups/my-ctf.html
+     - idx links the cards in order (01., 02., ...)
+     - data-diff: easy | medium | hard
+       data-platform: thm | htb | ctf
+       the matching badges are diff-easy / diff-medium / diff-hard
+       and platform-tag thm / htb / ctf
+
+  4. Push to main — GitHub Actions redeploys the site.
+
+  SYNTAX SHORTCUTS (same as every other writeup):
+
+    <h2>   section-of-writeup in right pascal case
+    <h3>N · Phase Name</h3>          numbered phase header
+    <pre><code>nmap -sC -sV target</code></pre>
+        raw command or output block. Highlight inside with:
+        <span class="tok-func">command</span>
+        <span class="tok-comment">comment</span>
+        <span class="tok-string">"quoted"</span>
+        <span class="tok-num">12345</span>
+        <span class="tok-keyword">{{payload}}</span>
+    <code>inline code</code>          inline names
+    Flags:  THM{...} / HTB{...} / CTF{...}
+
+  TIP: Use real flags you captured. If a machine churns out a new
+       flag each deploy, write THM{...} and mark it in a comment.
+  ============================================================
+-->
+
+<h2>My CTF — Technique to Root</h2>
+<p>One or two sentences: what the box is, the theme, and the flag goal.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-func">nmap</span> -sC -sV 10.10.x.x
+
+PORT    STATE SERVICE
+22/tcp  open  ssh
+80/tcp  open  http</code></pre>
+
+<h3>2 · First Foothold</h3>
+<p>Step-by-step what you found and why it matters.</p>
+<pre><code><span class="tok-func">curl</span> http://10.10.x.x/robots.txt
+<span class="tok-comment"># output analysis...</span></code></pre>
+
+<h3>3 · Getting a Shell</h3>
+<p>How you went from application access to a reverse shell.</p>
+<pre><code><span class="tok-func">nc</span> -lvnp <span class="tok-num">4444</span></code></pre>
+
+<h3>4 · Privilege Escalation</h3>
+<p>The misconfiguration or service you abused to reach root.</p>
+<pre><code>root@target:~# <span class="tok-func">cat</span> flag.txt
+THM<span class="tok-string">{your_captured_flag}</span></code></pre>
+
+<h3>5 · Retrospective</h3>
+<p>Two or three lines: the attack chain in a row, and the lessons learned.</p>

