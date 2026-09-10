@@ -1,0 +1,38 @@
+<!--
+  writeups/binary-instrumentation-2.html - content fragment (loaded into the modal)
+-->
+
+<h2>Binary Instrumentation 2 — Intercepting File Writes With Frida</h2>
+<p>picoCTF 2025, 300 points. A Windows binary that "was supposed to create a file and write the flag to it" — but when you run it, no file appears and no flag prints. The challenge's name is the hint: instrument the binary at runtime and fix what its WinAPI calls do as they happen.</p>
+
+<h3>1 · Run It — Nothing Happens</h3>
+<p>The program is a GUI-free console <code>bininst2.exe</code> that exits immediately doing, apparently, nothing interesting. Strings inspection points to <code>CreateFileA</code> and <code>WriteFile</code> (KERNEL32). The bug is upstream, in the code that called them.</p>
+
+<h3>2 · Trace File APIs With Frida</h3>
+<p>Frida's <code>frida-trace</code> auto-generates a JS handler per matched function. The <code>*File*</code> wildcard + <code>-X</code> export filter narrows the trace to KERNEL32's file functions.</p>
+<pre><code><span class="tok-func">frida-trace</span> -i *File* -f bininst2.exe -X KERNEL32</code></pre>
+<p>Stubs land in <code>__handlers__/KERNEL32.DLL/</code>, including <code>CreateFileA.js</code>. Running under the trace shows two smoking guns:</p>
+<pre><code><span class="tok-comment"># 1. CreateFileA is called with a literal placeholder path</span>
+CreateFileA (lpFileName="&lt;Insert path here&gt;") = -1
+<span class="tok-comment">#    → INVALID_HANDLE_VALUE, the file can never be created</span>
+<span class="tok-comment"># 2. WriteFile is called with nNumberOfBytesToWrite=0</span>
+WriteFile (nNumberOfBytesToWrite=0)</code></pre>
+
+<h3>3 · Fix the Filename at Runtime</h3>
+<p>In the generated <code>CreateFileA.js</code> handler, overwrite the first argument (<code>lpFileName</code>) with a real path before the call executes. The handler gets an <code>args</code> array of <em>pointers</em>, so replacing it needs a native pointer to a fresh string.</p>
+<pre><code><span class="tok-comment"># __handlers__/KERNEL32.DLL/CreateFileA.js</span>
+onEnter(log, args, state) {
+  <span class="tok-keyword">const</span> path = Memory.allocUtf8String(<span class="tok-symbol">'flag.txt'</span>);
+  args[<span class="tok-num">0</span>] = path;    <span class="tok-comment"># swap the placeholder for a writable path</span>
+  log(<span class="tok-symbol">'CreateFileA lpFileName='</span> + args[<span class="tok-num">0</span>].readUtf8String());
+}</code></pre>
+<p>Re-run the trace: <code>CreateFileA("flag.txt") = 0x... </code> — a valid handle, and a <code>flag.txt</code> now appears next to the binary.</p>
+
+<h3>4 · Harvest the Buffer</h3>
+<p>WriteFile's output is still empty because of the zero byte-count — but the trace's <code>WriteFile.js</code> stub lets you read the real payload from the buffer pointer. It's base64:</p>
+<pre><code><span class="tok-func">echo</span> <span class="tok-symbol">'cGljb0NURntmcjFkYV9mMHJfYjFuX2luNXRydW0zbnQ0dGlvbiFfYjIxYWVmMzl9'</span> | <span class="tok-func">base64</span> -d</code></pre>
+<pre><code>picoCTF{fr1da_f0r_b1n_in5trum3nt4tion!_b21aef39}
+<span class="tok-comment"># the trailing hex is baked into the binary's (public) build</span></code></pre>
+
+<h3>5 · Retrospective</h3>
+<p>Attack chain: <code>CreateFileA</code> tracer → discover the placeholder-path and zero-length bugs → override <code>args[0]</code> in a Frida <code>onEnter</code> handler → let the binary do the writing → decode the base64 from the write buffer. Lessons: "the program was supposed to X" describes intended behavior, and <code>frida-trace</code> turns fixing a broken WinAPI call into a five-line handler edit — no disk patching, no rebuild.</p>

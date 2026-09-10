@@ -1,0 +1,36 @@
+<!--
+  writeups/gdb-test-drive.html - content fragment (loaded into the modal)
+-->
+
+<h2>GDB Test Drive — Skip the Sleep, Take the Flag</h2>
+<p>picoCTF's warm-up for GDB users. You're handed a Linux binary whose main function sleeps for a ridiculous amount of time before printing the flag — and the challenge description literally hands you the debugging session that skips it. Goal: realize the hint is a complete roadmap, not a nudge to "think deeper".</p>
+
+<h3>1 · The Description Is the Solution</h3>
+<p>The binary is a 64-bit ELF (PIE build). The description gives the exact commands — run them verbatim, don't overthink it.</p>
+<pre><code><span class="tok-func">chmod</span> +x gdbme
+<span class="tok-func">gdb</span> gdbme
+<span class="tok-keyword">(gdb)</span> layout asm
+<span class="tok-keyword">(gdb)</span> break *(main+99)
+<span class="tok-keyword">(gdb)</span> run
+<span class="tok-keyword">(gdb)</span> jump *(main+104)</code></pre>
+<p><code>layout asm</code> opens the TUI disassembly view so you can watch the program counter walk through main while you drive it.</p>
+
+<h3>2 · Why These Offsets</h3>
+<p>In main, right after decrypting the flag into a stack buffer, the program calls <code>sleep</code>. The literal <code>0x186a0</code> milliseconds is <strong>100000 seconds</strong> — about 27 hours — so a plain <code>run</code> would just hang. The breakpoint at <code>main+99</code> lands on that <code>sleep</code> call.</p>
+<pre><code><span class="tok-comment"># main(), roughly</span>
+<span class="tok-func">rotate_encrypt</span>(buf);      <span class="tok-comment"># decode flag into stack buffer</span>
+<span class="tok-func">sleep</span>(100000);             <span class="tok-comment"># main+99: this is where we break</span>
+<span class="tok-func">puts</span>(buf);                 <span class="tok-comment"># main+104: jump here to land on the print</span></code></pre>
+<p>The leading <code>*</code> matters: it tells GDB that <code>(main+99)</code> is an <em>address expression</em>, not a linespec — otherwise the breakpoint is set at the wrong thing.</p>
+
+<h3>3 · Skip the Delay With jump</h3>
+<p>Once <code>run</code> stops inside <code>sleep</code>, <code>jump *(main+104)</code> rewrites RIP to the instruction right after the call. GDB then resumes from there, and because the stack buffer still holds the decrypted flag, the very next thing to run is the <code>puts</code> that prints it.</p>
+<pre><code><span class="tok-keyword">(gdb)</span> jump *(main+104)
+<span class="tok-comment"># program resumes past the sleep and exits cleanly with the flag on stdout</span></code></pre>
+
+<h3>4 · The Flag</h3>
+<pre><code>picoCTF{d3bugg3r_dr1v3_&lt;HASH&gt;}
+<span class="tok-comment"># trailing hex varies per instance</span></code></pre>
+
+<h3>5 · Retrospective</h3>
+<p>Key ideas: <code>jump *addr</code> sets RIP directly and resumes — a cheap way to skip a runtime delay without patching the binary on disk; and when a challenge description hands you exact GDB commands, the challenge is about following them precisely. The symbolic form <code>*(main+99)</code> also survives PIE relocation, where a hardcoded address would not.</p>
