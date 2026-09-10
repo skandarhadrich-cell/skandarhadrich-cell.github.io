@@ -579,18 +579,24 @@
     <p class="section-tag">selected CTF writeups — from recon to root.</p>
 
     <div class="writeup-filters">
-      <button class="filter-btn active" data-filter="all">all</button>
-      <button class="filter-btn" data-filter="easy">easy</button>
-      <button class="filter-btn" data-filter="medium">medium</button>
-      <button class="filter-btn" data-filter="hard">hard</button>
+      <button class="filter-btn active" data-type="all">all</button>
+      <button class="filter-btn" data-type="web">web</button>
+      <button class="filter-btn" data-type="re">reverse engineering</button>
+      <button class="filter-btn" data-type="pwn">binary exploitation</button>
       <span class="filter-sep"></span>
-      <button class="filter-btn" data-filter="thm">TryHackMe</button>
-      <button class="filter-btn" data-filter="htb">Hack The Box</button>
-      <button class="filter-btn" data-filter="ctf">CTF</button>
+      <button class="filter-btn active" data-diff="all">all</button>
+      <button class="filter-btn" data-diff="easy">easy</button>
+      <button class="filter-btn" data-diff="medium">medium</button>
+      <button class="filter-btn" data-diff="hard">hard</button>
+      <span class="filter-sep"></span>
+      <button class="filter-btn active" data-platform="all">all</button>
+      <button class="filter-btn" data-platform="thm">TryHackMe</button>
+      <button class="filter-btn" data-platform="htb">Hack The Box</button>
+      <button class="filter-btn" data-platform="ctf">CTF</button>
     </div>
 
     <div class="writeup-list">
-      <div class="writeup-card" data-writeup="mr-robot" data-src="writeups/mr-robot.html" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="mr-robot" data-src="writeups/mr-robot.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
         <span class="writeup-idx">01.</span>
         <div class="writeup-info">
           <div class="writeup-title">Mr Robot CTF — WordPress to Root</div>
@@ -603,7 +609,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="ww-buddy" data-src="writeups/ww-buddy.html" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="ww-buddy" data-src="writeups/ww-buddy.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
         <span class="writeup-idx">02.</span>
         <div class="writeup-info">
           <div class="writeup-title">WWBuddy — SQLi to Env-Var Privesc</div>
@@ -616,7 +622,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="broker" data-src="writeups/broker.html" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="broker" data-src="writeups/broker.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
         <span class="writeup-idx">03.</span>
         <div class="writeup-info">
           <div class="writeup-title">Broker — MQTT Eavesdrop to Webshell</div>
@@ -629,7 +635,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="watcher" data-src="writeups/watcher.html" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="watcher" data-src="writeups/watcher.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
         <span class="writeup-idx">04.</span>
         <div class="writeup-info">
           <div class="writeup-title">Watcher — LFI to Root in 7 Flags</div>
@@ -642,7 +648,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="fortress" data-src="writeups/fortress.html" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="fortress" data-src="writeups/fortress.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
         <span class="writeup-idx">05.</span>
         <div class="writeup-info">
           <div class="writeup-title">Fortress — SHA-1 Collision to Root</div>
@@ -655,7 +661,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="umbrella" data-src="writeups/umbrella.html" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="umbrella" data-src="writeups/umbrella.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
         <span class="writeup-idx">06.</span>
         <div class="writeup-info">
           <div class="writeup-title">Umbrella — Registry Loot to SUID Bash</div>
@@ -668,7 +674,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="super-secret-tip" data-src="writeups/super-secret-tip.html" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="super-secret-tip" data-src="writeups/super-secret-tip.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
         <span class="writeup-idx">07.</span>
         <div class="writeup-info">
           <div class="writeup-title">Super Secret Tip — Jinja SSTI to curl -K Root</div>
@@ -681,7 +687,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="smol" data-src="writeups/smol.html" data-diff="medium" data-platform="thm" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="smol" data-src="writeups/smol.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
         <span class="writeup-idx">08.</span>
         <div class="writeup-info">
           <div class="writeup-title">Smol — WP Plugin SSRF to sudo Bash</div>
@@ -694,7 +700,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="winantidbg0x200" data-src="writeups/winantidbg0x200.html" data-diff="medium" data-platform="ctf" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="winantidbg0x200" data-src="writeups/winantidbg0x200.html" data-diff="medium" data-platform="ctf" data-type="re" role="button" tabindex="0">
         <span class="writeup-idx">09.</span>
         <div class="writeup-info">
           <div class="writeup-title">WinAntiDbg0x200 — Three Anti-Debug Checks</div>
@@ -707,7 +713,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="winantidbg0x300" data-src="writeups/winantidbg0x300.html" data-diff="medium" data-platform="ctf" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="winantidbg0x300" data-src="writeups/winantidbg0x300.html" data-diff="medium" data-platform="ctf" data-type="re" role="button" tabindex="0">
         <span class="writeup-idx">10.</span>
         <div class="writeup-info">
           <div class="writeup-title">WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop</div>
@@ -720,7 +726,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="binary-instrumentation-2" data-src="writeups/binary-instrumentation-2.html" data-diff="medium" data-platform="ctf" role="button" tabindex="0">
+      <div class="writeup-card" data-writeup="binary-instrumentation-2" data-src="writeups/binary-instrumentation-2.html" data-diff="medium" data-platform="ctf" data-type="re" role="button" tabindex="0">
         <span class="writeup-idx">11.</span>
         <div class="writeup-info">
           <div class="writeup-title">Binary Instrumentation 2 — Intercepting File Writes With Frida</div>
@@ -733,20 +739,7 @@
         <span class="writeup-arrow">→</span>
       </div>
 
-      <div class="writeup-card" data-writeup="gdb-test-drive" data-src="writeups/gdb-test-drive.html" data-diff="easy" data-platform="ctf" role="button" tabindex="0">
-        <span class="writeup-idx">12.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">GDB Test Drive — Skip the Sleep, Take the Flag</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-easy">Easy</span>
-            <span class="platform-tag ctf">picoCTF</span>
-            <span class="read-time">⏱ 7 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
       </div>
-
-    </div>
   </div>
 </section>
 

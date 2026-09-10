@@ -92,17 +92,18 @@
   const cards = document.querySelectorAll('.writeup-card');
   if (!btns.length || !cards.length) return;
 
+  const dims = ['type', 'diff', 'platform'];
+  const state = { type: 'all', diff: 'all', platform: 'all' };
+  const matches = (card) => dims.every(d => state[d] === 'all' || card.dataset[d] === state[d]);
+
   btns.forEach(btn => {
+    const dim = dims.find(d => btn.dataset[d] !== undefined);
+    if (!dim) return;
     btn.addEventListener('click', () => {
-      btns.forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('[data-' + dim + ']').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const f = btn.dataset.filter;
-      cards.forEach(card => {
-        const show = f === 'all'
-          || card.dataset.diff === f
-          || card.dataset.platform === f;
-        card.style.display = show ? '' : 'none';
-      });
+      state[dim] = btn.dataset[dim];
+      cards.forEach(card => { card.style.display = matches(card) ? '' : 'none'; });
     });
   });
 })();
