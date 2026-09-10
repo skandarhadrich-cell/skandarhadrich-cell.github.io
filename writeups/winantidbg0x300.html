@@ -1,0 +1,47 @@
+<!--
+  writeups/winantidbg0x300.html - content fragment (loaded into the modal)
+-->
+
+<h2>WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop</h2>
+<p>The finale of the series fights back: a UPX-packed GUI binary that spawns a child watchdog every ~5 seconds to attach to — and kill — your debugger, then hides the flag behind an infinite loop. Register patching won't cut it here. Goal: unpack, patch the loop, and let the flag fall out.</p>
+
+<h3>1 · Unpack</h3>
+<pre><code><span class="tok-func">file</span> WinAntiDbg0x300.exe
+<span class="tok-comment"># PE32 executable (GUI) Intel 80386, for MS Windows, UPX compressed</span>
+
+<span class="tok-comment"># Also included: a .pdb (debug symbols) and a config.bin</span>
+<span class="tok-func">upx</span> -d WinAntiDbg0x300.exe -o unpacked.exe</code></pre>
+
+<h3>2 · Static Analysis with the PDB</h3>
+<p>Import the unpacked binary in Ghidra and attach the supplied <code>.pdb</code> (File → Add to Program) — original symbol names come back for free. Trace the flow from <code>wWinMain</code>:</p>
+<pre><code>PrintDbgBanner → ReadConfig → ComputeHash(3)
+DetectDebuggerAtLaunch   <span class="tok-comment"># NtQueryInformationProcess(ProcessDebugFlags) + PEB.BeingDebugged</span>
+EnableDebugPrivilege
+ManageChildProcess       <span class="tok-comment"># the "fighting back" part</span>
+MyRegisterClass → CreateThread(ChallengeThreadFunction, ...)</code></pre>
+<p><code>ManageChildProcess</code> creates a child of the same binary with the parent's PID as its argument; the child calls <code>DebugActiveProcess</code> on the parent and <code>TerminateProcess</code> your debugger. That's why attaching a debugger just gets you bounced.</p>
+
+<h3>3 · The Watchdog Loop</h3>
+<p><code>ChallengeThreadFunction</code> never returns — a <code>do { CreateProcess; wait; Sleep(5000); } while(true)</code> that re-tests every ~5 seconds (child exit code <code>0xfe</code> aborts, <code>0xfd</code> shows a warning box). Just below the loop sits the flag-decrypt code — unreachable because the loop's closing <code>JMP</code> is <strong>unconditional</strong>.</p>
+<pre><code><span class="tok-comment"># documented landmarks in ChallengeThreadFunction</span>
+0x004037c0  loop head: CreateProcessA / WaitForSingleObject / Sleep(5000)
+     ...    unconditional JMP back to 0x004037c0   ← the jump to kill
+0x004038e0  flag decryption (unreachable while the JMP stays)
+0x00403929  OutputDebugStringW — "you got the flag"</code></pre>
+
+<h3>4 · Patch the JMP to NOPs</h3>
+<p>In Ghidra's Listing, right-click the unconditional <code>JMP</code> at the end of the loop → Clear Code Bytes → select the bytes → Ctrl+Shift+G → Patch Instruction, and write <strong>NOP</strong> over each byte (<code>JMP rel32</code> is 5 bytes). Execution now falls through straight into the decrypt path.</p>
+<pre><code><span class="tok-comment"># in place: Clear Code Bytes → Patch Instruction → NOP × 5</span>
+E9 9B FF FF FF   →   90 90 90 90 90    <span class="tok-comment"># JMP rel32 → five NOPs</span></code></pre>
+<p>Export the patched binary with <strong>File → Export Program → Windows PE</strong> — the 'Original File' export silently drops in-place patches.</p>
+
+<h3>5 · Run Under DebugView</h3>
+<p>The binary still kills attached debuggers, so observe passively: start <strong>DebugView</strong> (Microsoft Sysinternals, 32-bit mode) and run the patched executable <em>as administrator</em>. The <code>ComputeHash</code> rounds take about 5 seconds, then the flag appears both in a message box and in DebugView's output pane.</p>
+<pre><code><span class="tok-comment"># DebugView output (the OutputDebugString stream)</span>
+ComputeHash...
+### you got the flag
+picoCTF{Wind0ws_antid3bg_0x300_&lt;HASH&gt;}
+<span class="tok-comment"># the trailing hex varies per build</span></code></pre>
+
+<h3>6 · Retrospective</h3>
+<p>Attack chain: UPX unpack → PDB symbols → locate the watchdog loop → NOP the loop JMP → export the patched PE → passive capture via DebugView. Lessons: packers hide code, PDBs give symbols for free, and when a binary fights your debugger, stop attaching — patch the binary instead.</p>

@@ -1,0 +1,44 @@
+<!--
+  writeups/winantidbg0x200.html - content fragment (loaded into the modal)
+-->
+
+<h2>WinAntiDbg0x200 — Three Anti-Debug Checks</h2>
+<p>A 32-bit Windows console app that stacks three anti-debug checks before revealing the flag: admin privileges, a custom child-process detector, and the classic <code>IsDebuggerPresent()</code>. Goal: pass all three and read the flag from the debugger log.</p>
+
+<h3>1 · Unzip and Identify</h3>
+<pre><code><span class="tok-comment"># the archive password is picoctf</span>
+<span class="tok-func">unzip</span> WinAntiDbg0x200.zip
+<span class="tok-func">file</span> WinAntiDbg0x200.exe
+<span class="tok-comment"># PE32 executable (console) Intel 80386, for MS Windows</span></code></pre>
+
+<h3>2 · Map the Checks in Ghidra</h3>
+<p>Load the binary in Ghidra and land on <code>main</code> (FUN_004016e0). Three <code>TEST</code> + <code>Jcc</code> pairs gate the flag path. ASLR moves the absolute addresses between runs, but the <strong>last 4 hex digits always match</strong> — use them to find each site in the debugger.</p>
+<pre><code><span class="tok-comment"># 1) Admin / debug-privilege check</span>
+004016eb  <span class="tok-func">TEST</span> EAX,EAX
+004016ed  <span class="tok-func">JNZ</span>   LAB_00401714   <span class="tok-comment">; continue only if EAX != 0</span>
+
+<span class="tok-comment"># 2) Custom child-process detector (FUN_004011d0)</span>
+00401824  <span class="tok-func">TEST</span> EDX,EDX
+00401826  <span class="tok-func">JNZ</span>   LAB_00401832   <span class="tok-comment">; jump to "Oops!" if EDX != 0</span>
+
+<span class="tok-comment"># 3) IsDebuggerPresent()</span>
+0040182e  <span class="tok-func">TEST</span> EAX,EAX
+00401830  <span class="tok-func">JZ</span>    LAB_00401847   <span class="tok-comment">; enter flag decryption if EAX == 0</span></code></pre>
+<p>The custom check (check #2) spawns a child copy of the binary with the parent's PID as an argument; the child tries to <code>DebugActiveProcess</code> the parent, and its exit code tells the parent whether a debugger is attached.</p>
+
+<h3>3 · Flip Each Condition in x32dbg</h3>
+<p>Run the binary in x32dbg until it reaches user code, then Search For → All User Modules → String References, and Follow in Disassembler on "Oops! The debugger was detected". Set breakpoints on the three TESTs (<code>16eb</code>, <code>1824</code>, <code>182e</code>) and edit the registers as they hit.</p>
+<pre><code><span class="tok-num">1</span>) 16eb  <span class="tok-func">TEST</span> EAX,EAX  →  EAX = <span class="tok-num">1</span>  <span class="tok-comment"># take the JNZ: pretend we run as admin</span>
+<span class="tok-num">2</span>) 1824  <span class="tok-func">TEST</span> EDX,EDX  →  EDX = <span class="tok-num">0</span>  <span class="tok-comment"># don't take the JNZ: pass the custom check</span>
+<span class="tok-num">3</span>) 182e  <span class="tok-func">TEST</span> EAX,EAX  →  EAX = <span class="tok-num">0</span>  <span class="tok-comment"># take the JZ: IsDebuggerPresent "not present"</span></code></pre>
+<p>Each check uses a different register (EAX vs EDX) and a different jump direction (JNZ vs JZ). Misreading a mnemonic sends execution down the failure path even with the right register value.</p>
+
+<h3>4 · Flag in the Log</h3>
+<p>The flag is written with <code>OutputDebugStringW</code>, so it never reaches the console. When all three checks pass, it lands in x32dbg's <strong>Log</strong> tab.</p>
+<pre><code><span class="tok-comment"># Log tab (OutputDebugString capture)</span>
+### Good job! Here's your flag:
+### ~~~ picoCTF{0x200_debug_f0r_Win_&lt;HASH&gt;}
+<span class="tok-comment"># the trailing hex varies per build — debug a copy and read yours</span></code></pre>
+
+<h3>5 · Retrospective</h3>
+<p>Attack chain: Ghidra map → three TEST/Jcc sites → register tampering in x32dbg → OutputDebugString log. Lessons: real software layers anti-debug exactly like this — a privilege check, a custom detector, and a standard API — and last-4-hex addressing keeps you sane under ASLR.</p>
