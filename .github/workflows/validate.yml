@@ -118,75 +118,79 @@ jobs:
           npx --yes --package puppeteer@23 node - <<'JS'
           const puppeteer = require('puppeteer');
 
-          const SELECTORS = [
-            'h1','h2','h3','h4','p','small','li','a','.faint','.dim','.mono','.hi',
-            '.card p','.card h3','.badge','.tag','.tag--accent','.tag--2',
-            '.tl-title','.tl-meta','.tl-company','.tl-period',
-            '.stat-num','.stat-lbl','.filter-btn','.nav-link','.brand',
-            '.rail-link','.code-copy','.toc a','.toc-title','.wu-meta span',
-            '.flag','.prose li','.prose code','.prose strong','.prose blockquote',
-            '.project-name','.project-desc','.cert-name','.cert-issuer',
-            '.skill-name','.skill-cat','.skill-items li','.stage-name',
-            '.stage-tool','.label','.k','.term-title','.cmd-line','.p-user',
-            '.p-host','.p-cmd','.about-bio','.about-grid dt','.about-grid dd',
-            '.read-time','.diff-badge','.platform-tag','.contact-label',
-            '.contact-value','.code-copy','.series a','.toast','.btn',
-            // structural, not styled text: the audit walks up for the real
-            // background, so plain <li>/<a>/<small> inside a panel have to be
-            // measured too or a genuinely unreadable list slips through
-            'li','a','small','dt','dd','td','th','figcaption','summary',
-          ];
-
-          // Chromium hands back whatever colour space it likes: rgb() for most
-          // rules, but oklab()/color() for anything built with color-mix().
-          // Feeding those numbers to a sRGB luminance function produced 1.67:1
-          // on perfectly readable text, so every colour is normalised by
-          // letting the browser paint it and reading the pixel back.
-          const probe = document.createElement('canvas').getContext('2d');
-          const toRGB = (css) => {
-            probe.clearRect(0, 0, 1, 1);
-            probe.fillStyle = '#000';
-            probe.fillStyle = css;
-            probe.fillRect(0, 0, 1, 1);
-            const [r, g, b, a] = probe.getImageData(0, 0, 1, 1).data;
-            return [r, g, b, a / 255];
-          };
-
-          const lum = (rgb) => {
-            const c = rgb.map(v => { v /= 255;
-              return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
-            return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
-          };
-          const ratio = (a, b) => {
-            const l1 = lum(a), l2 = lum(b);
-            return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-          };
-
-          // Walk up compositing every translucent layer, because that is what
-          // the reader actually sees: a nav's 82%-opaque scrim over a dark page
-          // is not the same colour as either one alone.
-          const bgOf = (el) => {
-            const stack = [];
-            let n = el;
-            while (n && n !== document.documentElement) {
-              const c = toRGB(getComputedStyle(n).backgroundColor);
-              if (c[3] > 0) stack.push(c);
-              if (c[3] >= 0.999) break;
-              n = n.parentElement;
-            }
-            stack.push(toRGB(getComputedStyle(document.body).backgroundColor));
-            // composite bottom-up
-            let [r, g, b] = stack[stack.length - 1].slice(0, 3);
-            for (let i = stack.length - 2; i >= 0; i--) {
-              const [sr, sg, sb, a] = stack[i];
-              r = sr * a + r * (1 - a);
-              g = sg * a + g * (1 - a);
-              b = sb * a + b * (1 - a);
-            }
-            return [r, g, b];
-          };
-
+          // Everything this audit needs is declared *inside* it. page.evaluate()
+          // serialises the function and runs it in the page, and a closure does not
+          // survive that trip: helpers kept in Node scope came back as
+          // "SELECTORS is not defined", and creating the canvas probe out here
+          // threw "document is not defined" before the browser even launched.
           const audit = () => {
+            const SELECTORS = [
+              'h1','h2','h3','h4','p','small','li','a','.faint','.dim','.mono','.hi',
+              '.card p','.card h3','.badge','.tag','.tag--accent','.tag--2',
+              '.tl-title','.tl-meta','.tl-company','.tl-period',
+              '.stat-num','.stat-lbl','.filter-btn','.nav-link','.brand',
+              '.rail-link','.code-copy','.toc a','.toc-title','.wu-meta span',
+              '.flag','.prose li','.prose code','.prose strong','.prose blockquote',
+              '.project-name','.project-desc','.cert-name','.cert-issuer',
+              '.skill-name','.skill-cat','.skill-items li','.stage-name',
+              '.stage-tool','.label','.k','.term-title','.cmd-line','.p-user',
+              '.p-host','.p-cmd','.about-bio','.about-grid dt','.about-grid dd',
+              '.read-time','.diff-badge','.platform-tag','.contact-label',
+              '.contact-value','.code-copy','.series a','.toast','.btn',
+              // structural, not styled text: the audit walks up for the real
+              // background, so plain <li>/<a>/<small> inside a panel have to be
+              // measured too or a genuinely unreadable list slips through
+              'li','a','small','dt','dd','td','th','figcaption','summary',
+            ];
+
+            // Chromium hands back whatever colour space it likes: rgb() for most
+            // rules, but oklab()/color() for anything built with color-mix().
+            // Feeding those numbers to a sRGB luminance function produced 1.67:1
+            // on perfectly readable text, so every colour is normalised by
+            // letting the browser paint it and reading the pixel back.
+            const probe = document.createElement('canvas').getContext('2d');
+            const toRGB = (css) => {
+              probe.clearRect(0, 0, 1, 1);
+              probe.fillStyle = '#000';
+              probe.fillStyle = css;
+              probe.fillRect(0, 0, 1, 1);
+              const [r, g, b, a] = probe.getImageData(0, 0, 1, 1).data;
+              return [r, g, b, a / 255];
+            };
+
+            const lum = (rgb) => {
+              const c = rgb.map(v => { v /= 255;
+                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+              return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+            };
+            const ratio = (a, b) => {
+              const l1 = lum(a), l2 = lum(b);
+              return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+            };
+
+            // Walk up compositing every translucent layer, because that is what
+            // the reader actually sees: a nav's 82%-opaque scrim over a dark page
+            // is not the same colour as either one alone.
+            const bgOf = (el) => {
+              const stack = [];
+              let n = el;
+              while (n && n !== document.documentElement) {
+                const c = toRGB(getComputedStyle(n).backgroundColor);
+                if (c[3] > 0) stack.push(c);
+                if (c[3] >= 0.999) break;
+                n = n.parentElement;
+              }
+              stack.push(toRGB(getComputedStyle(document.body).backgroundColor));
+              // composite bottom-up
+              let [r, g, b] = stack[stack.length - 1].slice(0, 3);
+              for (let i = stack.length - 2; i >= 0; i--) {
+                const [sr, sg, sb, a] = stack[i];
+                r = sr * a + r * (1 - a);
+                g = sg * a + g * (1 - a);
+                b = sb * a + b * (1 - a);
+              }
+              return [r, g, b];
+            };
             const out = [];
             for (const sel of SELECTORS) {
               for (const el of [...document.querySelectorAll(sel)].slice(0, 4)) {
