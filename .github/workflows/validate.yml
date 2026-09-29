@@ -108,6 +108,15 @@ jobs:
           done
           echo "::error::preview server never came up"; exit 1
 
+      - name: Install the browser audit runtime
+        # `npx --package puppeteer node` installs puppeteer into a scratch
+        # prefix and puts only its bin directory on PATH -- it does not put
+        # it anywhere require() looks. `require('puppeteer')` from a heredoc
+        # therefore threw "Cannot find module", and the step died with a
+        # bare exit 1 and no message. Install it in the workspace so the
+        # browser checks can actually resolve it.
+        run: npm install --no-audit --no-fund puppeteer@23
+
       - name: Every theme and accent combination meets WCAG AA
         run: |
           # Checks the *rendered* result, not the token file: for each of the
@@ -115,8 +124,18 @@ jobs:
           # colour of every real text node against its own background. This
           # is the check that catches an accent fill painted with --bg-0 ink
           # in a light theme, which no amount of reading tokens.css would.
-          npx --yes --package puppeteer@23 node - <<'JS'
-          const puppeteer = require('puppeteer');
+          node - <<'JS'
+          // Plain `node`, resolving puppeteer from the workspace install
+          // above: `npx --package puppeteer node` puts the package where
+          // require() cannot see it. Report a resolution failure as an
+          // annotation, because a bare throw here is invisible in the log.
+          let puppeteer;
+          try {
+            puppeteer = require('puppeteer');
+          } catch (e) {
+            console.log('::error::cannot require puppeteer: ' + e.message);
+            process.exit(1);
+          }
 
           // Everything this audit needs is declared *inside* it. page.evaluate()
           // serialises the function and runs it in the page, and a closure does not
@@ -213,6 +232,16 @@ jobs:
           };
 
           (async () => {
+            // Surface a crash as an annotation. A failed step's log is not
+            // readable without admin rights on this repo, but annotations
+            // are, so report the throw instead of dying silently.
+            const bail = (e) => {
+              const msg = String((e && e.stack) || e).replace(/\s+/g, ' ').slice(0, 900);
+              console.log('::error::contrast audit threw: ' + msg);
+              process.exit(1);
+            };
+            process.on('uncaughtException', bail);
+            process.on('unhandledRejection', bail);
             const browser = await puppeteer.launch({
               args: ['--no-sandbox', '--disable-dev-shm-usage'],
             });
@@ -275,7 +304,7 @@ jobs:
           # A 37px overflow from one nowrap tag is invisible in a desktop
           # screenshot and ruins a phone. Swept at four widths, and an
           # element only counts as a failure if nothing can scroll it.
-          npx --yes --package puppeteer@23 node - <<'JS'
+          node - <<'JS'
           const puppeteer = require('puppeteer');
 
           const audit = () => {
