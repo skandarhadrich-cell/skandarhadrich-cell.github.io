@@ -69,7 +69,7 @@ http://10.10.x.x/wp-content/themes/twentyfifteen/404.php
 
 <h3>6 · Pivot to the robot User</h3>
 <p>Shell lands as <code>daemon</code>. <code>/home/robot</code> holds a hash file for the robot user and the key — readable only by robot.</p>
-<pre><code><span class="tok-func">cd</span> /home/robot && <span class="tok-func">ls</span> -la
+<pre><code><span class="tok-func">cd</span> /home/robot &amp;&amp; <span class="tok-func">ls</span> -la
 -r-------- 1 robot robot 33 key-2-of-3.txt
 -rw-r--r-- 1 robot robot 39 password.raw-md5
 

@@ -41,7 +41,11 @@
   .toc { display: none; }
 }
 
-/* ══ table of contents ═══════════════════════════════════ */
+/* ══ table of contents ═══════════════════════════════════
+   .toc is the sticky scroll container; the <nav> inside it is the
+   labelled landmark. They were both <aside>/<nav class="toc">, which
+   nested two landmarks and left the inner one unlabelled. Only the
+   wrapper needs the box, so only the wrapper carries the class. */
 .toc {
   position: sticky;
   top: calc(var(--nav-h) + var(--sp-6));

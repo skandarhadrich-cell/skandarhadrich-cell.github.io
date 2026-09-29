@@ -1,20 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>404 — segment fault · {{HANDLE}}</title>
-  <meta name="description" content="That path does not exist." />
-  <meta name="robots" content="noindex" />
-  <meta name="theme-color" content="#080b10" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <meta name="description" content="That path does not exist.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#080b10">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <!-- Root-absolute on purpose. A 404 can be served from any depth, and a
        relative href would resolve against the broken path, not the root. -->
-  <link rel="stylesheet" href="/fonts/fonts.css" />
-  <link rel="stylesheet" href="/css/tokens.css" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
   <style>
     .nf { min-height: 100vh; display: grid; place-items: center; padding: var(--gutter); }
     .nf-box { max-width: 620px; width: 100%; }
@@ -47,8 +47,8 @@
       </p>
       <p class="nf-code">404</p>
       <div class="nf-term">
-        <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span> <span class="p-cmd">ls ./this/path</span><br />
-        <span class="faint">ls: cannot access './this/path': No such file or directory</span><br />
+        <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span> <span class="p-cmd">ls ./this/path</span><br>
+        <span class="faint">ls: cannot access './this/path': No such file or directory</span><br>
         <span class="faint">Segmentation fault (core dumped)</span>
       </div>
       <p class="dim margin-top-5">That path does not exist. Nothing was exploited; the page simply is not here.</p>

@@ -1,41 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis &amp; SOC</title>
-  <meta name="description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships." />
-  <link rel="canonical" href="https://0xmrerror.me" />
-  <meta name="author" content="Skandar Hadrich" />
-  <meta name="theme-color" content="#080b10" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis</title>
+  <meta name="description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships.">
+  <link rel="canonical" href="https://0xmrerror.me">
+  <meta name="author" content="Skandar Hadrich">
+  <meta name="theme-color" content="#080b10">
 
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="0xmrerror.me" />
-  <meta property="og:title" content="0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis &amp; SOC" />
-  <meta property="og:description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships." />
-  <meta property="og:url" content="https://0xmrerror.me" />
-  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:locale" content="en" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis &amp; SOC" />
-  <meta name="twitter:description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships." />
-  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="0xmrerror.me">
+  <meta property="og:title" content="0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis">
+  <meta property="og:description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships.">
+  <meta property="og:url" content="https://0xmrerror.me">
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis">
+  <meta name="twitter:description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships.">
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png">
 
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
 
-  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="/fonts/fonts.css" />
-  <link rel="stylesheet" href="/css/tokens.css" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/writeups.css" media="all" />
-  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/writeups.css" media="all">
+  <link rel="stylesheet" href="/css/print.css" media="print">
   <script>
 (function(){var d=document.documentElement;d.classList.add('js');
 try{var t=localStorage.getItem('0xmrerror:theme');
@@ -110,14 +110,14 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
   </ul>
   <div class="rail-progress" aria-hidden="true"><i></i></div>
   <div class="rail-meta">
-    Tunis, Tunisia<br />
-    <span class="accent">available</span> — Feb 2027<br />
+    Tunis, Tunisia<br>
+    <span class="accent">available</span> — Feb 2027<br>
     <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
-    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
-    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
-      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
-    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
-      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br>
+    <button class="btn btn--sm btn--ghost btn--micro" type="button" data-accent-toggle
+      >accent</button>
+    <button class="btn btn--sm btn--ghost btn--micro" type="button" data-theme-toggle
+      data-theme-pref="auto">theme</button>
   </div>
 </aside>
 <!-- palette entries (hidden, read by js/main.js) -->
@@ -199,7 +199,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
         <dl class="about-grid">
           <div class="about-field"><dt>handle</dt><dd>0xmrerror</dd></div><div class="about-field"><dt>location</dt><dd>Tunis, Tunisia 🇹🇳</dd></div><div class="about-field"><dt>affiliation</dt><dd>ENIT — ICT Engineering</dd></div><div class="about-field"><dt>focus</dt><dd>Malware Analysis · RevEng · SOC Automation</dd></div><div class="about-field"><dt>ctf</dt><dd>SECURINETS ENIT · HTB Uni CTF 2025 (77th)</dd></div><div class="about-field"><dt>github</dt><dd><a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></dd></div>
         </dl>
-        <p class="about-bio">I'm a cybersecurity-focused ICT Engineering student at ENIT with a bias toward the hard parts of the stack: unpacking .NET obfuscation, emulating shellcode, tracing syscalls in a live VM, and turning the result into an automated pipeline. I built an 8-stage nested-VM malware analysis pipeline end to end as a sole-contributor research intern — static triage through eBPF syscall tracing, Volatility3 VMI correlation, anti-sandbox evasion, C2 sinkholing and automated MITRE ATT&CK attribution. I also work in ML for security: graph neural networks over binary control-flow graphs, and reinforcement learning for autonomous intrusion response. I compete in CTFs with SECURINETS ENIT and contribute to open-source security tooling through G2FOSS.</p>
+        <p class="about-bio">I&#x27;m a cybersecurity-focused ICT Engineering student at ENIT with a bias toward the hard parts of the stack: unpacking .NET obfuscation, emulating shellcode, tracing syscalls in a live VM, and turning the result into an automated pipeline. I built an 8-stage nested-VM malware analysis pipeline end to end as a sole-contributor research intern — static triage through eBPF syscall tracing, Volatility3 VMI correlation, anti-sandbox evasion, C2 sinkholing and automated MITRE ATT&amp;CK attribution. I also work in ML for security: graph neural networks over binary control-flow graphs, and reinforcement learning for autonomous intrusion response. I compete in CTFs with SECURINETS ENIT and contribute to open-source security tooling through G2FOSS.</p>
         <div class="about-badges">
           <div class="rank-badge"><span aria-hidden="true">🏆</span><span>TryHackMe</span><b>Top 1%</b><small>ranked globally</small></div><div class="rank-badge"><span aria-hidden="true">🥇</span><span>HTB University CTF 2025</span><b>77th</b><small>ENIT team, worldwide</small></div>
         </div>
@@ -287,7 +287,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
                     <div class="tl-item">
             <div class="tl-top"><span class="tl-org">Keystone Group</span><span class="tl-when">Jul 2026 – Sep 2026 · Tunis, TN</span></div>
             <div class="tl-role">Security Engineering Intern — Malware Analysis</div>
-            <ul><li>Architected an 8-stage automated malware analysis pipeline: static triage → de4dot deobfuscation → Speakeasy emulation → live QEMU-KVM detonation → eBPF syscall capture → Volatility3 VMI correlation → MITRE ATT&CK mapping → automated PDF reporting.</li><li>Correlated host-side eBPF KVM tracepoints with Volatility3 VMI on a live guest, and patched <code>KUSER_SHARED_DATA.TickCount</code> in guest memory to defeat anti-sandbox timing checks. Validated against live AsyncRAT, AgentTesla and njRAT samples.</li><li>Deployed a multi-layer C2 sinkhole (iptables + DNSChef + INetSim) to capture malware traffic and extract actionable IOCs with false-positive filtering against Windows telemetry.</li><li>Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX and MalwareBazaar, grouping behavioural families with MinHash LSH clustering and generating PDF reports automatically.</li></ul>
+            <ul><li>Architected an 8-stage automated malware analysis pipeline: static triage → de4dot deobfuscation → Speakeasy emulation → live QEMU-KVM detonation → eBPF syscall capture → Volatility3 VMI correlation → MITRE ATT&amp;CK mapping → automated PDF reporting.</li><li>Correlated host-side eBPF KVM tracepoints with Volatility3 VMI on a live guest, and patched <code>KUSER_SHARED_DATA.TickCount</code> in guest memory to defeat anti-sandbox timing checks. Validated against live AsyncRAT, AgentTesla and njRAT samples.</li><li>Deployed a multi-layer C2 sinkhole (iptables + DNSChef + INetSim) to capture malware traffic and extract actionable IOCs with false-positive filtering against Windows telemetry.</li><li>Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX and MalwareBazaar, grouping behavioural families with MinHash LSH clustering and generating PDF reports automatically.</li></ul>
           </div>
           <div class="tl-item">
             <div class="tl-top"><span class="tl-org">Tunisie Telecom</span><span class="tl-when">Jun 2025 – Jul 2025 · Sfax, TN</span></div>
@@ -673,7 +673,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
 
     <div class="grid grid--certs">
             <article class="card cert-card reveal">
-        <div class="cert-issuer"><img src="/assets/certs/nvidia.png" alt="" width="20" height="20" loading="lazy" /><span>NVIDIA</span></div>
+        <div class="cert-issuer"><img src="/assets/certs/nvidia.png" alt="" width="20" height="20" loading="lazy"><span>NVIDIA</span></div>
         <h3>Efficient Large Language Model Customization</h3>
         <div class="cert-skills">Deep Learning · LLM Fine-tuning</div>
         <div class="cert-foot">
@@ -683,7 +683,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
         <div class="cert-id">OwtTbLiTRzW_BJNRHUzfWw</div>
       </article>
       <article class="card cert-card reveal">
-        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy" /><span>TryHackMe</span></div>
+        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy"><span>TryHackMe</span></div>
         <h3>Jr Penetration Tester</h3>
         <div class="cert-skills">Web exploitation · Buffer overflow</div>
         <div class="cert-foot">
@@ -692,7 +692,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
         </div>
       </article>
       <article class="card cert-card reveal">
-        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy" /><span>TryHackMe</span></div>
+        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy"><span>TryHackMe</span></div>
         <h3>SOC Level 1</h3>
         <div class="cert-skills">SIEM · Log analysis · Incident triage</div>
         <div class="cert-foot">
@@ -701,7 +701,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
         </div>
       </article>
       <article class="card cert-card reveal">
-        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy" /><span>TryHackMe</span></div>
+        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy"><span>TryHackMe</span></div>
         <h3>DevSecOps</h3>
         <div class="cert-skills">CI/CD security · Pipeline hardening</div>
         <div class="cert-foot">
@@ -710,7 +710,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
         </div>
       </article>
       <article class="card cert-card reveal">
-        <div class="cert-issuer"><img src="/assets/certs/cisco.png" alt="" width="20" height="20" loading="lazy" /><span>Cisco Networking Academy</span></div>
+        <div class="cert-issuer"><img src="/assets/certs/cisco.png" alt="" width="20" height="20" loading="lazy"><span>Cisco Networking Academy</span></div>
         <h3>CCNA: Introduction to Networks</h3>
         <div class="cert-skills">TCP/IP · VLANs · OSPF</div>
         <div class="cert-foot">
@@ -719,7 +719,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
         </div>
       </article>
       <article class="card cert-card reveal">
-        <div class="cert-issuer"><img src="/assets/certs/365ds.png" alt="" width="20" height="20" loading="lazy" /><span>365 Data Science</span></div>
+        <div class="cert-issuer"><img src="/assets/certs/365ds.png" alt="" width="20" height="20" loading="lazy"><span>365 Data Science</span></div>
         <h3>Machine Learning</h3>
         <div class="cert-skills">Data Science · Machine Learning</div>
         <div class="cert-foot">
@@ -755,8 +755,8 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
             <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span> <span class="p-cmd">open /etc/contact.conf</span>
           </div>
           <dl class="about-grid margin-top-5">
-                      <div class="about-field"><dt>email</dt><dd><button class="btn btn--sm btn--ghost" data-copy-mail="skandar.hadrich@etudiant.enit.utm.tn">copy</button></dd></div>
-          <div class="about-field"><dt>phone</dt><dd><a href="tel:+21628654038">+216 28 654 038</a></dd></div>
+                      <div class="about-field"><dt>email</dt><dd><button class="btn btn--sm btn--ghost" type="button" data-copy-mail="skandar.hadrich@etudiant.enit.utm.tn">copy</button></dd></div>
+          <div class="about-field"><dt>phone</dt><dd><a href="tel:+21628654038">+216&nbsp;28&nbsp;654&nbsp;038</a></dd></div>
           <div class="about-field"><dt>github</dt><dd><a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></dd></div>
           <div class="about-field"><dt>linkedin</dt><dd><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">skandar-hadrich</a></dd></div>
 
@@ -771,11 +771,11 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
 
       <div class="reveal">
         <h3 class="col-head">elsewhere</h3>
-                <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">writeups </span> <a href="/#writeups">all writeups →</a></p>
-        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">cv       </span> <a href="/cv.html">curriculum vitae →</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)</p>
-        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">github   </span> <a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></p>
-        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">linkedin </span> <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">skandar-hadrich</a></p>
-        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">privacy  </span> no trackers, no cookies, no third-party requests on this site</p>
+                <p class="dim elsewhere-line"><span class="faint elsewhere-key">writeups </span> <a href="/#writeups">all writeups →</a></p>
+        <p class="dim elsewhere-line"><span class="faint elsewhere-key">cv       </span> <a href="/cv.html">curriculum vitae →</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)</p>
+        <p class="dim elsewhere-line"><span class="faint elsewhere-key">github   </span> <a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></p>
+        <p class="dim elsewhere-line"><span class="faint elsewhere-key">linkedin </span> <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">skandar-hadrich</a></p>
+        <p class="dim elsewhere-line"><span class="faint elsewhere-key">privacy  </span> no trackers, no cookies, no third-party requests on this site</p>
         <p class="faint margin-top-6">
           Hosted on GitHub Pages. Built with no framework, no build server, no trackers. This site has no analytics, no cookies and no third-party requests.
         </p>
@@ -823,7 +823,8 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
 <div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
   <div class="palette-box">
     <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
-      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups">
+    <!-- [html-validate-disable-next prefer-native-element -- a command palette needs grouped results, an active option and arrow-key navigation; <select> can do none of those] -->
     <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
     <div class="palette-foot">
       <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>

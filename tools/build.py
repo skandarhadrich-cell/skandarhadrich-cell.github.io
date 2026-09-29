@@ -71,13 +71,53 @@ def esc(s) -> str:
     return html.escape(str(s), quote=True)
 
 
+# Bullets are authored content and may carry a small, fixed set of inline
+# tags -- the Keystone entry uses <code> around an identifier it is talking
+# about. Escape the string as data first, then put back only those tags,
+# unadorned. Anything with an attribute, or any tag outside this list, stays
+# escaped, so a typo in the JSON can never inject markup.
+_INLINE_OK = re.compile(r"&lt;(/?)(code|b|strong|em|i|br)(\s*/?)&gt;", re.I)
+
+
+def trusted_inline(s) -> str:
+    return _INLINE_OK.sub(
+        lambda m: f"<{m.group(1)}{m.group(2).lower()}{m.group(3)}>", esc(s)
+    )
+
+
 def read(path: str) -> str:
     with open(path, encoding="utf-8") as fh:
         return fh.read()
 
 
+def tidy(content: str) -> str:
+    """Strip trailing whitespace, but never inside a preformatted block.
+
+    Template indentation around an empty substitution leaves a line of
+    nothing but spaces, and indentation left over after a wrapped tag
+    leaves a few more after the text. Both are invisible and both are
+    what the HTML validator reports. <pre>/<textarea> are skipped
+    outright, because there trailing whitespace is content -- it can
+    carry indentation in a language where that is significant.
+    """
+    blank = re.compile(r"(?m)[ \t]+$")
+    tag = re.compile(r"<(/?)(pre|textarea)\b[^>]*>", re.I)
+    out, pos, literal = [], 0, False
+    for m in tag.finditer(content):
+        chunk = content[pos:m.start()]
+        out.append(chunk if literal else blank.sub("", chunk))
+        out.append(m.group(0))
+        pos = m.end()
+        literal = m.group(1) == ""          # inside a preformatted element?
+    tail = content[pos:]
+    out.append(tail if literal else blank.sub("", tail))
+    return "".join(out)
+
+
 def write(path: str, content: str) -> bool:
     """Write only when content differs, so mtimes stay stable. Returns changed."""
+    if path.endswith((".html", ".xml")):
+        content = tidy(content)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if os.path.exists(path):
         with open(path, encoding="utf-8") as fh:
@@ -249,19 +289,30 @@ def inline(text: str) -> str:
 def highlight_shell(line: str) -> str:
     if line.lstrip().startswith("#") and not line.lstrip().startswith("#!"):
         return f'<span class="tok-comment">{esc(line)}</span>'
-    line = re.sub(r"^(\s*)(\$|#)\s", r'\1<span class="tok-keyword">\2</span> ', line, count=1)
-    tokens = re.split(r"(\s+)", line)
+    # Split, then escape every piece as it is emitted. The previous version
+    # escaped only the tokens it recognised as commands, flags or numbers
+    # and joined the rest verbatim, so a bare "&&" or an unquoted path came
+    # out as invalid HTML.
+    m = re.match(r"^(\s*)(\$|#)\s(.*)$", line)
+    lead, sigil, rest = (m.group(1), m.group(2), m.group(3)) if m else ("", "", line)
+    out = [lead]
+    if sigil:
+        out.append(f'<span class="tok-keyword">{sigil}</span> ')
+    tokens = re.split(r"(\s+)", rest)
     for i in range(0, len(tokens), 2):
         word = tokens[i]
+        gap = tokens[i + 1] if i + 1 < len(tokens) else ""   # whitespace only
         bare = word.lstrip("$#")
         if bare in KNOWN_COMMANDS:
-            lead = word[:len(word) - len(bare)]
-            tokens[i] = f'{lead}<span class="tok-func">{esc(bare)}</span>'
+            out.append(f'{word[:len(word) - len(bare)]}'
+                       f'<span class="tok-func">{esc(bare)}</span>{gap}')
         elif re.fullmatch(r"-{1,2}[A-Za-z][\w-]*", bare):
-            tokens[i] = f'<span class="tok-keyword">{esc(word)}</span>'
+            out.append(f'<span class="tok-keyword">{esc(word)}</span>{gap}')
         elif re.fullmatch(r"\d+", bare):
-            tokens[i] = f'<span class="tok-num">{esc(word)}</span>'
-    return "".join(tokens)
+            out.append(f'<span class="tok-num">{esc(word)}</span>{gap}')
+        else:
+            out.append(esc(word) + gap)
+    return "".join(out)
 
 
 def markdown_to_html(md: str) -> str:
@@ -375,41 +426,41 @@ def head(site: dict, *, title: str, desc: str, url: str,
          extra: str = "") -> str:
     ident, s = site["identity"], site["site"]
     og_image = f"{SITE_URL}/assets/og.png"
-    return f"""  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    return f"""  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{esc(title)}</title>
-  <meta name="description" content="{esc(desc)}" />
-  <link rel="canonical" href="{esc(url)}" />
-  <meta name="author" content="{esc(s['name'])}" />
-  <meta name="theme-color" content="#080b10" />
+  <meta name="description" content="{esc(desc)}">
+  <link rel="canonical" href="{esc(url)}">
+  <meta name="author" content="{esc(s['name'])}">
+  <meta name="theme-color" content="#080b10">
 
-  <meta property="og:type" content="{esc(og_type)}" />
-  <meta property="og:site_name" content="{esc(s['handle'])}.me" />
-  <meta property="og:title" content="{esc(title)}" />
-  <meta property="og:description" content="{esc(desc)}" />
-  <meta property="og:url" content="{esc(url)}" />
-  <meta property="og:image" content="{esc(og_image)}" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:locale" content="en" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{esc(title)}" />
-  <meta name="twitter:description" content="{esc(desc)}" />
-  <meta name="twitter:image" content="{esc(og_image)}" />
+  <meta property="og:type" content="{esc(og_type)}">
+  <meta property="og:site_name" content="{esc(s['handle'])}.me">
+  <meta property="og:title" content="{esc(title)}">
+  <meta property="og:description" content="{esc(desc)}">
+  <meta property="og:url" content="{esc(url)}">
+  <meta property="og:image" content="{esc(og_image)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{esc(title)}">
+  <meta name="twitter:description" content="{esc(desc)}">
+  <meta name="twitter:image" content="{esc(og_image)}">
 
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
 
-  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="/fonts/fonts.css" />
-  <link rel="stylesheet" href="/css/tokens.css" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/writeups.css" media="all" />
-  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/writeups.css" media="all">
+  <link rel="stylesheet" href="/css/print.css" media="print">
   {THEME_BOOT}
   {extra}"""
 
@@ -437,14 +488,14 @@ def rail(site: dict, writeups: list[dict]) -> str:
   </ul>
   <div class="rail-progress" aria-hidden="true"><i></i></div>
   <div class="rail-meta">
-    {esc(ident['location'])}<br />
-    <span class="accent">available</span> — Feb 2027<br />
+    {esc(ident['location'])}<br>
+    <span class="accent">available</span> — Feb 2027<br>
     <a href="{esc(ident['links']['github'])}" rel="noopener">github</a> ·
-    <a href="{esc(ident['links']['linkedin'])}" rel="noopener">linkedin</a><br />
-    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
-      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
-    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
-      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+    <a href="{esc(ident['links']['linkedin'])}" rel="noopener">linkedin</a><br>
+    <button class="btn btn--sm btn--ghost btn--micro" type="button" data-accent-toggle
+      >accent</button>
+    <button class="btn btn--sm btn--ghost btn--micro" type="button" data-theme-toggle
+      data-theme-pref="auto">theme</button>
   </div>
 </aside>
 <!-- palette entries (hidden, read by js/main.js) -->
@@ -521,7 +572,8 @@ def palette() -> str:
     return """<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
   <div class="palette-box">
     <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
-      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups">
+    <!-- [html-validate-disable-next prefer-native-element -- a command palette needs grouped results, an active option and arrow-key navigation; <select> can do none of those] -->
     <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
     <div class="palette-foot">
       <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
@@ -572,7 +624,7 @@ def block_whoami(site: dict) -> str:
         for f in a["fields"]
     )
     badges = "".join(
-        f'<div class="rank-badge"><span aria-hidden="true">{b["icon"]}</span>'
+        f'<div class="rank-badge"><span aria-hidden="true">{esc(b["icon"])}</span>'
         f'<span>{esc(b["text"])}</span><b>{esc(b["strong"])}</b><small>{esc(b["sub"])}</small></div>'
         for b in a["badges"]
     )
@@ -581,7 +633,7 @@ def block_whoami(site: dict) -> str:
         "ABOUT_BYTES": human_bytes(len(a["bio"])),
         "SUBLINE_SHORT": esc(re.sub(r"\*\*(.+?)\*\*", r"\1", site["facts"]["ctf"][0])),
         "ABOUT_FIELDS": fields,
-        "BIO": a["bio"],
+        "BIO": esc(a["bio"]),
         "ABOUT_BADGES": badges,
     })
 
@@ -617,7 +669,7 @@ def block_experience(site: dict) -> str:
         f'            <div class="tl-top"><span class="tl-org">{esc(j["org"])}</span>'
         f'<span class="tl-when">{esc(j["period"])} · {esc(j["place"])}</span></div>\n'
         f'            <div class="tl-role">{esc(j["role"])}</div>\n'
-        f'            <ul>' + "".join(f"<li>{b}</li>" for b in j["bullets"]) + "</ul>\n"
+        f'            <ul>' + "".join(f"<li>{trusted_inline(b)}</li>" for b in j["bullets"]) + "</ul>\n"
         f'          </div>\n'
         for j in site["experience"]
     )
@@ -702,7 +754,7 @@ def block_writeups(site: dict, writeups: list[dict]) -> str:
           <span class="writeup-meta">
             <span class="badge-diff" data-diff="{esc(w['diff'])}">{esc(DIFFS.get(w['diff'], w['diff']))}</span>
             <span class="badge-platform" data-platform="{esc(w['platform'])}">{esc(PLATFORMS.get(w['platform'], w['platform']))}</span>
-            <span class="writeup-time">{esc(TYPES.get(w['type'], w['type']))} · {w['read_time']} min</span>
+            <span class="writeup-time">{esc(TYPES.get(w['type'], w['type']))} · {esc(w['read_time'])} min</span>
           </span>
         </span>
         <span class="writeup-arrow" aria-hidden="true">→</span>
@@ -719,7 +771,7 @@ def block_certs(site: dict) -> str:
     cards = "".join(
         f'      <article class="card cert-card reveal">\n'
         f'        <div class="cert-issuer">'
-        f'<img src="/assets/certs/{esc(c["issuer_slug"])}.png" alt="" width="20" height="20" loading="lazy" />'
+        f'<img src="/assets/certs/{esc(c["issuer_slug"])}.png" alt="" width="20" height="20" loading="lazy">'
         f'<span>{esc(c["issuer"])}</span></div>\n'
         f'        <h3>{esc(c["name"])}</h3>\n'
         f'        <div class="cert-skills">{esc(c.get("skills", ""))}</div>\n'
@@ -743,15 +795,17 @@ def block_contact(site: dict) -> str:
     fields = "".join(
         f'          <div class="about-field"><dt>{esc(k)}</dt><dd>{v}</dd></div>\n'
         for k, v in (
-            ("email", f'<button class="btn btn--sm btn--ghost" data-copy-mail="{esc(ident["email"])}">copy</button>'),
-            ("phone", f'<a href="tel:{esc(ident["phone"].replace(" ", ""))}">{esc(ident["phone"])}</a>'),
+            ("email", f'<button class="btn btn--sm btn--ghost" type="button" data-copy-mail="{esc(ident["email"])}">copy</button>'),
+            # non-breaking spaces so the number cannot wrap mid-group
+            ("phone", f'<a href="tel:{esc(ident["phone"].replace(" ", ""))}">'
+                      f'{esc(ident["phone"]).replace(" ", "&nbsp;")}</a>'),
             ("github", f'<a href="{esc(ident["links"]["github"])}" rel="noopener">{esc(ident["github"])}</a>'),
             ("linkedin", f'<a href="{esc(ident["links"]["linkedin"])}" rel="noopener">{esc(ident["linkedin"])}</a>'),
         )
     )
     elsewhere = "\n".join(
-        f'        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)">'
-        f'<span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">{esc(k).ljust(9)}</span> {v}</p>'
+        f'        <p class="dim elsewhere-line">'
+        f'<span class="faint elsewhere-key">{esc(k).ljust(9)}</span> {v}</p>'
         for k, v in (
             ("writeups", '<a href="/#writeups">all writeups \u2192</a>'),
             ("cv", '<a href="/cv.html">curriculum vitae \u2192</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)'),
@@ -830,7 +884,10 @@ def series_for(w: dict, writeups: list[dict]) -> str:
 def build_writeup(site: dict, w: dict, writeups: list[dict], index: int) -> bool:
     s = site["site"]
     url = SITE_URL + w["url"]
-    title = f'{w["title"]} — writeup · {s["handle"]}'
+    # the write-up title *is* the page title; appending "— writeup ·
+    # 0xmrerror" pushed it to 82 characters, well past what a search
+    # result will render
+    title = w["title"]
     desc = w["summary"][:180] or w["title"]
     ld = {
         "@context": "https://schema.org",
@@ -855,7 +912,7 @@ def build_writeup(site: dict, w: dict, writeups: list[dict], index: int) -> bool
     meta = (
         f'<span class="badge-diff" data-diff="{esc(w["diff"])}">{esc(DIFFS.get(w["diff"], w["diff"]))}</span>'
         f'<span class="badge-platform" data-platform="{esc(w["platform"])}">{esc(PLATFORMS.get(w["platform"], w["platform"]))}</span>'
-        f'<span class="writeup-time">{esc(TYPES.get(w["type"], w["type"]))} · {w["read_time"]} min read</span>'
+        f'<span class="writeup-time">{esc(TYPES.get(w["type"], w["type"]))} · {esc(w["read_time"])} min read</span>'
         + "".join(f'<a class="tag" href="/?type={esc(w["type"])}#writeups">{esc(t)}</a>' for t in w["tags"])
     )
 
@@ -896,48 +953,47 @@ def build_cv(site: dict) -> bool:
     expertise = [i for g in site["skills"] for i in g["items"]][:14]
 
     def h3(t):
-        return (f'<h3 style="font-family:var(--font-mono);font-size:var(--fs-2xs);color:var(--accent-text);'
-                f'text-transform:uppercase;letter-spacing:.1em;margin:var(--sp-8) 0 var(--sp-3)">{t}</h3>')
+        return f'<h3 class="cv-h3">{t}</h3>'
 
     parts = [
         f'<p class="dim">{esc(summary)}</p>',
         h3("areas of expertise"),
-        '<p class="dim">' + " · ".join(expertise) + "</p>",
+        f'<p class="dim">{esc(" · ".join(expertise))}</p>',
         h3("education"),
     ]
     for e in site["education"]:
         parts.append(
-            f'<div class="edu-item" style="border:0;border-bottom:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0">'
+            '<div class="edu-item edu-item--flat">'
             f'<b>{esc(e["org"])}</b><span class="deg">{esc(e["degree"])}</span>'
             f'<span class="tl-when">{esc(e["period"])}</span><span class="note">{esc(e["note"])}</span></div>'
         )
     parts.append(h3("professional experience"))
     for j in site["experience"]:
         parts.append(
-            f'<div class="tl-item" style="padding-left:0;margin-bottom:var(--sp-6)">'
+            '<div class="tl-item tl-item--flat">'
             f'<div class="tl-top"><span class="tl-org">{esc(j["org"])}</span>'
             f'<span class="tl-when">{esc(j["period"])} · {esc(j["place"])}</span></div>'
             f'<div class="tl-role">{esc(j["role"])}</div>'
-            f'<ul>' + "".join(f"<li>{b}</li>" for b in j["bullets"]) + "</ul></div>"
+            f'<ul>' + "".join(f"<li>{trusted_inline(b)}</li>" for b in j["bullets"]) + "</ul></div>"
         )
     parts.append(h3("projects"))
     for p in site["projects"][:4]:
         parts.append(
-            f'<div style="margin-bottom:var(--sp-4)"><b class="hi">{esc(p["name"])}</b>'
-            f' <span class="faint" style="font-size:var(--fs-2xs)">· {esc(", ".join(p.get("stack", [])[:4]))}</span>'
-            f'<p class="dim" style="font-size:var(--fs-sm)">{esc(p["desc"])}</p></div>'
+            f'<div class="cv-entry"><b class="hi">{esc(p["name"])}</b>'
+            f' <span class="faint cv-stack">· {esc(", ".join(p.get("stack", [])[:4]))}</span>'
+            f'<p class="dim cv-desc">{esc(p["desc"])}</p></div>'
         )
     parts.append(h3("certifications"))
-    parts.append('<ul class="dim" style="font-size:var(--fs-sm)">' + "".join(
+    parts.append('<ul class="dim cv-list">' + "".join(
         f'<li>{esc(c["name"])} — {esc(c["issuer"])} ({esc(c["date"])})</li>'
         for c in site["certs"] if c.get("published", True)) + "</ul>")
-    parts.append(h3("ctf, clubs & languages"))
+    parts.append(h3("ctf, clubs &amp; languages"))
     facts = site["facts"]
     parts.append(
-        f'<p class="dim" style="font-size:var(--fs-sm)">'
-        f'<b class="hi">CTF</b> — {" · ".join(re.sub(r"\\*\\*(.+?)\\*\\*", r"\\1", c) for c in facts["ctf"])}<br />'
-        f'<b class="hi">Clubs</b> — {" · ".join(facts["clubs"])}<br />'
-        f'<b class="hi">Languages</b> — {" · ".join(facts["languages"])}</p>'
+        f'<p class="dim cv-desc">'
+        f'<b class="hi">CTF</b> — {esc(" · ".join(re.sub(r"\\*\\*(.+?)\\*\\*", r"\\1", c) for c in facts["ctf"]))}<br>'
+        f'<b class="hi">Clubs</b> — {esc(" · ".join(facts["clubs"]))}<br>'
+        f'<b class="hi">Languages</b> — {esc(" · ".join(facts["languages"]))}</p>'
     )
 
     body = "\n".join(parts)
@@ -999,8 +1055,8 @@ def build_sitemap(site: dict, writeups: list[dict]) -> bool:
         f'<changefreq>yearly</changefreq><priority>0.6</priority></url>',
     ]
     for w in writeups:
-        wlm = f"<lastmod>{w['date']}</lastmod>" if w.get("date") else lm
-        rows.append(f'  <url><loc>{SITE_URL}{w["url"]}</loc>{wlm}'
+        wlm = f"<lastmod>{esc(w['date'])}</lastmod>" if w.get("date") else lm
+        rows.append(f'  <url><loc>{esc(SITE_URL + w["url"])}</loc>{wlm}'
                     f'<changefreq>yearly</changefreq><priority>0.8</priority></url>')
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -1020,8 +1076,8 @@ def build_feed(site: dict, writeups: list[dict]) -> bool:
     for w in writeups:
         items.append(f"""    <item>
       <title>{esc(w['title'])}</title>
-      <link>{SITE_URL}{w['url']}</link>
-      <guid isPermaLink="true">{SITE_URL}{w['url']}</guid>
+      <link>{esc(SITE_URL + w['url'])}</link>
+      <guid isPermaLink="true">{esc(SITE_URL + w['url'])}</guid>
       <description>{esc(w['summary'])}</description>
       <category>{esc(TYPES.get(w['type'], w['type']))}</category>{rss_date(w)}
     </item>""")

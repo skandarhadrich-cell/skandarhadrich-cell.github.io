@@ -1,41 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Smol — WP Plugin SSRF to sudo Bash — writeup · 0xmrerror</title>
-  <meta name="description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file." />
-  <link rel="canonical" href="https://0xmrerror.me/writeups/smol/" />
-  <meta name="author" content="Skandar Hadrich" />
-  <meta name="theme-color" content="#080b10" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smol — WP Plugin SSRF to sudo Bash</title>
+  <meta name="description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file.">
+  <link rel="canonical" href="https://0xmrerror.me/writeups/smol/">
+  <meta name="author" content="Skandar Hadrich">
+  <meta name="theme-color" content="#080b10">
 
-  <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="0xmrerror.me" />
-  <meta property="og:title" content="Smol — WP Plugin SSRF to sudo Bash — writeup · 0xmrerror" />
-  <meta property="og:description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file." />
-  <meta property="og:url" content="https://0xmrerror.me/writeups/smol/" />
-  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:locale" content="en" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Smol — WP Plugin SSRF to sudo Bash — writeup · 0xmrerror" />
-  <meta name="twitter:description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file." />
-  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="0xmrerror.me">
+  <meta property="og:title" content="Smol — WP Plugin SSRF to sudo Bash">
+  <meta property="og:description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file.">
+  <meta property="og:url" content="https://0xmrerror.me/writeups/smol/">
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Smol — WP Plugin SSRF to sudo Bash">
+  <meta name="twitter:description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file.">
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png">
 
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
 
-  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="/fonts/fonts.css" />
-  <link rel="stylesheet" href="/css/tokens.css" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/layout.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/writeups.css" media="all" />
-  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/writeups.css" media="all">
+  <link rel="stylesheet" href="/css/print.css" media="print">
   <script>
 (function(){var d=document.documentElement;d.classList.add('js');
 try{var t=localStorage.getItem('0xmrerror:theme');
@@ -70,14 +70,14 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
   </ul>
   <div class="rail-progress" aria-hidden="true"><i></i></div>
   <div class="rail-meta">
-    Tunis, Tunisia<br />
-    <span class="accent">available</span> — Feb 2027<br />
+    Tunis, Tunisia<br>
+    <span class="accent">available</span> — Feb 2027<br>
     <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
-    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
-    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
-      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
-    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
-      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br>
+    <button class="btn btn--sm btn--ghost btn--micro" type="button" data-accent-toggle
+      >accent</button>
+    <button class="btn btn--sm btn--ghost btn--micro" type="button" data-theme-toggle
+      data-theme-pref="auto">theme</button>
   </div>
 </aside>
 <!-- palette entries (hidden, read by js/main.js) -->
@@ -189,11 +189,11 @@ root@smol:~# <span class="tok-func">cat</span> /root/root.txt
 
       </article>
 
-      <aside class="toc" data-toc-wrap>
-        <nav class="toc" data-toc aria-label="On this page">
+      <div class="toc" data-toc-wrap>
+        <nav data-toc aria-label="On this page">
           <h2>on this page</h2>
         </nav>
-      </aside>
+      </div>
     </div>
 
     <nav class="wu-nav" aria-label="More writeups">
@@ -240,7 +240,8 @@ root@smol:~# <span class="tok-func">cat</span> /root/root.txt
 <div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
   <div class="palette-box">
     <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
-      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups">
+    <!-- [html-validate-disable-next prefer-native-element -- a command palette needs grouped results, an active option and arrow-key navigation; <select> can do none of those] -->
     <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
     <div class="palette-foot">
       <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
