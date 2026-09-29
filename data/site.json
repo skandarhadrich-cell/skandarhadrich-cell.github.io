@@ -73,7 +73,7 @@
     }
   ],
   "about": {
-    "bio": "I'm a cybersecurity-focused ICT Engineering student at ENIT with a bias toward the hard parts of the stack: unpacking .NET obfuscation, emulating shellcode, tracing syscalls in a live VM, and turning the result into an automated pipeline. I built an 8-stage nested-VM malware analysis pipeline end to end as a sole-contributor research intern — static triage through eBPF syscall tracing, Volatility3 VMI correlation, anti-sandbox evasion, C2 sinkholing and automated MITRE ATT&CK attribution. I also work in ML for security: graph neural networks over binary control-flow graphs, and reinforcement learning for autonomous intrusion response. I compete in CTFs with SECURINETS ENIT and contribute to open-source security tooling through G2FOSS.",
+    "bio": "I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF. Most notably, I architected an 8-stage nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation. I hold 6 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly. I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.",
     "fields": [
       {
         "key": "handle",
@@ -89,17 +89,7 @@
       },
       {
         "key": "focus",
-        "val": "Malware Analysis · Reverse Engineering · Penetration Testing",
-        "wide": true
-      },
-      {
-        "key": "ctf",
-        "val": "SECURINETS ENIT · HTB Uni CTF 2025 (77th)"
-      },
-      {
-        "key": "github",
-        "val": "skandarhadrich-cell",
-        "link": "https://github.com/skandarhadrich-cell"
+        "val": "Malware Analysis · Reverse Engineering · Penetration Testing"
       }
     ],
     "badges": [

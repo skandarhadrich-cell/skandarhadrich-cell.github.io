@@ -585,8 +585,6 @@ def scripts() -> str:
 
 def block_hero(site: dict, writeups: list[dict]) -> str:
     ident, s = site["identity"], site["site"]
-    ctf = site["facts"]["ctf"][0]
-    ctf_line = re.sub(r"\*\*(.+?)\*\*", r"\1", ctf).replace("HTB University CTF 2025 — ENIT team ranked", "HTB Uni CTF 2025 →")
     return render("_hero.html", {
         "FLAG": ident.get("flag", ""),
         "LOCATION": esc(ident["location"]),
@@ -595,8 +593,6 @@ def block_hero(site: dict, writeups: list[dict]) -> str:
         "HEADLINE_HTML": re.sub(r"\*(.+?)\*", r"<em>\1</em>", ident["headline"]),
         "SUBLINE": esc(ident["subline"]),
         "AVAILABILITY": esc(ident["availability"]["text"]),
-        "CTF_LINE": esc(ctf_line),
-        "EMAIL": esc(ident["email"]),
         "GITHUB": esc(ident["github"]),
         "GITHUB_URL": esc(ident["links"]["github"]),
     })
@@ -613,12 +609,9 @@ def block_whoami(site: dict) -> str:
     a = site["about"]
 
     def field(f: dict) -> str:
-        # `wide` fields take a whole grid row. The focus line is long, and
-        # sharing a row with the affiliation left it cramped and wrapped.
-        cls = "about-field about-field--wide" if f.get("wide") else "about-field"
         val = (f'<a href="{esc(f["link"])}" rel="noopener">{esc(f["val"])}</a>'
                if f.get("link") else esc(f["val"]))
-        return f'<div class="{cls}"><dt>{esc(f["key"])}</dt><dd>{val}</dd></div>'
+        return f'<div class="about-field"><dt>{esc(f["key"])}</dt><dd>{val}</dd></div>'
 
     fields = "".join(field(f) for f in a["fields"])
     badges = "".join(
