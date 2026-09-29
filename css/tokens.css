@@ -1,0 +1,235 @@
+/* ============================================================
+   0xmrerror.me — design tokens
+   Single source of colour, type, space and motion.
+   Loaded after fonts/fonts.css, before everything else.
+   ============================================================ */
+
+:root {
+  /* ── hue engine ───────────────────────────────────────────
+     Every accent colour is derived from --hue so alternate
+     themes are a one-line change. 144° ≈ the original #00ff66. */
+  --hue: 144;
+  --accent-s: 100%;
+
+  /* Three lightnesses, three jobs. A single accent lightness cannot do
+     all three: text needs 4.5:1, a filled chip needs 3:1 against the page
+     *and* readable text sitting on it, and a glow wants to be bright.
+     Each is solved per hue in the accent table at the bottom of this file;
+     these are the green defaults.                                        */
+  --accent-l: 55%;            /* fill: chips, borders, progress bar     */
+  --accent-tl: 40%;           /* text: accent-coloured text on a page   */
+  --accent-on: #08090b;       /* ink: text sitting *on* an accent fill  */
+
+  --accent:      hsl(var(--hue) var(--accent-s) var(--accent-l));
+  --accent-text: hsl(var(--hue) var(--accent-s) var(--accent-tl));
+  --accent-ink:  var(--accent-on);
+  --accent-soft: hsl(var(--hue) var(--accent-s) var(--accent-l) / .10);
+  --accent-glow: hsl(var(--hue) var(--accent-s) var(--accent-l) / .22);
+  --accent-line: hsl(var(--hue) var(--accent-s) var(--accent-l) / .38);
+
+  --accent-2: hsl(190 var(--accent-s) 60%);
+  --accent-2-text: hsl(190 85% 68%);
+  --accent-2-soft: hsl(190 90% 60% / .12);
+
+  /* ── surfaces ──────────────────────────────────────────── */
+  --bg-0: #080b10;            /* page                         */
+  --bg-1: #0d1117;            /* panel / terminal window      */
+  --bg-2: #111820;            /* card                         */
+  --bg-3: #16202c;            /* raised / hover               */
+  --bg-inset: #060a0e;        /* code blocks, wells           */
+  --scrim: rgb(4 7 10 / .84);
+
+  /* ── lines ─────────────────────────────────────────────── */
+  --line: #1b2836;
+  --line-soft: #141d27;
+  --line-strong: #2a3d52;
+
+  /* ── text ────────────────────────────────────────────────
+     Every value below is chosen to clear WCAG AA (4.5:1) on the
+     *lightest* surface it is ever painted on, not just on --bg-0.
+     .github/workflows/validate.yml recomputes these ratios so a
+     future palette tweak cannot quietly regress them.          */
+  --text-hi: #e6edf3;         /* 16.7:1 on --bg-0 */
+  --text: #c3ccd6;            /* 12.1:1 on --bg-0 */
+  --text-dim: #8b98a5;        /*  6.1:1 on --bg-2 (the card surface) */
+  --text-faint: #7d8998;      /*  4.6:1 on --bg-3 (the hover surface)  */
+
+  /* ── semantic (never used for branding) ──────────────────
+     Each is solved for 4.5:1 both bare *and* painted on its own
+     -soft tint, because a badge's background is the tint, not the
+     page. --danger needed +3% lightness here: at 13% over --bg-3
+     the tint lifts the surface far enough to eat the margin.     */
+  --ok: #3fb950;             /*  5.23:1 worst case */
+  --warn: #d29922;           /*  5.29:1 */
+  --danger: #f95f58;         /*  4.55:1 */
+  --info: #58a6ff;           /*  5.23:1 */
+  --ok-soft: rgb(63 185 80 / .13);
+  --warn-soft: rgb(210 153 34 / .13);
+  --danger-soft: rgb(249 95 88 / .13);
+  --info-soft: rgb(88 166 255 / .13);
+
+  /* ── code syntax ──────────────────────────────────────────
+     Solved per theme on the code-block surface. The four that
+     ship dark-theme literals (#5f7f5f, #d8b24a, #e8734a, #c98fd6)
+     are all unreadable on --bg-inset once the page is light, so
+     the light theme gets its own, much darker, set.          */
+  --syn-comment: #779a77;    /*  4.54:1 */
+  --syn-string:  #d8b24a;    /*  6.74:1 */
+  --syn-num:     #e8734a;    /*  4.82:1 */
+  --syn-symbol:  #c98fd6;    /*  5.58:1 */
+
+  /* ── type ──────────────────────────────────────────────── */
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --fs-3xs: .6875rem;   /* 11px — badges, meta            */
+  --fs-2xs: .75rem;     /* 12px — labels, nav             */
+  --fs-xs:  .8125rem;   /* 13px — card meta              */
+  --fs-sm:  .875rem;    /* 14px — UI                     */
+  --fs-md:  .9375rem;   /* 15px — body small             */
+  --fs-lg:  1rem;       /* 16px — body                   */
+  --fs-xl:  1.125rem;
+  --fs-2xl: 1.375rem;
+  --fs-3xl: 1.75rem;
+  --fs-4xl: clamp(2rem, 4.6vw, 2.85rem);
+  --fs-5xl: clamp(2.4rem, 6.4vw, 3.9rem);
+
+  --lh-tight: 1.2;
+  --lh-snug: 1.45;
+  --lh-body: 1.72;
+  --measure: 68ch;
+
+  /* ── space ─────────────────────────────────────────────── */
+  --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 20px;  --sp-6: 24px;  --sp-8: 32px;  --sp-10: 40px;
+  --sp-12: 48px; --sp-16: 64px; --sp-20: 80px;
+  --section-y: clamp(76px, 8.5vw, 124px);
+  --gutter: clamp(20px, 4vw, 40px);
+  --container: 1080px;
+  --rail-w: 216px;
+  --nav-h: 58px;
+
+  /* ── shape ─────────────────────────────────────────────── */
+  --r-sm: 3px;
+  --r: 5px;
+  --r-lg: 8px;
+  --r-pill: 999px;
+
+  /* ── elevation ─────────────────────────────────────────── */
+  --sh-1: 0 1px 2px rgb(0 0 0 / .4);
+  --sh-2: 0 4px 16px -6px rgb(0 0 0 / .55);
+  --sh-3: 0 18px 48px -18px rgb(0 0 0 / .75);
+  --ring: 0 0 0 2px var(--bg-0), 0 0 0 4px var(--accent-text);
+
+  /* ── motion ────────────────────────────────────────────── */
+  --ease: cubic-bezier(.2, .7, .3, 1);
+  --t-fast: .12s;
+  --t: .2s;
+  --t-slow: .45s;
+
+  --z-base: 1;
+  --z-raised: 20;
+  --z-nav: 100;
+  --z-modal: 200;
+  --z-palette: 300;
+  --z-toast: 400;
+}
+
+/* ── light theme ────────────────────────────────────────── */
+:root[data-theme="light"] {
+  --accent-l: 31%;           /* 3.13:1 on white, the non-text floor */
+  --accent-tl: 25%;          /* 4.51:1 on white, the text floor     */
+  --accent-2: hsl(192 90% 34%);
+  --accent-2-text: #076e83;   /* 4.57:1 — the default accent's light variant */
+
+  --bg-0: #ffffff;
+  --bg-1: #f7f9fb;
+  --bg-2: #ffffff;
+  --bg-3: #eef2f6;
+  --bg-inset: #f4f6f9;
+  --scrim: rgb(23 32 42 / .55);
+
+  --line: #dde3ea;
+  --line-soft: #eaeef3;
+  --line-strong: #c3ccd6;
+
+  --text-hi: #0d1620;        /* 18.2:1 on white */
+  --text: #29353f;           /* 12.5:1 on white */
+  --text-dim: #4d5b68;       /*  6.6:1 on --bg-1 */
+  --text-faint: #5e6e85;     /*  4.6:1 on --bg-3 (the hover surface) */
+
+  --ok: #187432;            /*  4.54:1 worst case */
+  --warn: #885b00;           /*  4.61:1 */
+  --danger: #c2202b;         /*  4.51:1 */
+  --info: #0861c9;           /*  4.57:1 */
+  --ok-soft: rgb(24 116 50 / .10);
+  --warn-soft: rgb(136 91 0 / .10);
+  --danger-soft: rgb(194 32 43 / .10);
+  --info-soft: rgb(8 97 201 / .10);
+
+  --syn-comment: #516c51;    /*  4.55:1 */
+  --syn-string:  #7b611b;    /*  4.61:1 */
+  --syn-num:     #b03e16;    /*  4.56:1 */
+  --syn-symbol:  #963eaa;    /*  4.55:1 */
+
+  --sh-1: 0 1px 2px rgb(16 24 32 / .07);
+  --sh-2: 0 4px 14px -6px rgb(16 24 32 / .16);
+  --sh-3: 0 18px 44px -20px rgb(16 24 32 / .24);
+  --ring: 0 0 0 2px var(--bg-0), 0 0 0 4px var(--accent-text);
+}
+
+/* ── accent themes ──────────────────────────────────────────
+   Eight combinations, each solved rather than eyeballed. For a
+   hue H and surfaces B, --accent-tl is the lightness that clears
+   4.5:1 on every surface in B, --accent-l the one that clears 3:1,
+   and --accent-on whichever of near-black/near-white reads better
+   on top of that fill. The numbers below were computed with that
+   rule; .github/workflows/validate.yml re-derives them from the
+   live computed styles, so a hand edit that breaks contrast fails
+   CI instead of shipping.
+
+   Verified worst case per row:
+     green    dark 7.64:1 text · 12.22:1 fill · 14.80:1 on-fill
+     green    light 4.51:1     · 3.13:1      · 5.66:1
+     phosphor dark 5.55:1      · 9.11:1      · 11.04:1
+     phosphor light 4.62:1     · 3.93:1      · 4.50:1
+     nord     dark 7.83:1      · 12.59:1     · 15.25:1
+     nord     light 4.77:1     · 3.06:1      · 5.79:1
+     crimson  dark 4.53:1      · 4.30:1      · 5.21:1
+     crimson  light 5.19:1     · 7.24:1      · 8.14:1
+   ------------------------------------------------------------ */
+
+/* dark theme: a brighter accent always has more contrast on a dark page,
+   so one rule per hue covers both */
+:root[data-accent="phosphor"] { --hue: 40;  --accent-l: 55%; --accent-tl: 40%; --accent-on: #08090b;
+                                --accent-2: hsl(28 90% 60%);
+                                --accent-2-soft: hsl(28 90% 60% / .12); }
+:root[data-accent="nord"]     { --hue: 96;  --accent-l: 55%; --accent-tl: 40%; --accent-on: #08090b;
+                                --accent-2: hsl(193 42% 68%);
+                                --accent-2-soft: hsl(193 42% 68% / .12); }
+/* crimson is dark enough at 45% that text needs to go lighter, not darker */
+:root[data-accent="crimson"]  { --hue: 348; --accent-l: 55%; --accent-tl: 59%; --accent-on: #08090b;
+                                --accent-2: hsl(25 90% 62%);
+                                --accent-2-soft: hsl(25 90% 62% / .12); }
+
+/* light theme inverts the direction: the accent has to darken to stay
+   readable, and the fill darkens with it */
+:root[data-accent="phosphor"][data-theme="light"] { --accent-l: 32%; --accent-tl: 29%; }
+:root[data-accent="nord"][data-theme="light"]     { --accent-l: 31%; --accent-tl: 24%; }
+:root[data-accent="crimson"][data-theme="light"]  { --accent-l: 32%; --accent-tl: 40%; --accent-on: #fff; }
+
+/* ── second accent: text colour ──────────────────────────────
+   --accent-2-text is scoped to the *theme* as well as the accent.
+   It used to live in the :root[data-accent=…] rules above, which
+   sit after :root[data-theme="light"] at equal specificity, so
+   every non-default accent painted its dark-theme cyan into the
+   light theme: inline `code` and the CTF platform badge came out
+   at 1.5:1. js/main.js always resolves data-theme to a concrete
+   light/dark (never "auto"), so the two-value split is total.   */
+:root[data-accent="phosphor"][data-theme="dark"]  { --accent-2-text: hsl(28 90% 66%); }
+:root[data-accent="nord"][data-theme="dark"]      { --accent-2-text: hsl(193 48% 74%); }
+:root[data-accent="crimson"][data-theme="dark"]   { --accent-2-text: hsl(25 92% 68%); }
+
+:root[data-accent="phosphor"][data-theme="light"] { --accent-2-text: #914808; }  /* 5.15:1 */
+:root[data-accent="nord"][data-theme="light"]     { --accent-2-text: #086e8a; }  /* 4.52:1 */
+:root[data-accent="crimson"][data-theme="light"]  { --accent-2-text: #914108; }  /* 5.42:1 */

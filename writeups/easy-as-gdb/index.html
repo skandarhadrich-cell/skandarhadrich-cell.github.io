@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Easy as GDB — Scripted Character-by-Character Brute Force — writeup · 0xmrerror</title>
+  <meta name="description" content="The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session." />
+  <link rel="canonical" href="https://0xmrerror.me/writeups/easy-as-gdb/" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="Easy as GDB — Scripted Character-by-Character Brute Force — writeup · 0xmrerror" />
+  <meta property="og:description" content="The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session." />
+  <meta property="og:url" content="https://0xmrerror.me/writeups/easy-as-gdb/" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Easy as GDB — Scripted Character-by-Character Brute Force — writeup · 0xmrerror" />
+  <meta name="twitter:description" content="The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Easy as GDB \u2014 Scripted Character-by-Character Brute Force",
+    "description": "The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session.",
+    "url": "https://0xmrerror.me/writeups/easy-as-gdb/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Reverse engineering, Hard, ctf, gdb, scripting, brute-force, bruteforce, picoctf, reveng",
+    "proficiencyLevel": "hard"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>Easy as GDB — Scripted Character-by-Character Brute Force</h1>
+      <p class="wu-summary">The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="hard">Hard</span><span class="badge-platform" data-platform="ctf">CTF</span><span class="writeup-time">Reverse engineering · 17 min read</span><a class="tag" href="/?type=re#writeups">gdb</a><a class="tag" href="/?type=re#writeups">scripting</a><a class="tag" href="/?type=re#writeups">brute-force</a><a class="tag" href="/?type=re#writeups">bruteforce</a><a class="tag" href="/?type=re#writeups">picoctf</a><a class="tag" href="/?type=re#writeups">reveng</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more reverse engineering</span><a href="/writeups/winantidbg0x200/">WinAntiDbg0x200</a><a href="/writeups/winantidbg0x300/">WinAntiDbg0x300</a><a href="/writeups/binary-instrumentation-2/">Binary Instrumentation 2</a><a href="/writeups/easy-as-gdb/" class="is-current">Easy as GDB</a><a href="/writeups/keygenme/">Keygenme</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<p>A single challenge description line — <em>"The flag has got to be checked somewhere..."</em> — is almost the whole solution. The attached 32-bit ELF (<code>brute</code>) asks for a flag candidate, encodes it on the fly, then walks the encoded bytes against the stored encoded flag one position at a time, aborting at the first mismatch. That per-byte compare is an oracle you can mine directly: set a breakpoint on the compare instruction, count hits, and read <code>AL</code>/<code>DL</code> to decide each character. This is the challenge that GDB's Python scripting API was made for.</p>
+
+<h3>1 · First Run — Meet the Oracle</h3>
+<p>The program is a key checker, not a vault:</p>
+<pre><code><span class="tok-func">chmod</span> +x brute
+<span class="tok-func">./brute</span>
+input the flag: <span class="tok-string">test</span>
+checking solution...
+Incorrect.</code></pre>
+<p><code>strings brute</code> yields only UI literals (<code>input the flag:</code>, <code>checking solution...</code>, <code>Correct!</code>/<code>Incorrect.</code>) — no plaintext flag, because the flag is stored <em>encoded</em>. The description is literal: the flag really is "checked somewhere", and that somewhere is a compare loop.</p>
+
+<h3>2 · Static Pass in Ghidra</h3>
+<p>Decompiling <code>main</code> shows the pipeline: read up to <code>0x200</code> bytes, measure the stored encoded flag, pre-encode our input, then hand everything to <code>check_flag</code>:</p>
+<pre><code>user_input = calloc(<span class="tok-num">0x200</span>,1);
+printf("input the flag: ");
+fgets(user_input,<span class="tok-num">0x200</span>,stdin);
+encoded_flag_len = strnlen(&amp;g_encoded_flag,<span class="tok-num">0x200</span>);
+user_input = FUN_0001082b(user_input,encoded_flag_len);
+FUN_000107c2(user_input,encoded_flag_len,<span class="tok-num">1</span>);
+iVar1 = check_flag(user_input,encoded_flag_len);
+if (iVar1 == <span class="tok-num">1</span>) puts("Correct!"); else puts("Incorrect.");</code></pre>
+<p><code>g_encoded_flag</code> is a blob of bytes at <code>0x12008</code> that makes no sense as text (<code>7a 2e 6e 68 1d 65 16 7c 6d 43 6f 36 63 62 14 47 ...</code>). You are meant to recover the input value that encodes into it, not read it off.</p>
+
+<h3>3 · The Deeper Insight — check_flag Is Strictly Sequential</h3>
+<pre><code>undefined4 check_flag(char *user_input, uint encoded_flag_len)
+{
+  __dest   = calloc(encoded_flag_len + 1, 1);
+  strncpy(__dest, user_input, encoded_flag_len);
+  FUN_000107c2(__dest, encoded_flag_len, -1);
+  __dest_00 = calloc(encoded_flag_len + 1, 1);
+  strncpy(__dest_00, &amp;g_encoded_flag, encoded_flag_len);
+  FUN_000107c2(__dest_00, encoded_flag_len, -1);
+  puts("checking solution...");
+  i = <span class="tok-num">0</span>;
+  while (true) {
+    if (encoded_flag_len &lt;= i) return 1;            <span class="tok-comment"># all matched</span>
+    if (__dest[i] != __dest_00[i]) break;           <span class="tok-comment"># first mismatch → abort</span>
+    i = i + 1;
+  }
+  return <span class="tok-num">0xffffffff</span>;                              <span class="tok-comment"># i.e. -1</span>
+}</code></pre>
+<p>Three consequences make this trivially brute-forceable:</p>
+<ul>
+<li>The check returns only once the <em>entire</em> prefix is correct — a wrong byte anywhere stops the loop, so a run with prefix <code>flag + c</code> either completes a compare for position <code>len(flag)</code> or dies earlier.</li>
+<li>Both buffers get the same post-transform before comparison, so you never need to invert the encoding — the byte that must equal yours is computed <em>inside</em> the loop, sitting in a register at the compare.</li>
+<li>Correct guesses make the loop go one position further. That's the oracle.</li>
+</ul>
+
+<h3>4 · Where the Compare Lives</h3>
+<pre><code>56555978  MOV EDX,[EBP + local_14]      <span class="tok-comment"># base of buffer A (from g_encoded_flag)</span>
+5655597b  MOV EAX,[EBP + i]
+5655597e  ADD EAX,EDX
+56555980  MOVZX EDX, byte [EAX]         <span class="tok-comment"># DL = expected byte for position i</span>
+56555983  MOV ECX,[EBP + local_10]      <span class="tok-comment"># base of buffer B (our encoded input)</span>
+56555986  MOV EAX,[EBP + i]
+56555989  ADD EAX,ECX
+5655598b  MOVZX EAX, byte [EAX]         <span class="tok-comment"># AL = our encoded byte for position i</span>
+5655598e  CMP DL, AL                    <span class="tok-comment"># ← break here and read both bytes</span>
+56555990  JZ   LAB_5655599b             <span class="tok-comment"># equal → i++</span>
+56555992  MOV  [EBP + local_1c], 0xffffffff
+56555999  JMP  LAB_565559a7             <span class="tok-comment"># mismatch → return -1</span>
+5655599b  ADD  [EBP + i], 0x1
+5655599f  MOV  EAX,[EBP + i]
+565559a2  CMP  EAX,[EBP + encoded_flag_len]   <span class="tok-comment"># loop limit → exposes flag length</span>
+565559a5  JC   LAB_56555978</code></pre>
+<p>Note the <code>MOVZX</code> loads: at <code>5655598e</code> both the expected byte and our byte are live in <code>DL</code> and <code>AL</code>. One register read leaks the answer for the current position. The compare at <code>565559a2</code> doubles as a length oracle — breaking there shows the flag is <strong>30 bytes</strong>.</p>
+
+<h3>5 · A Side Note on the Encoding</h3>
+<p>Out of curiosity, why isn't the flag in the binary? The stored <code>g_encoded_flag</code> is the flag mutated through a byte-lane XOR with a rolling constant (starting <code>0xabcf00d</code>, striding <code>0x1fab4d</code> up to <code>0xdeadbeef</code>, each constant's four bytes xored into positions <code>i&amp;3</code>) plus an interleaving swap pass, and the whole thing is re-encoded with the same function before the compare. Inverting that transform in Python is a valid alternative solve; the challenge's namesake trick — GDB — skips it entirely.</p>
+
+<h3>6 · The GDB Script</h3>
+<p>A custom <code>gdb.Breakpoint</code> subclass with a hit counter acts as a <em>conditional breakpoint</em>: for a candidate at position <code>i</code> we want the <code>(i+1)</code>-th hit of the compare (positions <code>0..i-1</code> each produce one hit first). A second breakpoint on the <code>puts("Correct!")</code> marks full success.</p>
+<pre><code><span class="tok-keyword">import</span> gdb
+<span class="tok-keyword">import</span> string
+<span class="tok-keyword">from</span> queue <span class="tok-keyword">import</span> Queue, Empty
+
+MAX_FLAG_LEN = <span class="tok-num">0x200</span>
+
+<span class="tok-keyword">class</span> Checkpoint(gdb.Breakpoint):
+    <span class="tok-keyword">def</span> __init__(<span class="tok-keyword">self</span>, queue, target_hitcount, *args):
+        super().__init__(*args)
+        self.silent = <span class="tok-keyword">True</span>
+        self.queue = queue
+        self.target_hitcount = target_hitcount
+        self.hit = <span class="tok-num">0</span>
+
+    <span class="tok-keyword">def</span> stop(<span class="tok-keyword">self</span>):
+        self.hit += <span class="tok-num">1</span>
+        <span class="tok-keyword">if</span> self.hit == self.target_hitcount:
+            al = gdb.parse_and_eval(<span class="tok-string">"$al"</span>)
+            dl = gdb.parse_and_eval(<span class="tok-string">"$dl"</span>)
+            self.queue.put(al == dl)      <span class="tok-comment"># our byte == expected byte?</span>
+        <span class="tok-keyword">return</span> <span class="tok-keyword">False</span>                      <span class="tok-comment"># keep running, never stop interactively</span>
+
+<span class="tok-keyword">class</span> Solvepoint(gdb.Breakpoint):
+    <span class="tok-keyword">def</span> __init__(<span class="tok-keyword">self</span>, *args):
+        super().__init__(*args)
+        self.silent = <span class="tok-keyword">True</span>
+        self.hit = <span class="tok-num">0</span>
+
+    <span class="tok-keyword">def</span> stop(<span class="tok-keyword">self</span>):
+        self.hit += <span class="tok-num">1</span>
+        <span class="tok-keyword">return</span> <span class="tok-keyword">False</span>
+
+gdb.execute(<span class="tok-string">"set disable-randomization on"</span>)   <span class="tok-comment"># keep the runtime addresses stable</span>
+gdb.execute(<span class="tok-string">"delete"</span>)
+sp = Solvepoint(<span class="tok-string">"*0x56555a71"</span>)              <span class="tok-comment"># the push before puts("Correct!")</span>
+queue = Queue()
+
+flag = <span class="tok-string">""</span>
+ALPHABET = string.ascii_letters + string.digits + <span class="tok-string">"{}_"</span>
+
+<span class="tok-keyword">for</span> i <span class="tok-keyword">in</span> range(len(flag), MAX_FLAG_LEN):
+    <span class="tok-keyword">for</span> c <span class="tok-keyword">in</span> ALPHABET:
+        bp = Checkpoint(queue, len(flag) + <span class="tok-num">1</span>, <span class="tok-string">'*0x5655598e'</span>)
+        gdb.execute(<span class="tok-string">"run &lt;&lt;&lt; {}{}"</span>.format(flag, c))   <span class="tok-comment"># feed the candidate on stdin</span>
+        <span class="tok-keyword">try</span>:
+            result = queue.get(timeout=<span class="tok-num">1</span>)
+            bp.delete()
+            <span class="tok-keyword">if</span> result:
+                flag += c
+                print(<span class="tok-string">"{}\n"</span>.format(flag))     <span class="tok-comment"># growing prefix, printed live</span>
+                <span class="tok-keyword">break</span>
+        <span class="tok-keyword">except</span> Empty:
+            print(<span class="tok-string">"Error: Empty queue!"</span>)
+            gdb.execute(<span class="tok-string">"q"</span>)
+
+    <span class="tok-keyword">if</span> sp.hit &gt; <span class="tok-num">0</span>:
+        print(<span class="tok-string">"Found flag: {}"</span>.format(flag))
+        gdb.execute(<span class="tok-string">"q"</span>)</code></pre>
+
+<h3>7 · How the Mechanics Work</h3>
+<ul>
+<li><strong>Hit counting, not conditions:</strong> <code>Checkpoint</code> with <code>target_hitcount = len(flag)+1</code> ignores the compare hits for all positions before the one we're solving, then, on exactly that hit, evaluates <code>al == dl</code>. A wrong char never reaches that many hits (the loop aborted early), so it reports failure via an empty-queue timeout.</li>
+<li><strong>One process per probe:</strong> each guess is a fresh <code>run</code>, so the trace is clean and countable. The Bash here-string <code>run &lt;&lt;&lt; {flag}{c}</code> pipes the candidate into the inferior's stdin — shorter and reliable than generator tricks.</li>
+<li><strong>Silent breakpoints:</strong> <code>silent = True</code> plus <code>stop()</code> returning <code>False</code> means GDB never drops into the interactive prompt; the script stays in control.</li>
+<li><strong>Success detection:</strong> when the prefix reaches the real flag, the solver still keeps probing characters, but the program now reaches the <code>puts("Correct!")</code> breakpoint (<code>sp</code>) — one hit means done.</li>
+<li><strong>Address stability:</strong> <code>set disable-randomization on</code> pins the PIE base so the hardcoded runtime addresses (<code>0x5655598e</code>, <code>0x56555a71</code>) remain valid. These addresses are specific to the released build — re-derive them from <code>disas main</code>/an objdump if needed.</li>
+</ul>
+
+<h3>8 · Running It</h3>
+<pre><code><span class="tok-func">gdb</span> -n -q -ex <span class="tok-string">"set pagination off"</span> -ex <span class="tok-string">"source solve.py"</span> ./brute
+<span class="tok-comment"># one run per candidate; the growing prefix prints live:</span>
+<span class="tok-comment"># pico … picoC … picoCT … picoCTF{ … etc.</span>
+Breakpoint 1196 at <span class="tok-num">0x5655598e</span>
+input the flag: checking solution...
+Correct!
+
+<span class="flag">picoCTF{I_5D3_A11DA7_0db137a9}</span>
+
+Found flag: <span class="flag">picoCTF{I_5D3_A11DA7_0db137a9}</span></code></pre>
+<p>The whole 30-character flag recovers in a couple of minutes of scripted probes. Compare that with manually stepping 1196 breakpoint hits.</p>
+
+<h3>9 · The Flag</h3>
+<pre><code><span class="flag">picoCTF{I_5D3_A11DA7_&lt;HASH&gt;}</span>
+<span class="tok-comment"># prefix is constant; the trailing hex differs per instance build.</span>
+<span class="tok-comment"># public instances end e.g. _0db137a9 or _6aa8dd3b</span></code></pre>
+
+<h3>10 · Retrospective</h3>
+<p>Takeaways: (1) a one-byte-at-a-time, fail-fast compare is a side-channel not in the sense of timing but of <em>hit counting</em> — the check routine literally tells you how many leading characters are right, one run at a time; (2) GDB's Python API (<code>gdb.Breakpoint</code> subclass, <code>parse_and_eval</code>, silent breaks) turns "conditional breakpoint" into "arbitrary logic at a hit count", which is exactly the brute-force driver this challenge wants; and (3) live registers at a compare instruction leak expected bytes for free — no encoding inversion required. The name is the hint: when a check is per-character, GDB (or a script driving GDB) is the tool, not math.</p>
+
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      <a class="prev" href="/writeups/binary-instrumentation-2/"><small>← previous</small><span>Binary Instrumentation 2 — Intercepting File Writes With Frida</span></a>
+      <a class="next" href="/writeups/keygenme/"><small>next →</small><span>Keygenme — MD5 Hex Spliced Into a License Key</span></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+</body>
+</html>

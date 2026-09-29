@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>404 — segment fault · 0xmrerror</title>
+  <title>404 — segment fault · {{HANDLE}}</title>
   <meta name="description" content="That path does not exist." />
   <meta name="robots" content="noindex" />
   <meta name="theme-color" content="#080b10" />
@@ -43,11 +43,11 @@
   <div class="nf">
     <div class="nf-box">
       <p class="cmd-line">
-        <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cd /this/path</span>
+        <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cd /this/path</span>
       </p>
       <p class="nf-code">404</p>
       <div class="nf-term">
-        <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span> <span class="p-cmd">ls ./this/path</span><br />
+        <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span> <span class="p-cmd">ls ./this/path</span><br />
         <span class="faint">ls: cannot access './this/path': No such file or directory</span><br />
         <span class="faint">Segmentation fault (core dumped)</span>
       </div>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://0xmrerror.me/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://0xmrerror.me/cv.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/mr-robot/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/ww-buddy/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/broker/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/watcher/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/fortress/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/umbrella/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/super-secret-tip/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/smol/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/winantidbg0x200/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/winantidbg0x300/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/binary-instrumentation-2/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/easy-as-gdb/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/keygenme/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+</urlset>

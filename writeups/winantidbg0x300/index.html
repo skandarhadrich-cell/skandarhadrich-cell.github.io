@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop — writeup · 0xmrerror</title>
+  <meta name="description" content="UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough." />
+  <link rel="canonical" href="https://0xmrerror.me/writeups/winantidbg0x300/" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop — writeup · 0xmrerror" />
+  <meta property="og:description" content="UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough." />
+  <meta property="og:url" content="https://0xmrerror.me/writeups/winantidbg0x300/" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop — writeup · 0xmrerror" />
+  <meta name="twitter:description" content="UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "WinAntiDbg0x300 \u2014 UPX, a Watchdog, and an Infinite Loop",
+    "description": "UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough.",
+    "url": "https://0xmrerror.me/writeups/winantidbg0x300/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Reverse engineering, Medium, ctf, upx, anti-debug, gdb, child-process, windows, reveng",
+    "proficiencyLevel": "medium"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop</h1>
+      <p class="wu-summary">UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="medium">Medium</span><span class="badge-platform" data-platform="ctf">CTF</span><span class="writeup-time">Reverse engineering · 15 min read</span><a class="tag" href="/?type=re#writeups">upx</a><a class="tag" href="/?type=re#writeups">anti-debug</a><a class="tag" href="/?type=re#writeups">gdb</a><a class="tag" href="/?type=re#writeups">child-process</a><a class="tag" href="/?type=re#writeups">windows</a><a class="tag" href="/?type=re#writeups">reveng</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more reverse engineering</span><a href="/writeups/winantidbg0x200/">WinAntiDbg0x200</a><a href="/writeups/winantidbg0x300/" class="is-current">WinAntiDbg0x300</a><a href="/writeups/binary-instrumentation-2/">Binary Instrumentation 2</a><a href="/writeups/easy-as-gdb/">Easy as GDB</a><a href="/writeups/keygenme/">Keygenme</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<p>The finale of the series fights back: a UPX-packed GUI binary that spawns a child watchdog every ~5 seconds to attach to — and kill — your debugger, then hides the flag behind an infinite loop. Register patching won't cut it here. Goal: unpack, patch the loop, and let the flag fall out.</p>
+
+<h3>1 · Unpack</h3>
+<pre><code><span class="tok-func">file</span> WinAntiDbg0x300.exe
+<span class="tok-comment"># PE32 executable (GUI) Intel 80386, for MS Windows, UPX compressed</span>
+
+<span class="tok-comment"># Also included: a .pdb (debug symbols) and a config.bin</span>
+<span class="tok-func">upx</span> -d WinAntiDbg0x300.exe -o unpacked.exe</code></pre>
+
+<h3>2 · Static Analysis with the PDB</h3>
+<p>Import the unpacked binary in Ghidra and attach the supplied <code>.pdb</code> (File → Add to Program) — original symbol names come back for free. Trace the flow from <code>wWinMain</code>:</p>
+<pre><code>PrintDbgBanner → ReadConfig → ComputeHash(3)
+DetectDebuggerAtLaunch   <span class="tok-comment"># NtQueryInformationProcess(ProcessDebugFlags) + PEB.BeingDebugged</span>
+EnableDebugPrivilege
+ManageChildProcess       <span class="tok-comment"># the "fighting back" part</span>
+MyRegisterClass → CreateThread(ChallengeThreadFunction, ...)</code></pre>
+<p><code>ManageChildProcess</code> creates a child of the same binary with the parent's PID as its argument; the child calls <code>DebugActiveProcess</code> on the parent and <code>TerminateProcess</code> your debugger. That's why attaching a debugger just gets you bounced.</p>
+
+<h3>3 · The Watchdog Loop</h3>
+<p><code>ChallengeThreadFunction</code> never returns — a <code>do { CreateProcess; wait; Sleep(5000); } while(true)</code> that re-tests every ~5 seconds (child exit code <code>0xfe</code> aborts, <code>0xfd</code> shows a warning box). Just below the loop sits the flag-decrypt code — unreachable because the loop's closing <code>JMP</code> is <strong>unconditional</strong>.</p>
+<pre><code><span class="tok-comment"># documented landmarks in ChallengeThreadFunction</span>
+0x004037c0  loop head: CreateProcessA / WaitForSingleObject / Sleep(5000)
+     ...    unconditional JMP back to 0x004037c0   ← the jump to kill
+0x004038e0  flag decryption (unreachable while the JMP stays)
+0x00403929  OutputDebugStringW — "you got the flag"</code></pre>
+
+<h3>4 · Patch the JMP to NOPs</h3>
+<p>In Ghidra's Listing, right-click the unconditional <code>JMP</code> at the end of the loop → Clear Code Bytes → select the bytes → Ctrl+Shift+G → Patch Instruction, and write <strong>NOP</strong> over each byte (<code>JMP rel32</code> is 5 bytes). Execution now falls through straight into the decrypt path.</p>
+<pre><code><span class="tok-comment"># in place: Clear Code Bytes → Patch Instruction → NOP × 5</span>
+E9 9B FF FF FF   →   90 90 90 90 90    <span class="tok-comment"># JMP rel32 → five NOPs</span></code></pre>
+<p>Export the patched binary with <strong>File → Export Program → Windows PE</strong> — the 'Original File' export silently drops in-place patches.</p>
+
+<h3>5 · Run Under DebugView</h3>
+<p>The binary still kills attached debuggers, so observe passively: start <strong>DebugView</strong> (Microsoft Sysinternals, 32-bit mode) and run the patched executable <em>as administrator</em>. The <code>ComputeHash</code> rounds take about 5 seconds, then the flag appears both in a message box and in DebugView's output pane.</p>
+<pre><code><span class="tok-comment"># DebugView output (the OutputDebugString stream)</span>
+ComputeHash...
+### you got the flag
+<span class="flag">picoCTF{Wind0ws_antid3bg_0x300_&lt;HASH&gt;}</span>
+<span class="tok-comment"># the trailing hex varies per build</span></code></pre>
+
+<h3>6 · Retrospective</h3>
+<p>Attack chain: UPX unpack → PDB symbols → locate the watchdog loop → NOP the loop JMP → export the patched PE → passive capture via DebugView. Lessons: packers hide code, PDBs give symbols for free, and when a binary fights your debugger, stop attaching — patch the binary instead.</p>
+
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      <a class="prev" href="/writeups/winantidbg0x200/"><small>← previous</small><span>WinAntiDbg0x200 — Three Anti-Debug Checks</span></a>
+      <a class="next" href="/writeups/binary-instrumentation-2/"><small>next →</small><span>Binary Instrumentation 2 — Intercepting File Writes With Frida</span></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+</body>
+</html>

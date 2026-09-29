@@ -1,0 +1,121 @@
+/* ============================================================
+   0xmrerror.me — print
+   Loaded with media="print" so it costs nothing on screen.
+   Turns the dark terminal into a clean A4 document.
+   ============================================================ */
+
+@page {
+  size: A4;
+  margin: 14mm 14mm 16mm;
+}
+
+:root {
+  --bg-0: #fff;  --bg-1: #fff;  --bg-2: #fff;  --bg-3: #f4f4f5;
+  --bg-inset: #f7f7f8;
+  --scrim: #fff;
+  --line: #d4d4d8;  --line-soft: #e4e4e7;  --line-strong: #a1a1aa;
+  --text-hi: #000;  --text: #18181b;  --text-dim: #3f3f46;  --text-faint: #52525b;
+  --accent: #000;  --accent-text: #000;  --accent-2: #000;  --accent-2-text: #000;
+  --accent-soft: transparent;  --accent-2-soft: transparent;  --accent-glow: transparent;
+  --accent-line: #a1a1aa;
+  --ok: #14532d;  --warn: #713f12;  --danger: #7f1d1d;  --info: #1e3a8a;
+  --ok-soft: transparent; --warn-soft: transparent; --danger-soft: transparent; --info-soft: transparent;
+  --sh-1: none; --sh-2: none; --sh-3: none;
+}
+
+html, body {
+  background: #fff !important;
+  color: #18181b !important;
+  font-size: 10.5pt;
+  line-height: 1.45;
+}
+
+.rail, #nav, .read-progress, .palette, .toast, .skip-link,
+.writeup-filters, .filters, .wu-nav, .wu-back, .hero-cta,
+.hero::before, .site-footer, .footer-base, .card:hover,
+.code-copy, .cursor-block, .chip-available .dot {
+  display: none !important;
+}
+
+.container { max-width: none; padding-inline: 0; }
+
+.section, .wu { padding-block: 0 !important; border: 0 !important; }
+.section + .section { border-top: 1px solid var(--line) !important; margin-top: 6mm; padding-top: 4mm !important; }
+
+.js .reveal { opacity: 1 !important; transform: none !important; }
+
+h1 { font-size: 19pt; }
+h2 { font-size: 13pt; margin-top: 6mm; }
+h3 { font-size: 11pt; margin-top: 4mm; }
+h1, h2, h3, .cert-name, .project-name { color: #000 !important; }
+h3::before, .section-head h2::before { content: none !important; }
+
+a { color: #000 !important; text-decoration: none !important; }
+a[href^="http"]::after {
+  content: " (" attr(href) ")";
+  font-size: 8pt;
+  color: #52525b;
+  word-break: break-all;
+}
+a[href^="#"]::after,
+a[href^="mailto:"]::after,
+a[href^="#"]::after { content: "" !important; }
+
+p, li, dd, .cert-skills, .stage small { color: #18181b !important; font-size: 10pt; max-width: none; }
+.measure, .prose, p, .hero-lede { max-width: none !important; }
+
+/* show the target of internal-ish links only where it helps */
+.wu-nav a[href]::after, .writeup-card[href]::after,
+.project-card a::after, .footer-col a::after { content: "" !important; }
+
+.card, .term, .stat, .about-field, .edu-item, .writeup-card, .stage, .badge-diff, .badge-platform, .tag {
+  background: #fff !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: none !important;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.card { padding: 3mm !important; }
+.card:hover { transform: none !important; }
+
+.grid--2, .grid--3, .grid--skills, .grid--projects, .grid--certs,
+.about-grid, .stat-strip, .edu-list, .writeup-list, .toolbelt-row {
+  display: block !important;
+  background: none !important;
+  border: 0 !important;
+  gap: 0 !important;
+}
+.grid--projects .card, .grid--certs .card, .grid--skills .card { margin-bottom: 3mm; }
+.about-field, .stat { border: 0 !important; border-bottom: 1px solid var(--line-soft) !important; }
+.pipeline { display: block !important; }
+.stage { margin-bottom: 2mm; }
+
+.timeline { gap: 4mm !important; }
+.timeline::before { display: none; }
+.tl-item { padding-left: 0 !important; }
+.tl-item::before { display: none; }
+
+.prose pre {
+  background: #f7f7f8 !important;
+  border: 1px solid var(--line) !important;
+  font-size: 8.6pt;
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.prose :not(pre) > code { background: #f2f2f3 !important; border: 1px solid var(--line) !important; }
+.tok-comment { color: #3f6212 !important; }
+.tok-keyword { color: #1e40af !important; }
+.tok-string  { color: #713f12 !important; }
+.tok-num     { color: #9a3412 !important; }
+.tok-func    { color: #065f46 !important; }
+
+.toc { display: none !important; }
+.cmd-line { display: none !important; }
+.section-head p { color: #3f3f46 !important; }
+
+.hero { padding-block: 0 !important; }
+.hero-meta { border-top: 1px solid var(--line) !important; }
+
+.print-only { display: block !important; }

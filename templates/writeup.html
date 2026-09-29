@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="{{SITE_LANG}}">
+<head>
+{{HEAD}}
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+{{RAIL}}
+{{NAVBAR}}
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="{{BACK_URL}}"><span aria-hidden="true">←</span> {{HANDLE}}@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>{{WU_TITLE}}</h1>
+      <p class="wu-summary">{{WU_SUMMARY}}</p>
+      <div class="wu-meta">
+        {{WU_META}}
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      {{WU_SERIES}}
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+{{WU_BODY}}
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      {{WU_PREV}}
+      {{WU_NEXT}}
+    </nav>
+  </div>
+</main>
+
+{{FOOTER}}
+{{PALETTE}}
+{{SCRIPTS}}
+</body>
+</html>

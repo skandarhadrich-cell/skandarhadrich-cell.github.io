@@ -1,0 +1,287 @@
+/* ============================================================
+   0xmrerror.me — writeup pages
+   Also styles the raw writeup bodies: the .tok-* classes are
+   produced by tools/add-writeup.py and must keep working.
+   ============================================================ */
+
+/* ══ article shell ═══════════════════════════════════════ */
+.wu {
+  padding-block: calc(var(--nav-h) + var(--sp-10)) var(--section-y);
+}
+.wu-back {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  font-family: var(--font-mono); font-size: var(--fs-2xs);
+  color: var(--text-dim); margin-bottom: var(--sp-6);
+}
+.wu-back:hover { color: var(--accent-text); text-decoration: none; }
+
+.wu-head { margin-bottom: var(--sp-8); }
+.wu-head h1 { font-size: var(--fs-4xl); max-width: 22ch; }
+.wu-summary {
+  margin-top: var(--sp-4);
+  font-size: var(--fs-lg);
+  color: var(--text-dim);
+  max-width: 62ch;
+}
+.wu-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line);
+}
+
+.wu-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: var(--sp-12);
+  align-items: start;
+}
+@media (max-width: 1080px) {
+  .wu-layout { grid-template-columns: minmax(0, 1fr); gap: var(--sp-8); }
+  .toc { display: none; }
+}
+
+/* ══ table of contents ═══════════════════════════════════ */
+.toc {
+  position: sticky;
+  top: calc(var(--nav-h) + var(--sp-6));
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  max-height: calc(100vh - var(--nav-h) - var(--sp-12));
+  overflow-y: auto;
+}
+.toc h2 {
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-faint);
+  font-weight: 500;
+  margin-bottom: var(--sp-3);
+}
+.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+.toc li { margin: 0; }
+.toc a {
+  display: block;
+  padding: 5px var(--sp-3);
+  color: var(--text-dim);
+  border-left: 2px solid var(--line);
+  line-height: 1.5;
+}
+.toc a:hover { color: var(--text-hi); text-decoration: none; border-left-color: var(--line-strong); }
+.toc a.is-active { color: var(--accent-text); border-left-color: var(--accent); background: var(--accent-soft); }
+
+/* ══ reading progress ════════════════════════════════════ */
+.read-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: calc(var(--z-nav) + 1);
+  background: transparent;
+}
+/* scaleX rather than width: the bar is 100vw wide from the start, so it does
+   not relayout on every scroll frame, and the transform composites on the GPU */
+.read-progress i {
+  display: block; height: 100%; width: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+@media (max-width: 1179px) { .read-progress { left: 0; } }
+
+/* ══ prose ═══════════════════════════════════════════════ */
+.prose { max-width: 72ch; }
+.prose > * + * { margin-top: var(--sp-4); }
+.prose h2 {
+  font-size: var(--fs-2xl);
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-2);
+  scroll-margin-top: calc(var(--nav-h) + var(--sp-6));
+}
+.prose h2 + p { margin-top: var(--sp-3); }
+.prose h3 {
+  font-size: var(--fs-lg);
+  color: var(--accent-text);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-top: var(--sp-10);
+  scroll-margin-top: calc(var(--nav-h) + var(--sp-6));
+}
+.prose h3::before { content: '# '; color: var(--text-faint); }
+.prose h4 { font-size: var(--fs-md); margin-top: var(--sp-8); color: var(--text-hi); }
+.prose p { color: var(--text); font-size: var(--fs-lg); }
+.prose strong { color: var(--text-hi); }
+.prose em { color: var(--text-hi); font-style: italic; }
+.prose ul, .prose ol { padding-left: 1.4em; }
+.prose li { color: var(--text-dim); }
+.prose li::marker { color: var(--accent); }
+.prose a { border-bottom: 1px solid var(--accent-line); }
+.prose a:hover { border-bottom-color: var(--accent-text); text-decoration: none; }
+.prose img { border: 1px solid var(--line); border-radius: var(--r); margin-block: var(--sp-6); }
+.prose figure { margin-block: var(--sp-8); }
+.prose figcaption { font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--text-faint); margin-top: var(--sp-2); }
+.prose blockquote {
+  border-left: 2px solid var(--accent-line);
+  background: var(--accent-soft);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: 0 var(--r) var(--r) 0;
+  color: var(--text-dim);
+  font-style: italic;
+}
+.prose table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.prose th, .prose td { border: 1px solid var(--line); padding: var(--sp-3); text-align: left; }
+.prose th { background: var(--bg-2); color: var(--text-hi); font-weight: 600; }
+.prose hr { margin-block: var(--sp-10); }
+
+.prose :not(pre) > code {
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 1px 5px;
+  color: var(--accent-2-text);
+  font-size: .82em;
+  white-space: nowrap;
+}
+
+/* ══ code blocks ═════════════════════════════════════════ */
+.prose pre {
+  position: relative;
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: var(--sp-5);
+  overflow-x: auto;
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  tab-size: 2;
+}
+.prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--text);
+  font-size: inherit;
+  white-space: pre;
+}
+.code-copy {
+  position: absolute;
+  top: var(--sp-2); right: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  color: var(--text-faint);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 3px 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--t) var(--ease), color var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+.prose pre:hover .code-copy,
+.code-copy:focus-visible { opacity: 1; }
+.code-copy:hover { color: var(--accent-text); border-color: var(--accent-line); }
+.code-copy.is-done { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); opacity: 1; }
+
+/* ══ syntax tokens (produced by tools/add-writeup.py) ════
+   Every colour here is a token with a solved per-theme value.
+   These were literals with three hand-written light-theme patches
+   bolted on — and .tok-num was missed entirely, leaving numbers at
+   2.43:1 on a white code block.                             */
+.tok-comment { color: var(--syn-comment); font-style: italic; }
+.tok-keyword { color: var(--accent-2-text); }
+.tok-string  { color: var(--syn-string); }
+.tok-num     { color: var(--syn-num); }
+.tok-func    { color: var(--accent-text); }
+.tok-flag    { color: var(--ok); font-weight: 600; }
+.tok-path    { color: var(--accent-2-text); }
+.tok-symbol  { color: var(--syn-symbol); }
+.tok-op      { color: var(--text-faint); }
+:root[data-theme="light"] .tok-num { color: #b8451f; }
+
+/* ══ flags ═══════════════════════════════════════════════
+   A flag is wrapped in a span at build time, whether it sits in
+   prose or inside a <pre> output block.  In prose it gets a chip;
+   inside a pre it stays a plain tinted run of text so the
+   monospace alignment of the terminal output survives.        */
+.flag {
+  font-family: var(--font-mono);
+  color: var(--ok);
+  background: var(--ok-soft);
+  border-radius: var(--r-sm);
+  padding: 0 3px;
+}
+.prose .flag {
+  border: 1px dashed color-mix(in srgb, var(--ok) 45%, transparent);
+  padding: 2px 6px;
+  cursor: pointer;
+}
+.prose .flag::before { content: '⚑ '; font-size: .85em; opacity: .8; }
+
+/* per-flag reveal, used when the page is in hide mode */
+[data-hide-flags] .flag { filter: blur(5px); transition: filter var(--t) var(--ease); }
+[data-hide-flags] .flag[data-revealed] { filter: none; }
+
+/* page-level control, rendered by the write-up template */
+.flag-toggle {
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 3px var(--sp-3);
+  cursor: pointer;
+}
+.flag-toggle:hover { color: var(--text-hi); border-color: var(--line-strong); }
+.flag-toggle[aria-pressed="true"] {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 45%, transparent);
+  background: var(--ok-soft);
+}
+:root[data-theme="light"] .flag { color: var(--ok); }
+
+/* ══ prev / next ═════════════════════════════════════════ */
+.wu-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-16);
+  padding-top: var(--sp-8);
+  border-top: 1px solid var(--line);
+}
+.wu-nav a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg-2);
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.wu-nav a:hover { border-color: var(--accent-line); background: var(--bg-3); text-decoration: none; }
+.wu-nav a small { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); text-transform: uppercase; letter-spacing: .08em; }
+.wu-nav a span { font-size: var(--fs-sm); color: var(--text-hi); font-weight: 500; }
+.wu-nav .next { text-align: right; }
+
+/* ══ series strip ════════════════════════════════════════ */
+.series {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-6);
+  align-items: center;
+}
+.series > span { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); text-transform: uppercase; letter-spacing: .08em; }
+.series a {
+  font-family: var(--font-mono); font-size: var(--fs-2xs);
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 3px var(--sp-3);
+}
+.series a:hover { color: var(--accent-text); border-color: var(--accent-line); text-decoration: none; }
+.series a.is-current { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }

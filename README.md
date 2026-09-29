@@ -1,208 +1,206 @@
-# 0xmrerror.me — Cybersecurity Portfolio
+# 0xmrerror.me
 
-Personal cybersecurity portfolio and CTF writeups site for **Skandar Hadrich** (`0xmrerror`).
+Source for [0xmrerror.me](https://0xmrerror.me) — Skandar Hadrich's portfolio
+and CTF write-up archive.
 
-Live at: [https://0xmrerror.me](https://0xmrerror.me)
-
----
-
-## Stack
-
-Pure static HTML + CSS + vanilla JS. No build step, no dependencies, no backend.
-Fonts loaded from Google Fonts (Fira Code). Everything else is self-contained.
-
-```
-0xmrerror/
-├── index.html          # Main portfolio page
-├── 404.html            # Custom 404 page
-├── CNAME               # GitHub Pages custom domain record
-├── css/
-│   └── style.css       # Full design system + responsive styles
-├── js/
-│   └── main.js         # Nav, scroll reveal, filter, modal, uptime
-├── writeups/
-│   ├── template.html   # Copy this to add a new writeup
-│   ├── images/         # Screenshots copied here by the script
-│   └── *.html          # One content fragment per writeup
-├── tools/
-│   └── add-writeup.py  # Markdown → fragment + card + push
-├── .github/
-│   └── workflows/
-│       └── deploy.yml  # Auto-deploy to GitHub Pages on push to main
-└── README.md
-```
+**The published site is the generated HTML in this repository.** There is no
+build server, no framework, no bundler, and no client-side rendering step. What
+you see on the live domain is the output of `tools/build.py`, committed to
+`main` and served by GitHub Pages.
 
 ---
 
-## DNS Configuration
+## Editing content
 
-Point your domain registrar to GitHub Pages using the following records:
+Two files hold everything. You should never need to edit a generated `.html`
+file — if you find yourself doing that, the content belongs in the data files.
 
-### A Records (apex domain)
-| Type | Host | Value            |
-|------|------|-----------------|
-| A    | @    | 185.199.108.153 |
-| A    | @    | 185.199.109.153 |
-| A    | @    | 185.199.110.153 |
-| A    | @    | 185.199.111.153 |
+| File | What lives there |
+| --- | --- |
+| `data/site.json` | Identity, bio, skills, toolbelt, experience, education, projects, certifications, contact details |
+| `data/writeups/NN-slug.md` | One write-up: front matter + body |
+| `templates/*.html` | Page shells — the HTML structure, not the content |
+| `data/site.json` → `nav` | Top navigation and left-rail items |
+| `data/site.json` → `pipeline` | The 8 stages of the flagship project |
 
-### CNAME Record (www subdomain)
-| Type  | Host | Value                        |
-|-------|------|------------------------------|
-| CNAME | www  | skandarhadrich-cell.github.io |
+After editing either data file:
 
-Allow 5–10 minutes for DNS propagation (up to 48h for full global propagation).
-
----
-
-## GitHub Pages Setup
-
-1. Push this repo to `skandarhadrich-cell/skandarhadrich-cell.github.io`  
-   **or** any repo — then set the Pages source to the `main` branch root.
-
-2. In the repo **Settings → Pages**:
-   - Source: `Deploy from a branch` → `main` → `/ (root)`
-   - Custom domain: `0xmrerror.me`
-   - ✅ Enforce HTTPS (enable after DNS propagates)
-
-3. The `CNAME` file in the repo root handles the custom domain automatically.
-
-4. Optionally use the included GitHub Actions workflow (`.github/workflows/deploy.yml`)
-   for automatic redeploy on every push.
-
----
-
-## Adding Writeups
-
-Each writeup is its own content fragment in the `writeups/` folder
-(e.g. `writeups/smol.html`). The modal on `index.html` fetches the file
-when you click a card — no JS data object to touch.
-
-### Fast path — the script
-
-`tools/add-writeup.py` does the whole flow from your CTF writeup folder:
-
-```sh
-python3 tools/add-writeup.py Brute
+```bash
+python3 tools/build.py
 ```
 
-Give it the CTF's folder name and it:
+That regenerates `index.html`, `cv.html`, `writeups/*/index.html`,
+`sitemap.xml`, `feed.xml` and `search-index.json`. **Commit the regenerated
+HTML along with your data change** — CI fails the deploy if you forget, which
+is the point of `build.py --check`.
 
-1. **Finds your writeup** inside that folder — it looks in `~/Desktop/ctf-writeups`
-   (override with `--base <dir>` or the `CTF_WRITEUPS_DIR` env var), matching the
-   folder name (case-insensitive). Asset/screenshot folders are skipped:
+### Writing a write-up
 
-   ```
-   ~/Desktop/ctf-writeups/
-   └── Brute/
-       ├── Brute.md              # picked up automatically
-       └── assets/               # screenshots — ignored for discovery
-   ```
-
-   A direct path to the folder (or to a `.md` file) also works:
-   `python3 tools/add-writeup.py ~/Desktop/ctf-writeups/Reverse-challenge/Brute`
-
-2. Converts the Markdown into `writeups/<slug>.html` —
-   `#`→`<h2>`, `##`→`<h3>` phases, paragraphs, code blocks, lists,
-   blockquotes, links, inline code, `THM{...}`/`HTB{...}` flags, and
-   best-effort bash highlighting (comments + known commands + `$` prompts).
-3. Copies any **screenshots** referenced in the Markdown
-   (`![alt](shot.png)`) into `writeups/images/<slug>/` and fixes the paths.
-4. Adds the matching **card** in `index.html` with the next index number,
-   difficulty/platform badges, and an auto-estimated read time.
-5. **Commits and pushes** to main — GitHub Actions redeploys.
-
-Markdown conventions:
-
-```md
-# Title                    →  <h2>  (the modal heading)
-## 1 · Reconnaissance      →  <h3>  (numbered phase)
-```sh
-nmap -sC -sV host
-# a comment gets styled
-$ whoami
-```
-![TLS scan](shot.png)     →  local image copied + re-homed
-The flag was THM{...}     →  styled flag span
+```bash
+python3 tools/add-writeup.py            # interactive
+python3 tools/add-writeup.py --list     # what exists, and the next free order
 ```
 
-Optional front matter at the top is also honored:
+Or scaffold one directly:
 
-```md
+```bash
+python3 tools/add-writeup.py \
+  --title "Watcher — LFI to Root in 7 Flags" \
+  --type web --diff hard --platform thm \
+  --summary "A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root."
+```
+
+The file name prefix (`10-`, `20-`, …) controls the order on the index page.
+Leave gaps so you can slot a new write-up into the right place later.
+
+`add-writeup.py` writes one file and runs the build. It does not commit, does
+not push, and never touches the network.
+
+### Body format
+
+The body is **Markdown**, and raw HTML blocks pass straight through. If a body
+contains an `<h2>`, `<pre>` or `<div>`, the Markdown converter is skipped
+entirely — which is how the existing write-ups keep their hand-applied
+syntax highlighting.
+
+Supported: `#`–`####` headings, `-`/`*` and `1.` lists, `>` blockquotes,
+fenced code blocks with a language tag, `**bold**`, `` `inline code` ``,
+`[links](url)`, `![images](src)`, and `$ ` / `# ` prompt lines in shell
+fences, which get highlighted and coloured like a real terminal.
+
+Any `THM{…}`, `HTB{…}`, `picoCTF{…}` or `CTF{…}` in the text is turned into a
+click-to-reveal spoiler automatically, so flags do not spoil the page for
+someone skimming.
+
+### Front matter
+
+```yaml
 ---
-slug: my-ctf
-title: My CTF — Technique to Root
-diff: medium
-platform: thm
+title: "Keygenme — MD5 Hex Spliced Into a License Key"
+slug: keygenme              # optional; defaults to the filename
+type: re                    # web | re | pwn | forensics | crypto | osint
+diff: hard                  # easy | medium | hard
+platform: ctf               # thm | htb | ctf
+read_time: 18               # optional; estimated from word count if omitted
+summary: "One sentence, under 180 characters — this becomes the meta description."
+date: 2022-01-01            # optional, YYYY-MM-DD
+tags: md5, keygen, gdb      # optional, powers search and the tag chips
 ---
 ```
 
-Options: `--base`, `--markdown`, `--slug`, `--title`, `--diff easy|medium|hard`,
-`--platform thm|htb|ctf`, `--time <min>`, `--no-highlight`, `--no-commit`
-(write files only), `--no-push` (commit, don't push).
-
-> Skip the commit/push and preview locally:
-> `python3 tools/add-writeup.py Brute --no-commit`
-> then serve with `python3 -m http.server` and click the new card.
-
-### Manual path
-
-1. **Create the file** — copy the template and fill it in:
-
-   ```sh
-   cp writeups/template.html writeups/my-ctf.html
-   ```
-
-   The template contains full instructions in its header comment
-   (phase structure, syntax tokens, flag format). A fragment is plain HTML —
-   no `<html>`, `<head>`, or `<link>`, only the body content, because it is
-   rendered inside the terminal modal.
-
-2. **Add a matching card** in `index.html` inside the `#writeups` section:
-
-   ```html
-   <div class="writeup-card" data-writeup="my-ctf"
-        data-src="writeups/my-ctf.html"
-        data-diff="medium" data-platform="thm" role="button" tabindex="0">
-     <span class="writeup-idx">09.</span>
-     <div class="writeup-info">
-       <div class="writeup-title">My CTF — Technique to Root</div>
-       <div class="writeup-meta">
-         <span class="diff-badge diff-medium">Medium</span>
-         <span class="platform-tag thm">TryHackMe</span>
-         <span class="read-time">⏱ 15 min read</span>
-       </div>
-     </div>
-     <span class="writeup-arrow">→</span>
-   </div>
-   ```
-
-   - `data-writeup` && `data-src` must line up (`writeups/<slug>.html`)
-   - `writeup-idx` numbers the cards in order (01., 02., …)
-   - `data-diff`: `easy` | `medium` | `hard` ↦ badge `diff-easy|medium|hard`
-   - `data-platform`: `thm` | `htb` | `ctf` ↦ tag `platform-tag thm|htb|ctf`
-
-3. **Push to main** — GitHub Actions redeploys the site (takes a minute).
-
-> Note: fragments are loaded via `fetch()`, so preview the site locally with
-> `python3 -m http.server` (opening `index.html` straight from disk won't work).
+`summary` is what appears on the index card, in search results, in the RSS
+feed, and in the `<meta name="description">`. It is the highest-leverage line
+in the file.
 
 ---
 
-## Design System
+## Running it locally
 
-| Token           | Value                     |
-|-----------------|---------------------------|
-| Background      | `#0d1117`                 |
-| Panel           | `#111820`                 |
-| Card            | `#0f1923`                 |
-| Accent (green)  | `#00ff66`                 |
-| Accent (cyan)   | `#00d4ff`                 |
-| Text            | `#c9d1d9`                 |
-| Text dim        | `#6e7a8a`                 |
-| Font            | Fira Code, monospace      |
-| Border radius   | 4px                       |
+The generated site uses root-absolute URLs, so it must be served over HTTP.
+Opening `index.html` with `file://` will show unstyled HTML — that is expected.
+
+```bash
+python3 tools/serve.py             # http://localhost:8000
+python3 tools/serve.py --watch     # rebuild when data/ or templates/ change
+```
+
+Nothing needs installing. `build.py`, `serve.py` and `add-writeup.py` use only
+the Python standard library. The one optional dependency is Pillow, used by
+`tools/gen-assets.py` to draw the social card and app icons:
+
+```bash
+python3 -m pip install Pillow
+python3 tools/gen-assets.py
+```
 
 ---
 
-© 2026 Skandar Hadrich · MIT License
+## Repository layout
+
+```
+data/site.json            everything about the person
+data/writeups/*.md        one file per write-up
+templates/                page shells consumed by build.py
+tools/build.py            the generator  (stdlib only)
+tools/add-writeup.py      write-up scaffolder  (stdlib only)
+tools/serve.py            local preview server  (stdlib only)
+tools/stage.py            copies the deployable tree into _site/  (stdlib only)
+tools/gen-assets.py       icons + OG card  (needs Pillow)
+
+css/                      tokens → base → layout → components → writeups → print
+fonts/                    self-hosted Inter + Fira Code (latin subset)
+js/main.js                theme, nav, rail, filters, command palette
+js/writeups.js            TOC, code copy, flag spoilers, reading progress
+assets/                   CV, generated icons, cert marks, write-up screenshots
+
+index.html                ← generated
+cv.html                   ← generated
+404.html                  ← generated
+writeups/<slug>/index.html ← generated
+sitemap.xml, feed.xml, search-index.json  ← generated
+```
+
+Anything listed as generated is overwritten by `tools/build.py`. Edit
+`data/` or `templates/` instead.
+
+---
+
+## Design notes
+
+- **Two fonts, two jobs.** Inter for body and UI; Fira Code for code, prompts,
+  labels and badges. The previous site rendered everything in a monospace
+  face, which is the single biggest reason body copy was hard to read.
+- **The accent is a hue, not a colour.** `css/tokens.css` derives every accent
+  from `--hue`, so the phosphor / nord / crimson variants and both light and
+  dark themes are one-line changes rather than a second palette to maintain.
+- **Semantic colours are never used for branding.** Difficulty badges
+  (easy/medium/hard) use the green/amber/red semantic ramp; the brand green is
+  reserved for the site itself. Conflating the two makes "hard" read as
+  "success".
+- **No self-assigned percentages.** The old site had 24 skill bars rated
+  out of 100. The six skill groups here are evidence-backed: every item maps to
+  a project, a certification, or a write-up on this site.
+- **Accessibility.** Body text is at or above 4.8:1 against its background in
+  both themes; `validate.yml` recomputes those ratios so a palette change
+  cannot silently regress them. Focus is always visible, `prefers-reduced-motion`
+  is honoured, and the print stylesheet turns the site into a clean A4 CV.
+- **No third-party requests.** Fonts are self-hosted, there is no analytics,
+  no CDN, and no cookie banner because there are no cookies.
+
+---
+
+## Deployment
+
+`.github/workflows/deploy.yml` runs on every push to `main`:
+
+1. `build.py --check` — refuse to deploy if the committed HTML does not match
+   what `build.py` produces from `data/`. This is what stops the data and the
+   HTML from drifting apart.
+2. Rebuild from `data/`, then `tools/stage.py` copies an explicit allow-list of
+   files into `_site/`, and that directory alone is uploaded and deployed.
+
+Step 2 is deliberately not `upload-pages-artifact` pointed at the repository
+root. The root also holds `data/`, `templates/`, `tools/` and `.git`; publishing
+it wholesale would make the full git history readable at `/.git/config`. The
+allow-list lives in `tools/stage.py`, so "what gets deployed" is one readable
+list rather than whatever happens to be in the working tree. `_site/` is
+gitignored and regenerated on every deploy.
+
+`.github/workflows/validate.yml` runs alongside it and checks the build is
+reproducible, no template tokens survived, no `meta description` overflows the
+snippet budget, the HTML validates, every internal link resolves, every theme ×
+accent × page combination meets WCAG AA, nothing overflows horizontally at any
+viewport, and the palette tokens still clear AA — bare *and* composited on their
+own `-soft` tint, which is the surface a badge is actually painted on.
+
+Custom domain is set through `CNAME`; pages settings must have
+**Enforce HTTPS** on and the apex domain pointed at GitHub Pages.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+Certification issuer marks in `assets/certs/` are typographic stand-ins
+generated by `tools/gen-assets.py`, not the vendors' official logos.

@@ -1,0 +1,464 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build is reproducible
+        run: python3 tools/build.py --check
+
+      - name: No unfilled template tokens
+        run: |
+          if grep -rnE '\{\{[A-Z_]+\}\}' index.html cv.html 404.html writeups/ ; then
+            echo "::error::unfilled template token found in generated HTML"
+            exit 1
+          fi
+          echo "ok"
+
+      - name: Meta descriptions fit the snippet budget
+        run: |
+          # search results truncate around 155-160 characters, so anything
+          # past that is copy nobody ever reads. This one had drifted to
+          # 225 without any check noticing.
+          python3 - <<'PY'
+          import re, sys, glob
+          LIMIT = 160
+          bad = []
+          for p in ['index.html', 'cv.html', '404.html'] + sorted(glob.glob('writeups/*/index.html')):
+              html = open(p, encoding='utf-8').read()
+              for m in re.findall(r'<meta name="description" content="([^"]*)"', html):
+                  n = len(m)
+                  mark = 'ok ' if n <= LIMIT else 'XX '
+                  print(f"  {mark} {p:<40} {n:>4} chars")
+                  if n > LIMIT:
+                      bad.append(f"{p}: {n} chars (limit {LIMIT})")
+          if bad:
+              print("::error::meta description too long:")
+              for b in bad:
+                  print("  " + b)
+              sys.exit(1)
+          PY
+
+      - name: HTML is well formed
+        run: |
+          npx --yes html-validate@8 "index.html" "cv.html" "404.html" "writeups/*/index.html"
+
+      - name: Internal links resolve
+        run: |
+          npx --yes linkinator@6 . --recurse --silent \
+            --skip "^(https?:|mailto:)" --skip "CNAME" --skip "assets/CV_Eng.pdf" \
+            --allow "127.0.0.1"
+
+      - name: No dead internal references
+        run: |
+          # every /path a page points at must exist in the repo
+          python3 - <<'PY'
+          import os, re, sys
+          root = os.getcwd()
+          bad = []
+          for dirpath, _, files in os.walk(root):
+              if '/.git' in dirpath or '/node_modules' in dirpath:
+                  continue
+              for fn in files:
+                  if not fn.endswith('.html'):
+                      continue
+                  p = os.path.join(dirpath, fn)
+                  for attr in ('href', 'src'):
+                      for ref in re.findall(rf'{attr}="(/[^"#?]*)"', open(p, encoding='utf-8').read()):
+                          target = os.path.join(root, ref.lstrip('/'))
+                          ok = os.path.exists(target) or os.path.exists(target + 'index.html') \
+                               or os.path.exists(target.rstrip('/') + '.html')
+                          if not ok:
+                              bad.append(f"{os.path.relpath(p, root)} -> {ref}")
+          if bad:
+              print("::error::broken internal references:")
+              print("\n".join("  " + b for b in bad))
+              sys.exit(1)
+          print("ok")
+          PY
+
+      - name: Start a preview server for the browser checks
+        # nohup so the server outlives this step; the browser checks below
+        # hit it over HTTP, because the site uses root-absolute URLs and
+        # cannot be audited from file://
+        run: |
+          nohup python3 tools/serve.py --port 8000 --no-build > /tmp/serve.log 2>&1 &
+          echo $! > /tmp/serve.pid
+
+      - name: Wait for the preview server
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://127.0.0.1:8000/ && exit 0
+            sleep 0.5
+          done
+          echo "::error::preview server never came up"; exit 1
+
+      - name: Every theme and accent combination meets WCAG AA
+        run: |
+          # Checks the *rendered* result, not the token file: for each of the
+          # 4 accents x 2 themes, mount the page, then measure the computed
+          # colour of every real text node against its own background. This
+          # is the check that catches an accent fill painted with --bg-0 ink
+          # in a light theme, which no amount of reading tokens.css would.
+          npx --yes --package puppeteer@23 node - <<'JS'
+          const puppeteer = require('puppeteer');
+
+          const SELECTORS = [
+            'h1','h2','h3','h4','p','small','li','a','.faint','.dim','.mono','.hi',
+            '.card p','.card h3','.badge','.tag','.tag--accent','.tag--2',
+            '.tl-title','.tl-meta','.tl-company','.tl-period',
+            '.stat-num','.stat-lbl','.filter-btn','.nav-link','.brand',
+            '.rail-link','.code-copy','.toc a','.toc-title','.wu-meta span',
+            '.flag','.prose li','.prose code','.prose strong','.prose blockquote',
+            '.project-name','.project-desc','.cert-name','.cert-issuer',
+            '.skill-name','.skill-cat','.skill-items li','.stage-name',
+            '.stage-tool','.label','.k','.term-title','.cmd-line','.p-user',
+            '.p-host','.p-cmd','.about-bio','.about-grid dt','.about-grid dd',
+            '.read-time','.diff-badge','.platform-tag','.contact-label',
+            '.contact-value','.code-copy','.series a','.toast','.btn',
+            // structural, not styled text: the audit walks up for the real
+            // background, so plain <li>/<a>/<small> inside a panel have to be
+            // measured too or a genuinely unreadable list slips through
+            'li','a','small','dt','dd','td','th','figcaption','summary',
+          ];
+
+          // Chromium hands back whatever colour space it likes: rgb() for most
+          // rules, but oklab()/color() for anything built with color-mix().
+          // Feeding those numbers to a sRGB luminance function produced 1.67:1
+          // on perfectly readable text, so every colour is normalised by
+          // letting the browser paint it and reading the pixel back.
+          const probe = document.createElement('canvas').getContext('2d');
+          const toRGB = (css) => {
+            probe.clearRect(0, 0, 1, 1);
+            probe.fillStyle = '#000';
+            probe.fillStyle = css;
+            probe.fillRect(0, 0, 1, 1);
+            const [r, g, b, a] = probe.getImageData(0, 0, 1, 1).data;
+            return [r, g, b, a / 255];
+          };
+
+          const lum = (rgb) => {
+            const c = rgb.map(v => { v /= 255;
+              return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+            return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+          };
+          const ratio = (a, b) => {
+            const l1 = lum(a), l2 = lum(b);
+            return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+          };
+
+          // Walk up compositing every translucent layer, because that is what
+          // the reader actually sees: a nav's 82%-opaque scrim over a dark page
+          // is not the same colour as either one alone.
+          const bgOf = (el) => {
+            const stack = [];
+            let n = el;
+            while (n && n !== document.documentElement) {
+              const c = toRGB(getComputedStyle(n).backgroundColor);
+              if (c[3] > 0) stack.push(c);
+              if (c[3] >= 0.999) break;
+              n = n.parentElement;
+            }
+            stack.push(toRGB(getComputedStyle(document.body).backgroundColor));
+            // composite bottom-up
+            let [r, g, b] = stack[stack.length - 1].slice(0, 3);
+            for (let i = stack.length - 2; i >= 0; i--) {
+              const [sr, sg, sb, a] = stack[i];
+              r = sr * a + r * (1 - a);
+              g = sg * a + g * (1 - a);
+              b = sb * a + b * (1 - a);
+            }
+            return [r, g, b];
+          };
+
+          const audit = () => {
+            const out = [];
+            for (const sel of SELECTORS) {
+              for (const el of [...document.querySelectorAll(sel)].slice(0, 4)) {
+                if (!el.textContent.trim()) continue;
+                const cs = getComputedStyle(el);
+                if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+                if (!el.offsetParent && cs.position !== 'fixed') continue;
+                const fg = toRGB(cs.color).slice(0, 3);
+                const r = ratio(fg, bgOf(el));
+                const px = parseFloat(cs.fontSize);
+                const large = px >= 24 || (+cs.fontWeight >= 700 && px >= 18.66);
+                const need = large ? 3 : 4.5;
+                if (r < need) {
+                  out.push({ sel, ratio: +r.toFixed(2), px, need,
+                             text: el.textContent.trim().replace(/\s+/g, ' ').slice(0, 30) });
+                }
+              }
+            }
+            return out;
+          };
+
+          (async () => {
+            const browser = await puppeteer.launch({
+              args: ['--no-sandbox', '--disable-dev-shm-usage'],
+            });
+            const page = await browser.newPage();
+            const pages = ['/', '/cv.html', '/writeups/keygenme/'];
+            const accents = [null, 'phosphor', 'nord', 'crimson'];
+            const themes = ['dark', 'light'];
+            let failures = 0, checked = 0;
+
+            for (const p of pages) {
+              await page.goto('http://127.0.0.1:8000' + p, { waitUntil: 'networkidle0' });
+              for (const theme of themes) {
+                for (const accent of accents) {
+                  await page.evaluate((t, a) => {
+                    const h = document.documentElement;
+                    if (t) h.dataset.theme = t; else delete h.dataset.theme;
+                    if (a) h.dataset.accent = a; else delete h.dataset.accent;
+                  }, theme, accent);
+                  // Wait for the transition to finish before measuring. #nav
+                  // cross-fades its background, so getComputedStyle right
+                  // after a theme switch returns the *interpolated* value:
+                  // auditing mid-fade reported the light theme's nav links as
+                  // 1.67:1 because it was still painted with the dark scrim.
+                  // The blinking cursor is `infinite`, so its `finished`
+                  // promise never settles — only finite animations are
+                  // waited on, and the whole wait is bounded regardless.
+                  await page.evaluate(() => Promise.race([
+                    Promise.all([...document.getAnimations()]
+                      .filter((a) => a.playState === 'running'
+                                 && a.effect?.getComputedTiming().iterations !== Infinity)
+                      .map((a) => a.finished.catch(() => {}))),
+                    new Promise((r) => setTimeout(r, 1500)),
+                  ]));
+                  const label = `${p} ${theme}/${accent || 'green'}`;
+                  const bad = await page.evaluate(audit);
+                  checked += 1;
+                  if (bad.length) {
+                    failures += bad.length;
+                    console.log(`  XX ${label}`);
+                    for (const b of bad.slice(0, 4)) {
+                      console.log(`       ${b.sel} ${b.ratio}:1 (needs ${b.need}) "${b.text}"`);
+                    }
+                  } else {
+                    console.log(`  ok ${label}`);
+                  }
+                }
+              }
+            }
+            await browser.close();
+            if (failures) {
+              console.log(`::error::${failures} contrast failures across ${checked} combinations`);
+              process.exit(1);
+            }
+            console.log(`all ${checked} theme x accent x page combinations pass WCAG AA`);
+          })();
+          JS
+
+      - name: No horizontal overflow at any viewport
+        run: |
+          # A 37px overflow from one nowrap tag is invisible in a desktop
+          # screenshot and ruins a phone. Swept at four widths, and an
+          # element only counts as a failure if nothing can scroll it.
+          npx --yes --package puppeteer@23 node - <<'JS'
+          const puppeteer = require('puppeteer');
+
+          const audit = () => {
+            const de = document.documentElement;
+            const vw = de.clientWidth;
+            const bad = [];
+            for (const el of document.querySelectorAll('body *')) {
+              const cs = getComputedStyle(el);
+              if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+              if (cs.position === 'fixed') continue;
+              const r = el.getBoundingClientRect();
+              if (r.width === 0) continue;
+              if (r.right <= vw + 1 && r.left >= -1) continue;
+              let n = el, scrollable = false;
+              while (n && n !== document.body) {
+                if (['auto', 'scroll', 'hidden'].includes(getComputedStyle(n).overflowX)) {
+                  scrollable = true; break;
+                }
+                n = n.parentElement;
+              }
+              if (scrollable) continue;   // a <pre> you can swipe is fine
+              bad.push({ tag: el.tagName,
+                         cls: String(el.className || '').slice(0, 40),
+                         left: Math.round(r.left), right: Math.round(r.right),
+                         text: el.textContent.trim().replace(/\s+/g, ' ').slice(0, 34) });
+            }
+            return { pageOverflow: de.scrollWidth - de.clientWidth, bad };
+          };
+
+          (async () => {
+            const browser = await puppeteer.launch({
+              args: ['--no-sandbox', '--disable-dev-shm-usage'],
+            });
+            const page = await browser.newPage();
+            const pages = ['/', '/cv.html', '/404.html',
+                           '/writeups/mr-robot/', '/writeups/keygenme/'];
+            let failed = 0;
+
+            for (const w of [320, 375, 768, 1024, 1440]) {
+              await page.setViewport({ width: w, height: 900 });
+              for (const p of pages) {
+                await page.goto('http://127.0.0.1:8000' + p, { waitUntil: 'networkidle0' });
+                const { pageOverflow, bad } = await page.evaluate(audit);
+                if (bad.length || pageOverflow > 1) {
+                  failed++;
+                  console.log(`  XX ${w}px ${p} overflow=${pageOverflow}`);
+                  for (const b of bad.slice(0, 3)) {
+                    console.log(`       ${b.tag}.${b.cls} ${b.left}..${b.right} "${b.text}"`);
+                  }
+                } else {
+                  console.log(`  ok ${w}px ${p}`);
+                }
+              }
+            }
+            await browser.close();
+            if (failed) {
+              console.log(`::error::horizontal overflow in ${failed} page/width combinations`);
+              process.exit(1);
+            }
+          })();
+          JS
+
+      - name: Contrast of the base token palette
+        run: |
+          python3 - <<'PY'
+          # A floor under the rendered check above: the text, semantic and
+          # syntax tokens must clear AA against every surface in their own
+          # theme, read straight out of tokens.css so this cannot drift.
+          #
+          # A badge is painted on its own -soft tint, not on the page, so
+          # every semantic token is checked bare AND composited over each
+          # surface at its real alpha. Checking only the bare value is what
+          # let .flag (--ok on --ok-soft) ship at 4.11:1 in the light theme
+          # while this step reported every row green.
+          import re, sys
+
+          def lum(hexs):
+              c = [int(hexs[i:i+2], 16) / 255 for i in (1, 3, 5)]
+              c = [x / 12.92 if x <= .03928 else ((x + .055) / 1.055) ** 2.4 for x in c]
+              return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]
+
+          def ratio(a, b):
+              la, lb = lum(a), lum(b)
+              hi, lo = max(la, lb), min(la, lb)
+              return (hi + .05) / (lo + .05)
+
+          def over(fg, alpha, bg):
+              """bg painted with fg at alpha -- the -soft tint case"""
+              f = [int(fg[i:i+2], 16) for i in (1, 3, 5)]
+              b = [int(bg[i:i+2], 16) for i in (1, 3, 5)]
+              return '#%02x%02x%02x' % tuple(
+                  round(f[i] * alpha + b[i] * (1 - alpha)) for i in range(3))
+
+          css = open('css/tokens.css', encoding='utf-8').read()
+          base, _, light_block = css.partition(':root[data-theme="light"]')
+          # a theme only redeclares what it changes, so look in the theme block
+          # first and fall back to the base :root for everything it inherits
+          themes = {'dark': [base], 'light': [light_block, base]}
+
+          def token(blocks, name):
+              for block in blocks:
+                  m = re.search(rf'--{name}:\s*(#[0-9a-fA-F]{{6}})', block)
+                  if m:
+                      return m.group(1)
+              return None
+
+          def hsl_to_hex(h, s, l):
+              s, l = s / 100, l / 100
+              c = (1 - abs(2 * l - 1)) * s
+              hp = (h % 360) / 60
+              x = c * (1 - abs(hp % 2 - 1))
+              r, g, b = [(c, x, 0), (x, c, 0), (0, c, x),
+                         (0, x, c), (x, 0, c), (c, 0, x)][int(hp) % 6]
+              m = l - c / 2
+              return '#%02x%02x%02x' % tuple(round((v + m) * 255) for v in (r, g, b))
+
+          def accent_text(blocks):
+              # --accent-text comes out of the hue engine, not out of a hex literal
+              h, s, tl = None, None, None
+              for block in blocks:
+                  h = h or re.search(r'--hue:\s*(\d+)', block)
+                  s = s or re.search(r'--accent-s:\s*([\d.]+)%', block)
+                  tl = tl or re.search(r'--accent-tl:\s*([\d.]+)%', block)
+              if not (h and s and tl):
+                  return None
+              return hsl_to_hex(int(h.group(1)), float(s.group(1)), float(tl.group(1)))
+
+          def tint(blocks, name):
+              """a `-soft` token is `rgb(r g b / a)`; return (hex, alpha) or None"""
+              pat = rf'--{name}:\s*rgb\(\s*(\d+)\s+(\d+)\s+(\d+)\s*/\s*([.\d]+)\s*\)'
+              for block in blocks:
+                  m = re.search(pat, block)
+                  if m:
+                      r, g, b = (int(m.group(i)) for i in (1, 2, 3))
+                      return '#%02x%02x%02x' % (r, g, b), float(m.group(4))
+              return None
+
+          # foreground -> the surfaces it can legally sit on. `tint` is the
+          # -soft token that is painted *behind* it; the text also has to
+          # clear AA on that composited surface, not just on the bare page.
+          PAIRS = {
+              'text-hi':   (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
+              'text':      (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
+              'text-dim':  (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
+              'text-faint':(['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
+              'accent-text': (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
+              'ok':     (['bg-0', 'bg-2', 'bg-inset'], 'ok-soft'),
+              'warn':   (['bg-0', 'bg-2', 'bg-inset'], 'warn-soft'),
+              'danger': (['bg-0', 'bg-2', 'bg-inset'], 'danger-soft'),
+              'info':   (['bg-0', 'bg-2', 'bg-inset'], 'info-soft'),
+              # syntax colours only ever appear inside a code block
+              'syn-comment': (['bg-inset'], None),
+              'syn-string':  (['bg-inset'], None),
+              'syn-num':     (['bg-inset'], None),
+              'syn-symbol':  (['bg-inset'], None),
+          }
+          fails = []
+          for theme, blocks in themes.items():
+              print(f"  {theme}:")
+              for fg, (surfaces, softname) in PAIRS.items():
+                  a = accent_text(blocks) if fg == 'accent-text' else token(blocks, fg)
+                  if not a:
+                      fails.append(f"{theme}/{fg} not found in tokens.css")
+                      continue
+                  t = tint(blocks, softname) if softname else None
+                  for bgname in surfaces:
+                      b = token(blocks, bgname)
+                      if not b:
+                          continue
+                      r = ratio(a, b)
+                      ok = r >= 4.5
+                      if not ok:
+                          fails.append(f"{theme} {fg} on {bgname} = {r:.2f}:1")
+                      print(f"    {'ok ' if ok else 'XX '} {fg:<12} on {bgname:<9} {r:5.2f}:1")
+                      if not t:
+                          continue
+                      # the same text on a panel of its own -soft tint
+                      th, alpha = t
+                      comp = over(th, alpha, b)
+                      r2 = ratio(a, comp)
+                      ok2 = r2 >= 4.5
+                      if not ok2:
+                          fails.append(f"{theme} {fg} on {bgname} + {softname} = {r2:.2f}:1")
+                      print(f"    {'ok ' if ok2 else 'XX '} {fg:<12} on {bgname:<5} + {softname:<10} {r2:5.2f}:1")
+          if fails:
+              print("::error::WCAG AA failures:")
+              for f in fails:
+                  print("  " + f)
+              sys.exit(1)
+          PY

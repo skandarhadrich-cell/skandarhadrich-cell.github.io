@@ -1,0 +1,29 @@
+<section class="section" id="whoami">
+  <div class="container">
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cat whoami.txt</span>
+      <span class="p-out">{{ABOUT_BYTES}}</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">About — </span>whoami</h2>
+      <p>{{SUBLINE_SHORT}}</p>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar">
+        <div class="term-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        <span class="term-title">{{HANDLE}}@terminal:~/whoami.txt</span>
+      </div>
+      <div class="term-body">
+        <dl class="about-grid">
+          {{ABOUT_FIELDS}}
+        </dl>
+        <p class="about-bio">{{BIO}}</p>
+        <div class="about-badges">
+          {{ABOUT_BADGES}}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,42 @@
+<section class="section" id="contact">
+  <div class="container">
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cat /etc/contact.conf</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">Contact — </span>contact</h2>
+      <p>{{AVAILABILITY}}. If you are hiring for a security internship and this is the kind of work you want done, the email is the fastest route.</p>
+    </div>
+
+    <div class="grid grid--2 grid--top">
+      <div class="term reveal">
+        <div class="term-bar">
+          <div class="term-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span class="term-title">{{HANDLE}}@terminal:~/contact</span>
+        </div>
+        <div class="term-body">
+          <div class="prompt">
+            <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span> <span class="p-cmd">open /etc/contact.conf</span>
+          </div>
+          <dl class="about-grid margin-top-5">
+            {{CONTACT_FIELDS}}
+          </dl>
+          <div class="stack-inline margin-top-5">
+            <button class="btn btn--sm" type="button" data-copy-mail="{{EMAIL}}">copy email</button>
+            <a class="btn btn--sm btn--ghost" href="{{GITHUB_URL}}" rel="noopener">github</a>
+            <a class="btn btn--sm btn--ghost" href="{{LINKEDIN_URL}}" rel="noopener">linkedin</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <h3 class="col-head">elsewhere</h3>
+        {{CONTACT_ELSEWHERE}}
+        <p class="faint margin-top-6">
+          {{FOOTER_NOTE}} This site has no analytics, no cookies and no third-party requests.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

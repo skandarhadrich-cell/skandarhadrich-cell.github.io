@@ -1,0 +1,31 @@
+<section class="section" id="experience">
+  <div class="container">
+    <p class="cmd-line">
+      <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cat /var/log/experience.log</span>
+      <span class="p-out">{{EXP_COUNT}} entries</span>
+    </p>
+
+    <div class="section-head">
+      <h2><span class="sr-only">Experience — </span>experience</h2>
+      <p>Internships where I owned real systems, and the engineering degree they sit inside.</p>
+    </div>
+
+    <div class="grid grid--2 grid--top">
+      <div class="reveal">
+        <h3 class="col-head">work</h3>
+        <div class="timeline">
+          {{EXPERIENCE}}
+        </div>
+      </div>
+
+      <div class="reveal">
+        <h3 class="col-head">education</h3>
+        <div class="edu-list nudge-top-0">
+          {{EDUCATION}}
+        </div>
+        <h3 class="col-head col-head--spaced">beyond the keyboard</h3>
+        {{FACTS}}
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,438 +1,239 @@
 #!/usr/bin/env python3
-"""0xmrerror add-writeup — turn a CTF writeup folder into the live site.
+"""0xmrerror.me — scaffold a new writeup.
 
-Usage:
-    python3 tools/add-writeup.py <ctf-name> [options]
+The old version of this script did regex surgery on a 900-line index.html and
+then ran `git add && git commit && git push` behind your back.  Both halves are
+gone.  This version only writes one file — data/writeups/<NN>-<slug>.md — runs
+the build, and prints what to do next.  Committing and pushing are opt-in
+because a tool that publishes to the internet without being asked is a bug,
+not a feature.
 
-Give it the CTF folder (name or path) and it does everything:
+    # scaffold interactively
+    python3 tools/add-writeup.py
 
-  A) Finds the writeup .md inside that folder and converts it into
-     writeups/<slug>.html — h2/h3 headings, paragraphs, code blocks,
-     lists, blockquotes, links, inline code, THM{...}/HTB{...} flag
-     styling, and screenshots copied into writeups/images/<slug>/
-  B) Adds the matching card in index.html with the next index number
-  C) Commits and pushes to main, so GitHub Actions redeploys
+    # or non-interactively
+    python3 tools/add-writeup.py --title "Watcher — LFI to Root" \\
+        --type web --diff hard --platform thm --summary "One line, one sentence."
 
-The <ctf-name> is resolved like this:
-  * a path to the folder or a direct .md file   (as given)
-  * a folder name searched in the CTF base dir
-    (default ~/Desktop/ctf-writeups — override with --base or the
-     CTF_WRITEUPS_DIR environment variable)
+    # import the notes and screenshots from a CTF folder
+    python3 tools/add-writeup.py --from ~/ctf/watcher
 
-Typical layout (asset/screenshot folders are skipped automatically):
-
-    ctf-writeups/
-    └── my-ctf/
-        ├── my-ctf.md          <- the writeup
-        └── assets/            <- screenshots, ignored for discovery
-
-Options:
-    --base <dir>        CTF base directory (default: ~/Desktop/ctf-writeups,
-                        or the CTF_WRITEUPS_DIR environment variable)
-    --slug <s>          Fragment slug (default: from the CTF folder name)
-    --title "..."       Card title (default: the first # heading)
-    --diff easy|medium|hard    (default: medium)
-    --platform thm|htb|ctf     (default: thm)
-    --time <n>          Read time in minutes (default: auto word estimate)
-    --no-highlight      Skip bash/inline syntax highlighting
-    --no-commit         Only write the fragment + card, leave git alone
-    --no-push           Commit but do not push
-
-Front matter (optional, at the very top of your .md) is also read:
-    ---
-    slug: my-ctf
-    title: My CTF — Technique to Root
-    diff: medium
-    platform: thm
-    ---
+    # list what exists, and show the next free order number
+    python3 tools/add-writeup.py --list
 """
 
+from __future__ import annotations
+
 import argparse
-import html
 import os
 import re
 import shutil
 import subprocess
 import sys
-import unicodedata
 
-APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-INDEX_PATH = os.path.join(APP_DIR, 'index.html')
-WRITEUP_DIR = os.path.join(APP_DIR, 'writeups')
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(ROOT, "data")
+WUDATA = os.path.join(DATA, "writeups")
+IMG_DST = os.path.join(ROOT, "assets", "writeups")
 
-PLATFORM_LABEL = {'thm': 'TryHackMe', 'htb': 'Hack The Box', 'ctf': 'CTF'}
+TYPES = ["web", "re", "pwn", "forensics", "crypto", "osint"]
+DIFFS = ["easy", "medium", "hard"]
+PLATFORMS = ["thm", "htb", "ctf"]
 
-KNOWN_COMMANDS = set(
-    """amass base64 binwalk cat cd chmod chown curl dirb dirsearch docker echo
-enum4linux evil-winrm exiftool fcrackzip ffuf find getconf git gobuster gowitness
-gpg grep gzip hashcat hydra id ifconfig ip john jq kubectl ldd less ls man
-msfconsole mysql nc netcat nikto nmap openssl php php3 python python2 python3
-python3.11 rdesktop ruby searchsploit service smbclient smbmap sqlmap ssh
-ssh2john steghide strings sudo su systemctl tar tcpdump unzip vim wfuzz wget
-whatweb whoami wireshark wordlists wpscan xxd xfreerdp zip2john 7z jp
-""".split())
+GREEN, DIM, RED, YEL, BOLD, OFF = (
+    "\033[32m", "\033[2m", "\033[31m", "\033[33m", "\033[1m", "\033[0m")
 
+STARTER = """---
+title: "{title}"
+slug: {slug}
+type: {wtype}
+diff: {diff}
+platform: {platform}
+read_time: 12
+summary: "{summary}"
+date: {today}
+tags: {tags}
+---
 
-# ── helpers ─────────────────────────────────────────────────────────
+## The brief
 
-def fail(msg):
-    print('[!]', msg, file=sys.stderr)
-    sys.exit(1)
+What the box asked for, in one or two sentences. Then the actual objective, so
+a reader knows what "solved" meant here.
 
+## Reconnaissance
 
-def slugify(s):
-    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
-    s = re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
-    return s or 'writeup'
+```bash
+# commands you actually ran, in order, with the output that mattered
+nmap -sC -sV -p- 10.10.11.42
+```
 
+## Phase 1 — initial access
 
-def parse_frontmatter(text):
-    if not text.startswith('---\n'):
-        return {}, text
-    end = text.find('\n---', 4)
-    if end == -1:
-        return {}, text
-    fm = {}
-    for line in text[4:end].split('\n'):
-        if ':' in line:
-            k, v = line.split(':', 1)
-            fm[k.strip().lower()] = v.strip()
-    return fm, text[end + 4:].lstrip('\n')
+The first thing that worked, and what it gave you.
 
+## Phase 2 — <the next step>
 
-# ── writeup folder discovery ─────────────────────────────────────────
+## Flag
 
-def is_ignored_dir(name):
-    return name.lower().rstrip('s') in {'asset', 'asstet', 'screenshot'} or name.startswith('.')
+```text
+THM{{...}}
+```
 
+## What I would do differently
 
-def find_md(root):
-    hits = []
-    for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if not is_ignored_dir(d)]
-        for fn in sorted(filenames):
-            if fn.lower().endswith('.md'):
-                hits.append(os.path.join(dirpath, fn))
-    return hits
+One short paragraph. This is the part readers remember, and the part most
+write-ups skip.
+"""
 
 
-def find_dir_under(base, name):
-    name_l = name.lower()
-    for root, dirnames, _ in os.walk(base):
-        dirnames[:] = [d for d in dirnames if not is_ignored_dir(d)]
-        for d in dirnames:
-            if d.lower() == name_l:
-                return os.path.join(root, d)
-    for root, dirnames, _ in os.walk(base):
-        dirnames[:] = [d for d in dirnames if not is_ignored_dir(d)]
-        for d in dirnames:
-            if name_l in d.lower():
-                return os.path.join(root, d)
-    return None
+def slugify(s: str) -> str:
+    s = re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
+    return re.sub(r"-{2,}", "-", s) or "writeup"
 
 
-def resolve_md(target, base):
-    if os.path.isfile(target):
-        return target
-
-    folder = None
-    if os.path.isdir(target):
-        folder = target
-    elif base and os.path.isdir(os.path.join(base, target)):
-        folder = os.path.join(base, target)
-    elif base and os.path.isdir(base):
-        folder = find_dir_under(base, target)
-    if folder is None:
-        fail('cannot find a writeup folder for "%s" (searched: %s)' % (target, base or '<none>'))
-
-    hits = find_md(folder)
-    if not hits:
-        fail('no .md writeup found in %s' % folder)
-    if len(hits) == 1:
-        return hits[0]
-
-    fav = os.path.basename(os.path.normpath(folder)).lower()
-    for h in hits:
-        if os.path.splitext(os.path.basename(h))[0].lower() == fav:
-            return h
-    fail('multiple .md files in %s — pick one with --markdown or point the folder right:\n  %s'
-         % (folder, '\n  '.join(os.path.relpath(h, folder) for h in hits)))
-
-
-# ── inline markdown → html ──────────────────────────────────────────
-
-def inline(s):
-    s = html.escape(s, quote=False)
-    s = re.sub(r'`([^`]+)`', r'<code>\1</code>', s)
-    s = re.sub(r'!\[([^\]]*)\]\(([^)\s]+)\)', r'<img src="\2" alt="\1" loading="lazy"/>', s)
-    s = re.sub(r'\[([^\]]+)\]\(([^)\s]+)\)', r'<a href="\2" rel="noopener">\1</a>', s)
-    s = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', s)
-    s = re.sub(r'(?<!\*)\*([^*\s][^*]*?)\*(?!\*)', r'<em>\1</em>', s)
-    s = re.sub(r'(THM|HTB|CTF|FLAG)\{([^}]*)\}', r'\1<span class="tok-string">{\2}</span>', s)
-    return s
-
-
-# ── code blocks → <pre><code> with best-effort bash highlighting ─────
-
-def highlight_code_line(raw):
-    if not raw.strip():
-        return ''
-    stripped = raw.lstrip()
-    if stripped.startswith('#'):
-        return '<span class="tok-comment">' + html.escape(raw, quote=False) + '</span>'
-    if stripped.startswith('$ '):
-        body = html.escape(stripped[2:], quote=False)
-        cmd = body.split(' ', 1)[0]
-        base = cmd.split('/')[-1]
-        styled = '<span class="tok-keyword">$</span> '
-        if base in KNOWN_COMMANDS:
-            styled += '<span class="tok-func">' + cmd + '</span>' + body[len(cmd):]
-        else:
-            styled += body
-        return raw[:len(raw) - len(stripped)] + styled
-    head = raw[:len(raw) - len(stripped)]
-    m = re.match(r'^([\w./-]+)(\s+.*)?$', stripped)
-    if m and m.group(1).split('/')[-1] in KNOWN_COMMANDS:
-        return head + '<span class="tok-func">' + m.group(1) + '</span>' + (m.group(2) or '')
-    return html.escape(raw, quote=False)
-
-
-def code_block(lines, highlights):
-    out = []
-    for raw in lines:
-        if not raw.strip():
-            out.append('')
+def existing() -> list[tuple[int, str, str]]:
+    rows = []
+    for fn in sorted(os.listdir(WUDATA)):
+        if not fn.endswith(".md"):
             continue
-        out.append(highlight_code_line(raw) if highlights else html.escape(raw, quote=False))
-    return '<pre><code>\n' + '\n'.join(out) + '\n</code></pre>'
+        m = re.match(r"(\d+)-(.*)\.md$", fn)
+        if m:
+            title = ""
+            for line in open(os.path.join(WUDATA, fn), encoding="utf-8"):
+                if line.startswith("title:"):
+                    title = line[7:].strip().strip('"')
+                    break
+            rows.append((int(m.group(1)), m.group(2), title))
+    return rows
 
 
-# ── block markdown → html ───────────────────────────────────────────
-
-def convert(md, highlights):
-    lines = md.split('\n')
-    i, n = 0, len(lines)
-    out = []
-
-    while i < n:
-        ln = lines[i]
-
-        if ln.startswith('```'):
-            j, buf = i + 1, []
-            while j < n and not lines[j].startswith('```'):
-                buf.append(lines[j])
-                j += 1
-            out.append(code_block(buf, highlights))
-            i = j + 1
-            continue
-
-        if ln.startswith('#'):
-            m = re.match(r'^(#{1,6})\s+(.*)$', ln)
-            tag = {1: 'h2', 2: 'h3'}.get(len(m.group(1)), 'h4')
-            out.append('<{0}>{1}</{0}>'.format(tag, inline(m.group(2))))
-            i += 1
-            continue
-
-        if ln.strip() == '---':
-            out.append('<hr/>')
-            i += 1
-            continue
-
-        if re.match(r'^\s*[-*]\s+', ln):
-            buf = []
-            while i < n and re.match(r'^\s*[-*]\s+', lines[i]):
-                buf.append('<li>%s</li>' % inline(re.sub(r'^\s*[-*]\s+', '', lines[i])))
-                i += 1
-            out.append('<ul>\n' + '\n'.join(buf) + '\n</ul>')
-            continue
-
-        if re.match(r'^\s*\d+\.\s+', ln):
-            buf = []
-            while i < n and re.match(r'^\s*\d+\.\s+', lines[i]):
-                buf.append('<li>%s</li>' % inline(re.sub(r'^\s*\d+\.\s+', '', lines[i])))
-                i += 1
-            out.append('<ol>\n' + '\n'.join(buf) + '\n</ol>')
-            continue
-
-        if ln.startswith('>'):
-            buf = []
-            while i < n and lines[i].startswith('>'):
-                buf.append(inline(re.sub(r'^>\s?', '', lines[i])))
-                i += 1
-            out.append('<blockquote>%s</blockquote>' % ' '.join(buf))
-            continue
-
-        buf = []
-        while i < n:
-            line = lines[i]
-            if (not line.strip() or line.startswith('#') or line.startswith('```')
-                    or line.startswith('>') or re.match(r'^\s*([-*]|\d+\.)\s+', line)):
-                break
-            buf.append(line)
-            i += 1
-        if buf:
-            out.append('<p>%s</p>' % inline('\n'.join(buf)))
-        if i < n and not lines[i].strip():
-            i += 1
-
-    return '\n\n'.join(out)
+def next_order() -> int:
+    rows = existing()
+    return (max((r[0] for r in rows), default=0) // 10 + 1) * 10
 
 
-# ── screenshots ─────────────────────────────────────────────────────
-
-def copy_images(md_dir, md_text, slug):
-    refs = set(re.findall(r'!\[[^\]]*\]\(([^)\s]+)\)', md_text))
-    remap = {}
-    for src in refs:
-        if src.startswith(('http://', 'https://', 'data:', '/')):
-            continue
-        path = os.path.join(md_dir, src)
-        if not os.path.exists(path):
-            print('[~] image not found, keeping path as-is:', src)
-            continue
-        dest_dir = os.path.join(WRITEUP_DIR, 'images', slug)
-        os.makedirs(dest_dir, exist_ok=True)
-        shutil.copy2(path, os.path.join(dest_dir, os.path.basename(src)))
-        remap[src] = 'images/%s/%s' % (slug, os.path.basename(src))
-    return remap
+def ask(prompt: str, default: str = "") -> str:
+    try:
+        raw = input(f"{DIM}{prompt}{OFF} [{default}]: ").strip()
+    except (EOFError, KeyboardInterrupt):
+        sys.exit("\n" + DIM + "aborted" + OFF)
+    return raw or default
 
 
-# ── card + index.html ───────────────────────────────────────────────
-
-def card_html(slug, title, diff, platform, minutes, idx):
-    bits = []
-    bits.append('<div class="writeup-card" data-writeup="%s" data-src="writeups/%s.html"'
-                % (slug, slug))
-    bits.append('     data-diff="%s" data-platform="%s" role="button" tabindex="0">' % (diff, platform))
-    bits.append('        <span class="writeup-idx">%02d.</span>' % idx)
-    bits.append('        <div class="writeup-info">')
-    bits.append('          <div class="writeup-title">%s</div>' % html.escape(title))
-    bits.append('          <div class="writeup-meta">')
-    bits.append('            <span class="diff-badge diff-%s">%s</span>' % (diff, diff.capitalize()))
-    bits.append('            <span class="platform-tag %s">%s</span>' % (platform, PLATFORM_LABEL.get(platform, platform)))
-    bits.append('            <span class="read-time">\u23f1 %d min read</span>' % minutes)
-    bits.append('          </div>')
-    bits.append('        </div>')
-    bits.append('        <span class="writeup-arrow">\u2192</span>')
-    bits.append('      </div>')
-    return '\n'.join(bits)
+def pick(label: str, options: list[str], default: str) -> str:
+    if sys.stdin.isatty():
+        print(f"{DIM}  {label}:{'/'.join(options)}{OFF}")
+    return ask(label, default) if sys.stdin.isatty() else default
 
 
-def insert_card(index_html, slug, card):
-    if 'data-writeup="%s"' % slug in index_html:
-        fail('a card for "%s" already exists in index.html' % slug)
-    marker = '<span class="writeup-arrow">\u2192</span>\n      </div>'
-    pos = index_html.rfind(marker)
-    if pos == -1:
-        fail('could not find the last writeup card in index.html')
-    pos += len(marker)
-    return index_html[:pos] + '\n\n      ' + card + index_html[pos:]
+def copy_images(src: str, slug: str) -> int:
+    """Copy screenshots next to the write-up so the page is self-contained."""
+    dest = os.path.join(IMG_DST, slug)
+    os.makedirs(dest, exist_ok=True)
+    n = 0
+    for dirpath, _, files in os.walk(src):
+        for fn in files:
+            if not re.search(r"\.(png|jpe?g|gif|webp|svg)$", fn, re.I):
+                continue
+            stem = slugify(os.path.splitext(fn)[0])
+            ext = os.path.splitext(fn)[1].lower()
+            shutil.copy2(os.path.join(dirpath, fn), os.path.join(dest, f"{stem}{ext}"))
+            n += 1
+    return n
 
 
-# ── git ─────────────────────────────────────────────────────────────
+def body_from_folder(src: str) -> str:
+    """Seed the body from a notes/README file if the folder has one."""
+    for name in ("writeup.md", "notes.md", "README.md", "readme.md", "index.md"):
+        p = os.path.join(src, name)
+        if os.path.isfile(p):
+            return open(p, encoding="utf-8").read().strip() + "\n"
+    return ""
 
-def git(*args):
-    subprocess.run(['git', '-C', APP_DIR, *args], check=True)
+
+def rebuild() -> None:
+    subprocess.run([sys.executable, os.path.join(ROOT, "tools", "build.py")], check=True)
 
 
-# ── main ────────────────────────────────────────────────────────────
-
-def main():
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('ctf', help='CTF folder name or path (a .md path also works)')
-    ap.add_argument('--base', help='CTF base dir (default: ~/Desktop/ctf-writeups '
-                                   'or $CTF_WRITEUPS_DIR)')
-    ap.add_argument('--markdown', help='explicit path to the .md inside the folder')
-    ap.add_argument('--slug', help='fragment slug (default: from the CTF folder name)')
-    ap.add_argument('--title', help='card title (default: first # heading)')
-    ap.add_argument('--diff', choices=['easy', 'medium', 'hard'])
-    ap.add_argument('--platform', choices=['thm', 'htb', 'ctf'])
-    ap.add_argument('--time', type=int, help='read time in minutes')
-    ap.add_argument('--no-highlight', action='store_true', help='skip bash highlighting')
-    ap.add_argument('--no-commit', action='store_true', help='write files only')
-    ap.add_argument('--no-push', action='store_true', help='commit but do not push')
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Scaffold a new writeup for 0xmrerror.me")
+    ap.add_argument("--title")
+    ap.add_argument("--slug")
+    ap.add_argument("--type", choices=TYPES)
+    ap.add_argument("--diff", choices=DIFFS)
+    ap.add_argument("--platform", choices=PLATFORMS)
+    ap.add_argument("--summary")
+    ap.add_argument("--tags", help="comma separated")
+    ap.add_argument("--from", dest="src", help="import notes + screenshots from a folder")
+    ap.add_argument("--order", type=int, help="sort position, e.g. 45")
+    ap.add_argument("--list", action="store_true", help="show existing writeups and exit")
+    ap.add_argument("--force", action="store_true", help="overwrite an existing file")
+    ap.add_argument("--no-build", action="store_true", help="do not run build.py")
     args = ap.parse_args()
 
-    base = args.base or os.environ.get('CTF_WRITEUPS_DIR') or os.path.expanduser('~/Desktop/ctf-writeups')
+    if args.list:
+        rows = existing()
+        print(f"\n{BOLD}{len(rows)} writeups in data/writeups/{OFF}\n")
+        for num, slug, title in rows:
+            print(f"  {DIM}{num:>4}{OFF}  {GREEN}{slug}{OFF}  {DIM}{title}{OFF}")
+        print(f"\n  next free order: {DIM}{next_order()}{OFF}\n")
+        return 0
 
-    md_path = args.markdown if args.markdown else resolve_md(args.ctf, base if os.path.isdir(base) else None)
-    if not os.path.isfile(md_path):
-        fail('writeup file not found: %s' % md_path)
+    src = os.path.abspath(os.path.expanduser(args.src)) if args.src else None
+    if src and not os.path.isdir(src):
+        print(f"{RED}[!]{OFF} not a directory: {src}")
+        return 1
 
-    md_text = open(md_path, encoding='utf-8').read()
-    fm, md_body = parse_frontmatter(md_text)
+    title = args.title or ask("title")
+    slug = args.slug or slugify(title.split("—")[0].strip())
+    wtype = args.type or pick("type", TYPES, "web")
+    diff = args.diff or pick("difficulty", DIFFS, "medium")
+    platform = args.platform or pick("platform", PLATFORMS, "ctf")
+    summary = args.summary or ask("summary (one line, under 180 chars)")
 
-    def pick(arg_flag, fm_key):
-        value = getattr(args, arg_flag)
-        return value if value is not None else fm.get(fm_key)
+    if len(summary) > 180:
+        print(f"{YEL}[!]{OFF} summary is {len(summary)} chars; it is used as the meta "
+              f"description, so anything past ~180 gets truncated by search engines.")
+        summary = summary[:177].rsplit(" ", 1)[0] + "…"
 
-    slug = args.slug or fm.get('slug')
-    if not slug:
-        slug = slugify(os.path.basename(os.path.dirname(os.path.abspath(md_path))))
+    order = args.order if args.order is not None else next_order()
+    fname = os.path.join(WUDATA, f"{order}-{slug}.md")
+    if os.path.exists(fname) and not args.force:
+        print(f"{RED}[!]{OFF} {os.path.relpath(fname, ROOT)} already exists — "
+              f"use --force to overwrite, or --order to place it elsewhere")
+        return 1
 
-    diff = pick('diff', 'diff') or 'medium'
-    platform = pick('platform', 'platform') or 'thm'
-    minutes = pick('time', 'time')
-    if minutes is None:
-        minutes = max(1, round(len(re.findall(r'\S+', md_body)) / 200))
+    import datetime as dt
+    body = body_from_folder(src) if src else ""
+    text = STARTER.format(
+        title=title.replace('"', "'"), slug=slug, wtype=wtype, diff=diff,
+        platform=platform, summary=summary, today=dt.date.today().isoformat(),
+        tags=args.tags or f"{diff}, {platform}",
+    )
+    if body:
+        # keep the imported notes, drop the scaffold's placeholder sections
+        head, _, _ = text.partition("## The brief")
+        text = head + body + "\n"
 
-    title = args.title if args.title is not None else fm.get('title')
-    if not title:
-        m = re.search(r'^#\s+(.+)$', md_body, re.M)
-        title = m.group(1).strip() if m else slug.capitalize().replace('-', ' ')
+    os.makedirs(WUDATA, exist_ok=True)
+    with open(fname, "w", encoding="utf-8") as fh:
+        fh.write(text)
 
-    remap = copy_images(os.path.dirname(os.path.abspath(md_path)), md_body, slug)
-    for old, new in remap.items():
-        md_body = md_body.replace(old, new)
+    n_img = copy_images(src, slug) if src else 0
 
-    # header comment mirroring writeups/template.html
-    header = ('<!--\n'
-              '  writeups/%s.html - content fragment (loaded into the modal)\n'
-              '  Auto-generated by tools/add-writeup.py. Edit freely.\n'
-              '  Syntax tokens: tok-func / tok-comment / tok-string / tok-num / tok-keyword\n'
-              '-->\n') % slug
+    print(f"\n{GREEN}✓{OFF} created {BOLD}{os.path.relpath(fname, ROOT)}{OFF}")
+    if n_img:
+        print(f"  {DIM}copied {n_img} screenshot(s) to assets/writeups/{slug}/{OFF}")
+    print(f"  {DIM}order {order} · type {wtype} · {diff} · {platform}{OFF}\n")
+    print(f"  {BOLD}next:{OFF} write the body, then run")
+    print(f"    python3 tools/build.py")
+    print(f"  and preview at {DIM}http://localhost:8000/writeups/{slug}/{OFF}")
+    print(f"  {DIM}this tool does not commit or push — review, then commit yourself{OFF}\n")
 
-    fragment_path = os.path.join(WRITEUP_DIR, slug + '.html')
-    if os.path.exists(fragment_path):
-        fail('%s already exists — pick another slug or remove it' % os.path.relpath(fragment_path, APP_DIR))
-
-    with open(fragment_path, 'w', encoding='utf-8') as f:
-        f.write(header + convert(md_body, not args.no_highlight).strip() + '\n')
-
-    index_html = open(INDEX_PATH, encoding='utf-8').read()
-    idx = 1
-    for m in re.finditer(r'writeup-idx">(\d+)\.', index_html):
-        idx = max(idx, int(m.group(1)) + 1)
-
-    card = card_html(slug, title, diff, platform, minutes, idx)
-    open(INDEX_PATH, 'w', encoding='utf-8').write(insert_card(index_html, slug, card))
-
-    print('[+] fragment : %s' % os.path.relpath(fragment_path, APP_DIR))
-    print('[+] card     : #%02d %s (%s/%s, ~%d min)' % (idx, title, diff, platform, minutes))
-    if remap:
-        print('[+] images   :', ', '.join(sorted(set(remap.values()))))
-
-    if args.no_commit:
-        print('[~] done. Not touching git (--no-commit).')
-        return
-
-    if not os.path.isdir(os.path.join(APP_DIR, '.git')):
-        fail('no git repo found — run with --no-commit instead')
-
-    image_dir = os.path.join(WRITEUP_DIR, 'images', slug)
-    files_to_add = [os.path.join('writeups', slug + '.html'), 'index.html']
-    if os.path.isdir(image_dir):
-        files_to_add.append(os.path.join('writeups', 'images', slug))
-    git('add', *files_to_add)
-    git('commit', '-m', 'Add %s writeup' % title)
-
-    if args.no_push:
-        print('[+] committed. Skipping push (--no-push).')
-    else:
-        git('push', 'origin', 'HEAD')
-        print('[+] pushed to main — GitHub Actions redeploys in a minute.')
+    if not args.no_build:
+        rebuild()
+    return 0
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

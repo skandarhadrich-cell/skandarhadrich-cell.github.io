@@ -1,0 +1,534 @@
+{
+  "_readme": "Single source of truth for the whole site. tools/build.py renders index.html, cv.html, sitemap.xml and feed.xml from this file plus data/writeups/*.md. Edit here, never in the generated HTML.",
+  "site": {
+    "url": "https://0xmrerror.me",
+    "handle": "0xmrerror",
+    "name": "Skandar Hadrich",
+    "title": "0xmrerror — Skandar Hadrich | Reverse Engineering, Malware Analysis & SOC",
+    "short_title": "0xmrerror — Skandar Hadrich",
+    "description": "Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships.",
+    "locale": "en",
+    "lang": "en"
+  },
+  "identity": {
+    "role": "ICT Engineering Student",
+    "org": "ENIT",
+    "location": "Tunis, Tunisia",
+    "timezone": "UTC+1",
+    "flag": "🇹🇳",
+    "headline": "I break binaries for a living — and write down exactly how.",
+    "subline": "Reverse engineering, malware analysis and SOC automation. Solo-built an 8-stage nested-VM malware pipeline; ENIT placed 77th globally at HTB University CTF 2025.",
+    "availability": {
+      "status": "available",
+      "text": "Available for a 6-month internship from February 2027"
+    },
+    "email": "skandar.hadrich@etudiant.enit.utm.tn",
+    "phone": "+216 28 654 038",
+    "github": "skandarhadrich-cell",
+    "linkedin": "skandar-hadrich",
+    "links": {
+      "github": "https://github.com/skandarhadrich-cell",
+      "linkedin": "https://linkedin.com/in/skandar-hadrich-128221369",
+      "email": "mailto:skandar.hadrich@etudiant.enit.utm.tn"
+    }
+  },
+  "stats": [
+    {
+      "value": "Top 1%",
+      "label": "TryHackMe, globally"
+    },
+    {
+      "value": "77th",
+      "label": "HTB University CTF 2025"
+    },
+    {
+      "value": "7",
+      "label": "certifications"
+    },
+    {
+      "value": "5",
+      "label": "production projects"
+    }
+  ],
+  "nav": [
+    {
+      "id": "whoami",
+      "label": "whoami"
+    },
+    {
+      "id": "skills",
+      "label": "skills"
+    },
+    {
+      "id": "projects",
+      "label": "projects"
+    },
+    {
+      "id": "writeups",
+      "label": "writeups"
+    },
+    {
+      "id": "contact",
+      "label": "contact"
+    }
+  ],
+  "about": {
+    "bio": "I'm a cybersecurity-focused ICT Engineering student at ENIT with a bias toward the hard parts of the stack: unpacking .NET obfuscation, emulating shellcode, tracing syscalls in a live VM, and turning the result into an automated pipeline. I built an 8-stage nested-VM malware analysis pipeline end to end as a sole-contributor research intern — static triage through eBPF syscall tracing, Volatility3 VMI correlation, anti-sandbox evasion, C2 sinkholing and automated MITRE ATT&CK attribution. I also work in ML for security: graph neural networks over binary control-flow graphs, and reinforcement learning for autonomous intrusion response. I compete in CTFs with SECURINETS ENIT and contribute to open-source security tooling through G2FOSS.",
+    "fields": [
+      {
+        "key": "handle",
+        "val": "0xmrerror"
+      },
+      {
+        "key": "location",
+        "val": "Tunis, Tunisia 🇹🇳"
+      },
+      {
+        "key": "affiliation",
+        "val": "ENIT — ICT Engineering"
+      },
+      {
+        "key": "focus",
+        "val": "Malware Analysis · RevEng · SOC Automation"
+      },
+      {
+        "key": "ctf",
+        "val": "SECURINETS ENIT · HTB Uni CTF 2025 (77th)"
+      },
+      {
+        "key": "github",
+        "val": "skandarhadrich-cell",
+        "link": "https://github.com/skandarhadrich-cell"
+      }
+    ],
+    "badges": [
+      {
+        "icon": "🏆",
+        "text": "TryHackMe",
+        "strong": "Top 1%",
+        "sub": "ranked globally"
+      },
+      {
+        "icon": "🥇",
+        "text": "HTB University CTF 2025",
+        "strong": "77th",
+        "sub": "ENIT team, worldwide"
+      }
+    ]
+  },
+  "skills": [
+    {
+      "icon": "🦠",
+      "name": "Malware Analysis & RE",
+      "items": [
+        "Static & dynamic analysis",
+        "Sandbox automation",
+        "eBPF & VMI",
+        "Anti-debug & anti-sandbox evasion",
+        "CFG / graph analysis"
+      ]
+    },
+    {
+      "icon": "🧠",
+      "name": "AI / ML for Security",
+      "items": [
+        "Graph neural networks (GCN/GAT)",
+        "Double DQN / reinforcement learning",
+        "LLM fine-tuning",
+        "Adversarial ML",
+        "PyTorch Geometric"
+      ]
+    },
+    {
+      "icon": "🛡️",
+      "name": "SOC / Blue Team",
+      "items": [
+        "Wazuh SIEM",
+        "Shuffle SOAR",
+        "Detection rule engineering",
+        "IOC & log analysis",
+        "MITRE ATT&CK mapping"
+      ]
+    },
+    {
+      "icon": "💻",
+      "name": "Programming",
+      "items": [
+        "Python",
+        "C / C++",
+        "Assembly (x86, ARM)",
+        "C# / .NET",
+        "Bash",
+        "JavaScript"
+      ]
+    },
+    {
+      "icon": "🏗️",
+      "name": "Infrastructure & DevSecOps",
+      "items": [
+        "QEMU / KVM",
+        "Docker",
+        "Ansible",
+        "CI/CD pipelines",
+        "iptables",
+        "REST APIs"
+      ]
+    },
+    {
+      "icon": "📡",
+      "name": "Network & Systems",
+      "items": [
+        "Wireshark / PCAP",
+        "Nmap & recon",
+        "TCP/IP, IPv6, VLANs",
+        "Windows Server",
+        "Linux (Kali, Ubuntu)"
+      ]
+    }
+  ],
+  "toolbelt": {
+    "malware": [
+      "Speakeasy",
+      "Volatility3",
+      "de4dot",
+      "Ghidra",
+      "angr",
+      "Binary Ninja",
+      "CAPE",
+      "INetSim",
+      "DNSChef",
+      "QEMU-KVM"
+    ],
+    "soc": [
+      "Wazuh",
+      "Shuffle SOAR",
+      "Splunk",
+      "Ansible",
+      "Docker",
+      "VirusTotal",
+      "AlienVault OTX",
+      "MalwareBazaar"
+    ],
+    "ai": [
+      "PyTorch",
+      "PyTorch Geometric",
+      "Gymnasium",
+      "TensorFlow",
+      "scikit-learn",
+      "OpenCV"
+    ],
+    "web_net": [
+      "Burp Suite",
+      "sqlmap",
+      "ffuf",
+      "nikto",
+      "Bettercap",
+      "Wireshark",
+      "Nmap",
+      "Hydra"
+    ]
+  },
+  "experience": [
+    {
+      "org": "Keystone Group",
+      "role": "Security Engineering Intern — Malware Analysis",
+      "period": "Jul 2026 – Sep 2026",
+      "place": "Tunis, TN",
+      "bullets": [
+        "Architected an 8-stage automated malware analysis pipeline: static triage → de4dot deobfuscation → Speakeasy emulation → live QEMU-KVM detonation → eBPF syscall capture → Volatility3 VMI correlation → MITRE ATT&CK mapping → automated PDF reporting.",
+        "Correlated host-side eBPF KVM tracepoints with Volatility3 VMI on a live guest, and patched <code>KUSER_SHARED_DATA.TickCount</code> in guest memory to defeat anti-sandbox timing checks. Validated against live AsyncRAT, AgentTesla and njRAT samples.",
+        "Deployed a multi-layer C2 sinkhole (iptables + DNSChef + INetSim) to capture malware traffic and extract actionable IOCs with false-positive filtering against Windows telemetry.",
+        "Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX and MalwareBazaar, grouping behavioural families with MinHash LSH clustering and generating PDF reports automatically."
+      ]
+    },
+    {
+      "org": "Tunisie Telecom",
+      "role": "Network Operations Intern",
+      "period": "Jun 2025 – Jul 2025",
+      "place": "Sfax, TN",
+      "bullets": [
+        "Triaged 15+ daily technical support tickets and provisioned network modems at scale, cutting average per-unit configuration time by 20% through scripted workflows.",
+        "Maintained network uptime across multiple customer sites."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "org": "ENIT — National School of Engineers of Tunis",
+      "degree": "ICT Engineering — Telecommunications & Cybersecurity",
+      "period": "2024 – Present",
+      "note": "Cybersecurity specialization: malware analysis, network security, cryptography, secure systems design."
+    },
+    {
+      "org": "IPEIS — Preparatory Institute for Engineering Studies of Sfax",
+      "degree": "Pre-Engineering — Mathematics & Physics",
+      "period": "2022 – 2024",
+      "note": "National entrance rank 440 / 1800 — top 24%."
+    }
+  ],
+  "projects": [
+    {
+      "featured": true,
+      "name": "Nested-VM Malware Analysis Pipeline",
+      "badge": "flagship",
+      "state": "code",
+      "repo": "https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring",
+      "desc": "An end-to-end 8-stage automated malware analysis pipeline. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.",
+      "metrics": [
+        "8 stages",
+        "eBPF + VMI",
+        "3 malware families"
+      ],
+      "stack": [
+        "Python",
+        "QEMU-KVM",
+        "eBPF",
+        "Volatility3",
+        "Speakeasy",
+        "de4dot",
+        "INetSim",
+        "DNSChef"
+      ]
+    },
+    {
+      "name": "CFG Function Localization via Graph Neural Networks",
+      "state": "writeup",
+      "repo": "https://github.com/skandarhadrich-cell/CFG-Function-Localization-via-Graph-Neural-Networks",
+      "desc": "Stripped ELF/PE binaries disassembled with headless Ghidra and angr, then mapped into directed control-flow graphs whose node features are x86/ARM opcode distributions and API call references. GCNs and GATs (PyTorch Geometric) are trained for node-level classification of malicious functions — anti-debug loops, keyloggers and process-injection routines.",
+      "metrics": [
+        "GCN / GAT",
+        "angr + Ghidra",
+        "node classification"
+      ],
+      "stack": [
+        "Python",
+        "PyTorch Geometric",
+        "Ghidra",
+        "angr",
+        "GCN",
+        "GAT"
+      ]
+    },
+    {
+      "name": "RL-Based Intrusion Detection & Response",
+      "state": "writeup",
+      "repo": "https://github.com/skandarhadrich-cell/RL-Based-Intrusion-Detection-Project",
+      "desc": "Network defense formulated as an MDP with six response actions (DPI, throttle, honeypot, block, isolate, quarantine) inside a custom Gymnasium environment. A Double DQN agent with prioritized experience replay is trained on CSE-CIC-IDS2018 telemetry to choose response actions instead of only raising alerts.",
+      "metrics": [
+        "Double DQN + PER",
+        "6 actions",
+        "CSE-CIC-IDS2018"
+      ],
+      "stack": [
+        "Python",
+        "Gymnasium",
+        "PyTorch",
+        "CSE-CIC-IDS2018",
+        "Double DQN"
+      ]
+    },
+    {
+      "name": "Open-Source SOC Automation",
+      "state": "code",
+      "repo": "https://github.com/skandarhadrich-cell/Automation-of-Deployment-and-Detection-Engineering-in-an-Open-Source-SOC-Environment",
+      "desc": "A Wazuh SIEM + Shuffle SOAR lab deployed automatically with Ansible and Docker. A Python suppression microservice filters 33,022 noisy events down to a single actionable incident — over 95% noise reduction — with a human-in-the-loop VirusTotal enrichment pipeline and custom detection rules validated against simulated brute force, lateral movement and privilege escalation.",
+      "metrics": [
+        "33,022 → 1 incident",
+        ">95% noise reduction",
+        "Ansible + Docker"
+      ],
+      "stack": [
+        "Wazuh",
+        "Shuffle SOAR",
+        "MITRE ATT&CK",
+        "Python",
+        "Docker",
+        "Ansible"
+      ]
+    },
+    {
+      "name": "Wi-Fi Security Research",
+      "state": "lab",
+      "repo": null,
+      "desc": "Demonstrated WPA2 and ARP-spoofing weaknesses with Wireshark and Bettercap in an isolated lab. Documented the MITM attack chain end to end and proposed concrete mitigations: 802.1X, HSTS enforcement and certificate pinning.",
+      "metrics": [
+        "MITM chain",
+        "802.1X / HSTS"
+      ],
+      "stack": [
+        "Wireshark",
+        "Bettercap",
+        "Kali Linux",
+        "WPA2"
+      ]
+    },
+    {
+      "name": "Village Under Attack — C++ Strategy Game",
+      "state": "code",
+      "repo": "https://github.com/skandarhadrich-cell/Village-under-attack",
+      "desc": "A real-time terminal strategy game in C++ built on OOP principles, non-blocking I/O, NPC pathfinding and collision detection. Systems programming and algorithmic design outside a security context — the discipline that makes the reversing work easier.",
+      "metrics": [
+        "Real-time",
+        "Non-blocking I/O",
+        "Pathfinding"
+      ],
+      "stack": [
+        "C++",
+        "OOP",
+        "Non-blocking I/O",
+        "Pathfinding"
+      ]
+    },
+    {
+      "name": "Embedded Face Recognition & Hardware Automation",
+      "state": "lab",
+      "repo": null,
+      "desc": "A real-time facial recognition pipeline in Python/OpenCV driving an Arduino microcontroller over UART. Identity verification triggers a physical hardware action, demonstrating secure serial protocol design and embedded security.",
+      "metrics": [
+        "Real-time",
+        "UART",
+        "OpenCV"
+      ],
+      "stack": [
+        "Python",
+        "OpenCV",
+        "Arduino",
+        "Embedded",
+        "UART"
+      ]
+    }
+  ],
+  "certs": [
+    {
+      "issuer": "NVIDIA",
+      "issuer_slug": "nvidia",
+      "name": "Efficient Large Language Model Customization",
+      "date": "Jan 2025",
+      "id": "OwtTbLiTRzW_BJNRHUzfWw",
+      "skills": "Deep Learning · LLM Fine-tuning",
+      "published": true
+    },
+    {
+      "issuer": "TryHackMe",
+      "issuer_slug": "tryhackme",
+      "name": "Jr Penetration Tester",
+      "date": "Aug 2025",
+      "skills": "Web exploitation · Buffer overflow",
+      "published": true
+    },
+    {
+      "issuer": "TryHackMe",
+      "issuer_slug": "tryhackme",
+      "name": "SOC Level 1",
+      "date": "Sep 2026",
+      "skills": "SIEM · Log analysis · Incident triage",
+      "published": true
+    },
+    {
+      "issuer": "TryHackMe",
+      "issuer_slug": "tryhackme",
+      "name": "DevSecOps",
+      "date": "Jun 2026",
+      "skills": "CI/CD security · Pipeline hardening",
+      "published": true
+    },
+    {
+      "issuer": "Cisco Networking Academy",
+      "issuer_slug": "cisco",
+      "name": "CCNA: Introduction to Networks",
+      "date": "Jun 2025",
+      "skills": "TCP/IP · VLANs · OSPF",
+      "published": true
+    },
+    {
+      "issuer": "365 Data Science",
+      "issuer_slug": "365ds",
+      "name": "Machine Learning",
+      "date": "Nov 2024",
+      "id": "CC-C39D4E2822",
+      "skills": "Data Science · Machine Learning",
+      "published": true
+    },
+    {
+      "_todo": "FILL THIS IN — the 7th certification. Set published:true to render it.",
+      "issuer": "Cyber Sec 101",
+      "issuer_slug": "pending",
+      "name": "Cyber Sec 101",
+      "date": "—",
+      "skills": "Security fundamentals",
+      "published": false
+    }
+  ],
+  "facts": {
+    "ctf": [
+      "HTB University CTF 2025 — ENIT team ranked **77th globally**",
+      "TryHackMe — **top 1%** worldwide ranking"
+    ],
+    "clubs": [
+      "SECURINETS ENIT — cybersecurity club",
+      "G2FOSS — open-source software group"
+    ],
+    "languages": [
+      "Arabic — native",
+      "English — C1",
+      "French — B2"
+    ]
+  },
+  "pipeline": {
+    "title": "8-stage nested-VM malware analysis pipeline",
+    "stages": [
+      {
+        "n": 1,
+        "name": "Static triage",
+        "tool": "file / exiftool",
+        "note": "Magic bytes, entropy, packer fingerprint"
+      },
+      {
+        "n": 2,
+        "name": "Deobfuscation",
+        "tool": "de4dot",
+        "note": "Strip .NET obfuscation layers"
+      },
+      {
+        "n": 3,
+        "name": "Emulation",
+        "tool": "Speakeasy",
+        "note": "Sandboxed shellcode execution"
+      },
+      {
+        "n": 4,
+        "name": "Detonation",
+        "tool": "QEMU-KVM",
+        "note": "Live guest, isolated network"
+      },
+      {
+        "n": 5,
+        "name": "Syscall capture",
+        "tool": "eBPF",
+        "note": "Host-side KVM tracepoints"
+      },
+      {
+        "n": 6,
+        "name": "Memory forensics",
+        "tool": "Volatility3 VMI",
+        "note": "Correlate trace with guest memory"
+      },
+      {
+        "n": 7,
+        "name": "ATT&CK mapping",
+        "tool": "LSH clustering",
+        "note": "IOCs → behavioural family"
+      },
+      {
+        "n": 8,
+        "name": "Reporting",
+        "tool": "PDF export",
+        "note": "Automated analyst report"
+      }
+    ]
+  },
+  "footer": {
+    "note": "Hosted on GitHub Pages. Built with no framework, no build server, no trackers.",
+    "started": "2026-02-09"
+  }
+}

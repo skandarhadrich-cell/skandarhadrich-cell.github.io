@@ -1,0 +1,162 @@
+/* ============================================================
+   0xmrerror.me — base: reset, typography, utilities
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 20px);
+  -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-body);
+  color: var(--text);
+  background: var(--bg-0);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── headings ───────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-hi);
+  line-height: var(--lh-tight);
+  font-weight: 650;
+  letter-spacing: -.017em;
+  text-wrap: balance;
+}
+h1 { font-size: var(--fs-5xl); }
+h2 { font-size: var(--fs-3xl); }
+h3 { font-size: var(--fs-xl); }
+h4 { font-size: var(--fs-lg); }
+
+/* ── prose ──────────────────────────────────────────────── */
+p { max-width: var(--measure); text-wrap: pretty; }
+p + p { margin-top: var(--sp-4); }
+
+strong, b { color: var(--text-hi); font-weight: 600; }
+em { color: var(--text-hi); }
+small { font-size: var(--fs-2xs); }
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-size: .875em;
+  font-variant-ligatures: none;
+}
+
+a {
+  color: var(--accent-text);
+  text-decoration: none;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+a:hover { text-decoration: underline; text-decoration-color: var(--accent-line); }
+
+ul, ol { padding-left: 1.25em; }
+li { margin-block: var(--sp-2); }
+li::marker { color: var(--text-faint); }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin-block: var(--sp-10);
+}
+
+img, svg, video { display: block; max-width: 100%; height: auto; }
+
+/* ── selection ──────────────────────────────────────────── */
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* ── focus ──────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* ── scrollbar ──────────────────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 3px solid var(--bg-0);
+  border-radius: var(--r-pill);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent-text); }
+
+/* ── layout primitives ──────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+/* the CV is a document, not a page: narrower measure, and the same type
+   scale as print so the screen and the PDF agree */
+.container--cv { max-width: 860px; }
+
+.skip-link {
+  position: absolute;
+  left: var(--sp-4);
+  top: -100px;
+  z-index: var(--z-toast);
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r);
+  font-weight: 600;
+  transition: top var(--t) var(--ease);
+}
+.skip-link:focus { top: var(--sp-4); text-decoration: none; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── typography helpers ─────────────────────────────────── */
+.mono { font-family: var(--font-mono); }
+.dim  { color: var(--text-dim); }
+.faint{ color: var(--text-faint); }
+.hi   { color: var(--text-hi); }
+.accent { color: var(--accent-text); }
+.measure { max-width: var(--measure); }
+.nowrap { white-space: nowrap; }
+
+/* ── progressive enhancement guard ──────────────────────────
+   .reveal hides content only when JS is running, so the page
+   is never blank if the script fails to load. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease);
+}
+.js .reveal.is-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js .reveal { opacity: 1; transform: none; }
+}
+
+@media print {
+  html { scroll-padding-top: 0; }
+}

