@@ -42,7 +42,7 @@
       "label": "HTB University CTF 2025"
     },
     {
-      "value": "7",
+      "value": "6",
       "label": "certifications"
     },
     {
@@ -450,7 +450,7 @@
       "published": true
     },
     {
-      "_todo": "FILL THIS IN — the 7th certification. Set published:true to render it.",
+      "_todo": "FILL THIS IN — the 7th certification. Set published:true to render it, then bump the certifications stat above from 6 to 7. The stat is hand-written, so nothing keeps the two in step except this note; the count must always equal the number of entries with published:true.",
       "issuer": "Cyber Sec 101",
       "issuer_slug": "pending",
       "name": "Cyber Sec 101",
