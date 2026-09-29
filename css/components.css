@@ -232,6 +232,9 @@
   margin-bottom: var(--sp-6);
 }
 .about-field { background: var(--bg-2); padding: var(--sp-4) var(--sp-5); }
+/* the focus line is long; give it a full row of its own rather than
+   squeezing it into a column beside the affiliation */
+.about-field--wide { grid-column: 1 / -1; }
 .about-field dt {
   font-family: var(--font-mono);
   font-size: var(--fs-3xs);

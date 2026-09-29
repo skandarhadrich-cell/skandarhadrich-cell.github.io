@@ -134,10 +134,6 @@ def slugify(s: str) -> str:
     return s or "entry"
 
 
-def human_bytes(n: int) -> str:
-    return f"{n / 1024:.1f} KB" if n >= 1024 else f"{n} B"
-
-
 def render(template: str, tokens: dict) -> str:
     src = read(os.path.join(TPL, template))
     for key, value in tokens.items():
@@ -412,10 +408,9 @@ def markdown_to_html(md: str) -> str:
 
 THEME_BOOT = """<script>
 (function(){var d=document.documentElement;d.classList.add('js');
-try{var t=localStorage.getItem('0xmrerror:theme');
-if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
-d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
-var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+try{var t=localStorage.getItem('0xmrerror:theme')||'dark';
+if(t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}}catch(e){}})();
 </script>"""
 
 CANONICAL_ABSPATH = re.compile(r'(href|src)="/')
@@ -495,7 +490,7 @@ def rail(site: dict, writeups: list[dict]) -> str:
     <button class="btn btn--sm btn--ghost btn--micro" type="button" data-accent-toggle
       >accent</button>
     <button class="btn btn--sm btn--ghost btn--micro" type="button" data-theme-toggle
-      data-theme-pref="auto">theme</button>
+      data-theme-pref="dark" aria-label="Theme: dark">theme</button>
   </div>
 </aside>
 <!-- palette entries (hidden, read by js/main.js) -->
@@ -517,7 +512,7 @@ def navbar(site: dict) -> str:
     <div class="nav-actions">
       <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
       <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
-        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        data-theme-pref="dark" aria-label="Theme: dark" title="Toggle theme">
         <span aria-hidden="true">◐</span>
       </button>
       <button class="nav-toggle" id="navToggle" type="button"
@@ -616,13 +611,16 @@ def block_stats(site: dict) -> str:
 
 def block_whoami(site: dict) -> str:
     a = site["about"]
-    fields = "".join(
-        f'<div class="about-field"><dt>{esc(f["key"])}</dt>'
-        + (f'<dd><a href="{esc(f["link"])}" rel="noopener">{esc(f["val"])}</a></dd>' if f.get("link")
-           else f'<dd>{esc(f["val"])}</dd>')
-        + "</div>"
-        for f in a["fields"]
-    )
+
+    def field(f: dict) -> str:
+        # `wide` fields take a whole grid row. The focus line is long, and
+        # sharing a row with the affiliation left it cramped and wrapped.
+        cls = "about-field about-field--wide" if f.get("wide") else "about-field"
+        val = (f'<a href="{esc(f["link"])}" rel="noopener">{esc(f["val"])}</a>'
+               if f.get("link") else esc(f["val"]))
+        return f'<div class="{cls}"><dt>{esc(f["key"])}</dt><dd>{val}</dd></div>'
+
+    fields = "".join(field(f) for f in a["fields"])
     badges = "".join(
         f'<div class="rank-badge"><span aria-hidden="true">{esc(b["icon"])}</span>'
         f'<span>{esc(b["text"])}</span><b>{esc(b["strong"])}</b><small>{esc(b["sub"])}</small></div>'
@@ -630,7 +628,6 @@ def block_whoami(site: dict) -> str:
     )
     return render("_whoami.html", {
         "HANDLE": esc(site["site"]["handle"]),
-        "ABOUT_BYTES": human_bytes(len(a["bio"])),
         "SUBLINE_SHORT": esc(re.sub(r"\*\*(.+?)\*\*", r"\1", site["facts"]["ctf"][0])),
         "ABOUT_FIELDS": fields,
         "BIO": esc(a["bio"]),
@@ -808,7 +805,7 @@ def block_contact(site: dict) -> str:
         f'<span class="faint elsewhere-key">{esc(k).ljust(9)}</span> {v}</p>'
         for k, v in (
             ("writeups", '<a href="/#writeups">all writeups \u2192</a>'),
-            ("cv", '<a href="/cv.html">curriculum vitae \u2192</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)'),
+            ("cv", '<a href="/cv.html">CV \u2192</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)'),
             ("github", f'<a href="{esc(ident["links"]["github"])}" rel="noopener">{esc(ident["github"])}</a>'),
             ("linkedin", f'<a href="{esc(ident["links"]["linkedin"])}" rel="noopener">{esc(ident["linkedin"])}</a>'),
             ("privacy", "no trackers, no cookies, no third-party requests on this site"),
@@ -1000,8 +997,8 @@ def build_cv(site: dict) -> bool:
     page = render("cv.html", {
         "SITE_LANG": site["site"]["lang"],
         "HEAD": head(site,
-                     title=f'{site["site"]["name"]} — Curriculum vitae',
-                     desc="Curriculum vitae for Skandar Hadrich: reverse engineering, malware analysis, SOC automation, security engineering internship experience.",
+                     title=f'{site["site"]["name"]} — CV',
+                     desc="CV for Skandar Hadrich: reverse engineering, malware analysis, SOC automation, security engineering internship experience.",
                      url=SITE_URL + "/cv.html"),
         "RAIL": "", "NAVBAR": navbar(site),
         "HANDLE": esc(site["site"]["handle"]),

@@ -58,6 +58,11 @@ const THEME_KEY = '0xmrerror:theme';
 const ACCENT_KEY = '0xmrerror:accent';
 const ACCENTS = ['', 'phosphor', 'nord', 'crimson'];
 
+/* The site opens dark. `auto` is still offered by the toggle and still
+   follows the OS, it is just no longer what you get before choosing. */
+const DEFAULT_THEME = 'dark';
+const THEME_LABEL = { auto: 'Theme: system', light: 'Theme: light', dark: 'Theme: dark' };
+
 function systemTheme() {
 return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
@@ -75,22 +80,26 @@ else delete document.documentElement.dataset.accent;
 }
 
 (function initTheme() {
-let pref = 'auto';
-try { pref = localStorage.getItem(THEME_KEY) || 'auto'; } catch { /* private mode */ }
+let pref = DEFAULT_THEME;
+try { pref = localStorage.getItem(THEME_KEY) || DEFAULT_THEME; } catch { /* private mode */ }
+if (!Object.prototype.hasOwnProperty.call(THEME_LABEL, pref)) pref = DEFAULT_THEME;
 applyTheme(pref);
 try { applyAccent(localStorage.getItem(ACCENT_KEY) || ''); } catch { /* ignore */ }
 
 $$('[data-theme-toggle]').forEach(btn => {
+  // the markup ships `dark`, but a stored preference wins: keep the
+  // button's own state and its label honest either way
+  btn.dataset.themePref = pref;
+  btn.setAttribute('aria-label', THEME_LABEL[pref]);
   btn.addEventListener('click', () => {
     const order = ['auto', 'light', 'dark'];
-    const cur = btn.dataset.themePref || 'auto';
+    const cur = btn.dataset.themePref || DEFAULT_THEME;
     const next = order[(order.indexOf(cur) + 1) % order.length];
     btn.dataset.themePref = next;
     applyTheme(next);
     try { localStorage.setItem(THEME_KEY, next); } catch { /* ignore */ }
-    const label = { auto: 'Theme: system', light: 'Theme: light', dark: 'Theme: dark' };
-    btn.setAttribute('aria-label', label[next]);
-    toast(label[next]);
+    btn.setAttribute('aria-label', THEME_LABEL[next]);
+    toast(THEME_LABEL[next]);
   });
 });
 
@@ -107,8 +116,8 @@ $$('[data-accent-toggle]').forEach(btn => {
 
 window.matchMedia('(prefers-color-scheme: light)')
   .addEventListener('change', () => {
-    let pref = 'auto';
-    try { pref = localStorage.getItem(THEME_KEY) || 'auto'; } catch { /* ignore */ }
+    let pref = DEFAULT_THEME;
+    try { pref = localStorage.getItem(THEME_KEY) || DEFAULT_THEME; } catch { /* ignore */ }
     if (pref === 'auto') applyTheme('auto');
   });
 })();

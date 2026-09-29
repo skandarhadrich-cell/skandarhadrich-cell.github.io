@@ -38,10 +38,9 @@
   <link rel="stylesheet" href="/css/print.css" media="print">
   <script>
 (function(){var d=document.documentElement;d.classList.add('js');
-try{var t=localStorage.getItem('0xmrerror:theme');
-if(!t||t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
-d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}
-var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=p;}}catch(e){}})();
+try{var t=localStorage.getItem('0xmrerror:theme')||'dark';
+if(t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}}catch(e){}})();
 </script>
     <script type="application/ld+json">{
     "@context": "https://schema.org",
@@ -117,7 +116,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
     <button class="btn btn--sm btn--ghost btn--micro" type="button" data-accent-toggle
       >accent</button>
     <button class="btn btn--sm btn--ghost btn--micro" type="button" data-theme-toggle
-      data-theme-pref="auto">theme</button>
+      data-theme-pref="dark" aria-label="Theme: dark">theme</button>
   </div>
 </aside>
 <!-- palette entries (hidden, read by js/main.js) -->
@@ -131,7 +130,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
     <div class="nav-actions">
       <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
       <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
-        data-theme-pref="auto" aria-label="Theme: system" title="Toggle theme">
+        data-theme-pref="dark" aria-label="Theme: dark" title="Toggle theme">
         <span aria-hidden="true">◐</span>
       </button>
       <button class="nav-toggle" id="navToggle" type="button"
@@ -151,7 +150,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
 
     <div class="hero-cta">
       <a class="btn btn--primary" href="#writeups">Read the writeups <span aria-hidden="true">→</span></a>
-      <a class="btn" href="cv.html">Curriculum vitae</a>
+      <a class="btn" href="cv.html">CV</a>
       <a class="btn btn--ghost" href="https://github.com/skandarhadrich-cell" rel="noopener">github/skandarhadrich-cell</a>
       <button class="btn btn--ghost" type="button" data-palette-open>
         <span aria-hidden="true">⌘</span> Search <kbd>K</kbd>
@@ -182,7 +181,6 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
   <div class="container">
     <p class="cmd-line">
       <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cat whoami.txt</span>
-      <span class="p-out">744 B</span>
     </p>
 
     <div class="section-head">
@@ -197,7 +195,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
       </div>
       <div class="term-body">
         <dl class="about-grid">
-          <div class="about-field"><dt>handle</dt><dd>0xmrerror</dd></div><div class="about-field"><dt>location</dt><dd>Tunis, Tunisia 🇹🇳</dd></div><div class="about-field"><dt>affiliation</dt><dd>ENIT — ICT Engineering</dd></div><div class="about-field"><dt>focus</dt><dd>Malware Analysis · RevEng · SOC Automation</dd></div><div class="about-field"><dt>ctf</dt><dd>SECURINETS ENIT · HTB Uni CTF 2025 (77th)</dd></div><div class="about-field"><dt>github</dt><dd><a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></dd></div>
+          <div class="about-field"><dt>handle</dt><dd>0xmrerror</dd></div><div class="about-field"><dt>location</dt><dd>Tunis, Tunisia 🇹🇳</dd></div><div class="about-field"><dt>affiliation</dt><dd>ENIT — ICT Engineering</dd></div><div class="about-field about-field--wide"><dt>focus</dt><dd>Malware Analysis · Reverse Engineering · Penetration Testing</dd></div><div class="about-field"><dt>ctf</dt><dd>SECURINETS ENIT · HTB Uni CTF 2025 (77th)</dd></div><div class="about-field"><dt>github</dt><dd><a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></dd></div>
         </dl>
         <p class="about-bio">I&#x27;m a cybersecurity-focused ICT Engineering student at ENIT with a bias toward the hard parts of the stack: unpacking .NET obfuscation, emulating shellcode, tracing syscalls in a live VM, and turning the result into an automated pipeline. I built an 8-stage nested-VM malware analysis pipeline end to end as a sole-contributor research intern — static triage through eBPF syscall tracing, Volatility3 VMI correlation, anti-sandbox evasion, C2 sinkholing and automated MITRE ATT&amp;CK attribution. I also work in ML for security: graph neural networks over binary control-flow graphs, and reinforcement learning for autonomous intrusion response. I compete in CTFs with SECURINETS ENIT and contribute to open-source security tooling through G2FOSS.</p>
         <div class="about-badges">
@@ -772,7 +770,7 @@ var p=localStorage.getItem('0xmrerror:theme');if(p&&p!=='auto'){d.dataset.theme=
       <div class="reveal">
         <h3 class="col-head">elsewhere</h3>
                 <p class="dim elsewhere-line"><span class="faint elsewhere-key">writeups </span> <a href="/#writeups">all writeups →</a></p>
-        <p class="dim elsewhere-line"><span class="faint elsewhere-key">cv       </span> <a href="/cv.html">curriculum vitae →</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)</p>
+        <p class="dim elsewhere-line"><span class="faint elsewhere-key">cv       </span> <a href="/cv.html">CV →</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)</p>
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">github   </span> <a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></p>
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">linkedin </span> <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">skandar-hadrich</a></p>
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">privacy  </span> no trackers, no cookies, no third-party requests on this site</p>

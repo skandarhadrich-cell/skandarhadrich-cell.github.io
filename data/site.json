@@ -89,7 +89,8 @@
       },
       {
         "key": "focus",
-        "val": "Malware Analysis · RevEng · SOC Automation"
+        "val": "Malware Analysis · Reverse Engineering · Penetration Testing",
+        "wide": true
       },
       {
         "key": "ctf",
