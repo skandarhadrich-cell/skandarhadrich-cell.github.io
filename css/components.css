@@ -151,9 +151,9 @@
   border: 1px solid var(--line-strong);
   color: var(--text-dim);
 }
-.badge-platform[data-platform="thm"] { color: #ff7a45; border-color: color-mix(in srgb, #ff7a45 40%, transparent); }
-.badge-platform[data-platform="htb"] { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
-.badge-platform[data-platform="ctf"] { color: var(--accent-2-text); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); }
+.badge-platform[data-platform="thm"]     { color: var(--plat-thm);     border-color: color-mix(in srgb, var(--plat-thm) 40%, transparent); }
+.badge-platform[data-platform="htb"]     { color: var(--plat-htb);     border-color: color-mix(in srgb, var(--plat-htb) 40%, transparent); }
+.badge-platform[data-platform="picoctf"] { color: var(--plat-picoctf); border-color: color-mix(in srgb, var(--plat-picoctf) 40%, transparent); }
 
 /* availability chip */
 .chip-available {
@@ -418,26 +418,25 @@
 .writeup-card:hover .writeup-arrow { color: var(--accent-text); transform: translateX(3px); }
 .writeup-card.is-hidden { display: none; }
 
-/* filter bar */
+/* filter bar: one labelled group per line */
 .filters {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  /* wider between groups than within them: that gap is what separates a set
-     from the next one, and it survives the bar wrapping onto a second row */
-  gap: var(--sp-2) var(--sp-5);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-2);
   margin-bottom: var(--sp-6);
 }
 .filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-/* the uppercase label is the separator — a rule on .filter-set + .filter-set
-   would hang off the left edge of a set that wraps onto its own row */
-.filter-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+.filter-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
 .filter-label {
   font-family: var(--font-mono);
   font-size: var(--fs-3xs);
   text-transform: uppercase;
   letter-spacing: .1em;
   color: var(--text-faint);
+  /* fixed so every group's buttons start at the same x */
+  min-width: 8ch;
+  text-align: right;
 }
 .filter-btn {
   font-family: var(--font-mono);
@@ -457,63 +456,70 @@
   border-color: var(--accent);
   font-weight: 600;
 }
-.filter-count { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); margin-left: auto; }
+.filter-count { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); margin-top: var(--sp-1); }
 
 /* ══ pipeline diagram ════════════════════════════════════ */
-/* The pipeline is one long chain, so the phase is the unit you read top
-   to bottom and the stage cards run across inside it. */
-.pipeline { display: flex; flex-direction: column; gap: var(--sp-4); margin-top: var(--sp-6); }
-.phase {
-  background: var(--bg-1);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  overflow: hidden;
+/* The pipeline is one long chain, so it reads as a single line of boxes
+   with arrows between them, wrapping onto new rows as it runs out of
+   room. The arrow is painted on the step's ::after rather than sitting
+   in the flow, so a row that wraps never starts with a stray arrow. */
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--sp-5) var(--sp-7);
+  margin-top: var(--sp-6);
 }
-.phase-head {
-  padding: var(--sp-4) var(--sp-5);
-  background: var(--bg-2);
-  border-bottom: 1px solid var(--line);
-}
-.phase-n {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: var(--fs-3xs);
-  color: var(--accent-text);
-  text-transform: uppercase;
-  letter-spacing: .1em;
-}
-.phase-name { font-size: var(--fs-sm); color: var(--text-hi); font-weight: 600; margin-top: 3px; }
-.phase-blurb { font-size: var(--fs-2xs); color: var(--text-dim); margin-top: var(--sp-2); max-width: 80ch; }
-.phase-stages {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
-  gap: var(--sp-3);
-  padding: var(--sp-4) var(--sp-5) var(--sp-3);
-}
-.phase-aside { font-size: var(--fs-3xs); color: var(--text-faint); padding: 0 var(--sp-5) var(--sp-4); max-width: 82ch; }
 .stage {
   position: relative;
   background: var(--bg-2);
   border: 1px solid var(--line);
   border-radius: var(--r);
-  padding: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  min-width: 128px;
+  flex: 1 1 128px;
+  /* grow to share a full row, but never balloon: a last row with two boxes
+     left would otherwise stretch them to half the container each */
+  max-width: 240px;
   transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
 }
+.stage:not(:last-child)::after {
+  content: '\2192';             /* → */
+  position: absolute;
+  inset-inline-end: calc(-1 * var(--sp-7));
+  top: 50%;
+  translate: 0 -50%;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--text-faint);
+}
 .stage:hover { border-color: var(--accent-line); background: var(--bg-3); }
-/* phase 2 is the live window: these run at once, not one after another */
-.stage.is-live { border-left: 2px solid var(--accent-line); }
 .stage .n {
   font-family: var(--font-mono);
   font-size: var(--fs-3xs);
   color: var(--accent-text);
   letter-spacing: .1em;
 }
-.stage b { font-size: var(--fs-sm); color: var(--text-hi); font-weight: 600; line-height: 1.35; }
-.stage .tool { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--accent-2-text); }
-.stage small { font-size: var(--fs-2xs); color: var(--text-faint); line-height: 1.5; }
+.stage b { font-size: var(--fs-2xs); color: var(--text-hi); font-weight: 600; line-height: 1.35; }
+.stage .tool {
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  color: var(--accent-2-text);
+  overflow-wrap: anywhere;
+}
+/* the live window: this step runs the sample instead of reasoning about it */
+.stage.is-live { border-color: var(--accent-line); background: var(--accent-soft); }
+.stage.is-live b { color: var(--accent-text); }
+
+/* narrow: the row gap costs more than it buys once the boxes are stacked
+   two-up, and 16 boxes over 8 rows is a long scroll */
+@media (max-width: 560px) {
+  .pipeline { gap: var(--sp-2) var(--sp-5); }
+  .stage { padding: var(--sp-2) var(--sp-3); min-width: 120px; flex-basis: 120px; }
+}
 
 /* ══ command palette ═════════════════════════════════════ */
 .palette {

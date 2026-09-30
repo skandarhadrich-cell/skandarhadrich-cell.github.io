@@ -68,6 +68,15 @@
   --danger-soft: rgb(249 95 88 / .13);
   --info-soft: rgb(88 166 255 / .13);
 
+  /* ── platform brands ─────────────────────────────────────
+     A badge hue, not a meaning, so it never moves with --hue. But
+     it is text on a card, so it still has to clear 4.5:1 on the
+     lightest surface it can land on (--bg-3): the dark set is the
+     bright end of each hue, the light set the dark end.        */
+  --plat-picoctf: #58a6ff;   /*  6.5:1 worst case */
+  --plat-htb:     #3fb950;   /*  6.5:1 */
+  --plat-thm:     #f0883e;   /*  6.5:1 */
+
   /* ── code syntax ──────────────────────────────────────────
      Solved per theme on the code-block surface. The four that
      ship dark-theme literals (#5f7f5f, #d8b24a, #e8734a, #c98fd6)
@@ -166,6 +175,10 @@
   --warn-soft: rgb(136 91 0 / .10);
   --danger-soft: rgb(194 32 43 / .10);
   --info-soft: rgb(8 97 201 / .10);
+
+  --plat-picoctf: #0a5fb4;   /*  5.6:1 worst case */
+  --plat-htb:     #187432;   /*  5.2:1 */
+  --plat-thm:     #a04100;   /*  5.7:1 */
 
   --syn-comment: #516c51;    /*  4.55:1 */
   --syn-string:  #7b611b;    /*  4.61:1 */

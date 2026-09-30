@@ -185,12 +185,11 @@ jobs:
               '.skill-name','.skill-cat','.skill-items li','.stage-name',
               '.stage-tool','.label','.k','.term-title','.cmd-line','.p-user',
               '.p-host','.p-cmd','.about-bio','.about-grid dt','.about-grid dd',
-              '.read-time','.diff-badge','.platform-tag','.contact-label',
+              '.read-time','.diff-badge','.platform-tag','.badge-platform','.contact-label',
               '.contact-value','.code-copy','.series a','.toast','.btn',
-              // the phase diagram and the filter labels: both replaced
-              // markup this batch, so they need the same rendered check the
-              // rest of the component classes get
-              '.phase-n','.phase-name','.phase-blurb','.phase-aside',
+              // the pipeline flow and the filter labels: both are
+              // self-contained components, so they get the same rendered
+              // check the rest of the classes get
               '.stage .n','.stage b','.stage .tool','.filter-label',
               // structural, not styled text: the audit walks up for the real
               // background, so plain <li>/<a>/<small> inside a panel have to be
@@ -487,6 +486,10 @@ jobs:
               'text-dim':  (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
               'text-faint':(['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
               'accent-text': (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
+              # platform badge brands: fixed hues, but still text on a card
+              'plat-picoctf': (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
+              'plat-htb':     (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
+              'plat-thm':     (['bg-0', 'bg-1', 'bg-2', 'bg-3'], None),
               'ok':     (['bg-0', 'bg-2', 'bg-inset'], 'ok-soft'),
               'warn':   (['bg-0', 'bg-2', 'bg-inset'], 'warn-soft'),
               'danger': (['bg-0', 'bg-2', 'bg-inset'], 'danger-soft'),

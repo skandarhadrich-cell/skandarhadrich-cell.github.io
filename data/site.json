@@ -451,166 +451,119 @@
   },
   "pipeline": {
     "title": "9-stage, 5-phase nested-VM malware analysis pipeline",
-    "phases": [
+    "flow": [
       {
-        "n": 1,
-        "name": "Pre-detonation triage & static analysis",
-        "blurb": "Nothing executes yet. The orchestrator triages the sample, forks it into a managed or a native path, and both converge on a decision about what — if anything — is safe to detonate.",
-        "aside": "A .NET verdict routes the sample to 2b; a native one falls through 2 → 3 → 4. Both paths end at detonation target determination, which chooses the extracted payload or falls back to the original binary.",
-        "stages": [
-          {
-            "n": "1",
-            "name": "Static triage",
-            "module": "static_triage.py",
-            "note": "Hashes, entropy, PE/ELF headers, digital signatures — first verdict and risk score"
-          },
-          {
-            "n": "2",
-            "name": "Generic deobfuscation",
-            "module": "deobfuscator.py",
-            "note": "Stack-string decoding, XOR/Base64/RC4 decryption, regex IoC extraction"
-          },
-          {
-            "n": "2b",
-            "name": ".NET unpacking",
-            "module": "stage2b_dotnet.py",
-            "note": "CLR header validation, de4dot unpacking, timing-patch injection, embedded C2 strings"
-          },
-          {
-            "n": "3",
-            "name": "CFG extraction",
-            "module": "cfg_extractor.py",
-            "note": "Control-flow graph via angr, cyclomatic complexity, obfuscation scoring"
-          },
-          {
-            "n": "4",
-            "name": "User-mode emulation",
-            "module": "speakeasy_emulator.py",
-            "note": "Conditional Windows API emulation and in-memory payload extraction"
-          }
-        ]
+        "n": "1",
+        "name": "Static triage",
+        "module": "static_triage.py",
+        "phase": 1,
+        "note": "Hashes, entropy, headers, signatures"
       },
       {
-        "n": 2,
-        "name": "Live detonation & concurrent telemetry",
-        "blurb": "The dynamic window. CleanState restore, uptime-evasion patching, three monitoring engines and a network tap, all writing into one master timeline.",
-        "aside": "INetSim, DNSChef and iptables stand up network deception and redirect every C2 call to the sinkhole on port 4444.",
-        "stages": [
-          {
-            "n": null,
-            "name": "Snapshot & evasion",
-            "module": "QEMU monitor",
-            "note": "CleanState restore, then KUSER_SHARED_DATA.TickCount is patched to defeat GetTickCount-based uptime checks"
-          },
-          {
-            "n": null,
-            "name": "eBPF monitor",
-            "module": "ebpf_monitor.py",
-            "note": "Host-context syscalls and socket operations from KVM tracepoints"
-          },
-          {
-            "n": null,
-            "name": "VMI process tree",
-            "module": "vmi_monitor.py",
-            "note": "Guest process creation, injection and termination via libVMI / Volatility 3"
-          },
-          {
-            "n": null,
-            "name": "Network TAP",
-            "module": "network_tap.py",
-            "note": "Virtual-NIC frame capture on virbr1"
-          },
-          {
-            "n": null,
-            "name": "Timeline correlation",
-            "module": "TimelineCorrelator",
-            "note": "eBPF and VMI events merged into master_timeline.json for the whole run"
-          }
-        ]
+        "n": "2",
+        "name": "Deobfuscation",
+        "module": "deobfuscator.py",
+        "phase": 1,
+        "note": "Stack strings, XOR, RC4"
       },
       {
-        "n": 3,
-        "name": "Post-detonation enrichment & scoring",
-        "blurb": "Once the window closes the evidence is normalised, enriched against outside threat intel, and folded into a single weighted score.",
-        "aside": null,
-        "stages": [
-          {
-            "n": "5.1",
-            "name": "Config decryption",
-            "module": "config_decryptor.py",
-            "note": "Family-specific config decryption for NjRAT, AsyncRAT and AgentTesla"
-          },
-          {
-            "n": "5.2",
-            "name": "IOC extraction",
-            "module": "ioc_extractor.py",
-            "note": "RFC-compliant normalisation and OS-telemetry noise filtering → validated_iocs.json"
-          },
-          {
-            "n": "5.3",
-            "name": "Threat-intel pivot",
-            "module": "threat_intel_pivot.py",
-            "note": "VirusTotal, AlienVault OTX and MalwareBazaar hits, correlated against INetSim DNS logs"
-          },
-          {
-            "n": "5.4",
-            "name": "Scoring",
-            "module": "scorer.py",
-            "note": "Every artefact aggregated into a unified weighted risk score and verdict"
-          }
-        ]
+        "n": "2b",
+        "name": ".NET unpacking",
+        "module": "stage2b_dotnet.py",
+        "phase": 1,
+        "note": "de4dot, timing patch, C2 strings"
       },
       {
-        "n": 4,
-        "name": "Master merge, clustering & ATT&CK mapping",
-        "blurb": "The run is compared against every previous run in the workspace, then enriched into the report skeleton.",
-        "aside": "Cluster similarity feeds a second scoring pass before the report is sealed as master_report_<sha256>.json.",
-        "stages": [
-          {
-            "n": "6",
-            "name": "Behavioural clustering",
-            "module": "lsh_cluster.py",
-            "note": "MinHash/LSH signatures over the workspace corpus, family-level consensus"
-          },
-          {
-            "n": "7",
-            "name": "Master merge",
-            "module": "base merge",
-            "note": "Every JSON artefact produced so far folded into the master report skeleton"
-          },
-          {
-            "n": "7.1",
-            "name": "ATT&CK mapping",
-            "module": "attck_mapper.py",
-            "note": "Observed techniques mapped to tactics, plus a Navigator JSON layer"
-          },
-          {
-            "n": "7.2",
-            "name": "Campaign correlation",
-            "module": "campaign_correlator.py",
-            "note": "Matched against the local campaign registry, auto-registered on a strong hit"
-          }
-        ]
+        "n": "3",
+        "name": "CFG extraction",
+        "module": "cfg_extractor.py",
+        "phase": 1,
+        "note": "angr, complexity, obfuscation score"
       },
       {
-        "n": 5,
-        "name": "Report generation & retention",
-        "blurb": "Presentational, and then housekeeping.",
-        "aside": "Stage 9 keeps the workspace from growing without bound: multi-gigabyte VMI memory dumps and raw eBPF event logs are purged according to the keep_vmi_memdump and keep_ebpf_raw flags in config.yaml.",
-        "stages": [
-          {
-            "n": "8",
-            "name": "Report generation",
-            "module": "report_generator.py",
-            "note": "Master JSON consumed and compiled into a structured PDF executive summary"
-          },
-          {
-            "n": "9",
-            "name": "Retention",
-            "module": "policy",
-            "note": "Intermediate artefact purge — VMI memory dumps, raw eBPF event logs"
-          }
-        ]
+        "n": "4",
+        "name": "Emulation",
+        "module": "speakeasy_emulator.py",
+        "phase": 1,
+        "note": "API emulation, payload extraction"
+      },
+      {
+        "n": null,
+        "name": "Live detonation",
+        "module": "QEMU / KVM",
+        "phase": 2,
+        "note": "eBPF + Volatility 3 + network tap, concurrent",
+        "live": true
+      },
+      {
+        "n": "5.1",
+        "name": "Config decryption",
+        "module": "config_decryptor.py",
+        "phase": 3,
+        "note": "njRAT, AsyncRAT, AgentTesla"
+      },
+      {
+        "n": "5.2",
+        "name": "IOC extraction",
+        "module": "ioc_extractor.py",
+        "phase": 3,
+        "note": "normalised, OS noise filtered"
+      },
+      {
+        "n": "5.3",
+        "name": "Intel pivot",
+        "module": "threat_intel_pivot.py",
+        "phase": 3,
+        "note": "VirusTotal, OTX, MalwareBazaar"
+      },
+      {
+        "n": "5.4",
+        "name": "Scoring",
+        "module": "scorer.py",
+        "phase": 3,
+        "note": "weighted risk score, verdict"
+      },
+      {
+        "n": "6",
+        "name": "Clustering",
+        "module": "lsh_cluster.py",
+        "phase": 4,
+        "note": "MinHash / LSH, family consensus"
+      },
+      {
+        "n": "7",
+        "name": "Master merge",
+        "module": "report skeleton",
+        "phase": 4,
+        "note": "every artefact, one report"
+      },
+      {
+        "n": "7.1",
+        "name": "ATT&CK map",
+        "module": "attck_mapper.py",
+        "phase": 4,
+        "note": "tactics, Navigator layer"
+      },
+      {
+        "n": "7.2",
+        "name": "Campaign link",
+        "module": "campaign_correlator.py",
+        "phase": 4,
+        "note": "registry match, auto-register"
+      },
+      {
+        "n": "8",
+        "name": "PDF report",
+        "module": "report_generator.py",
+        "phase": 5,
+        "note": "structured executive summary"
+      },
+      {
+        "n": "9",
+        "name": "Retention",
+        "module": "policy",
+        "phase": 5,
+        "note": "dumps and raw logs purged"
       }
     ]
   },

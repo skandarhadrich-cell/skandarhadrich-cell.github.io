@@ -374,174 +374,90 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
     </div>
 
     <div class="section-head section-head--panel">
-      <h2 class="col-head">the pipeline, phase by phase</h2>
-      <p>Nine stages across five phases, each with the module that runs it. Stage 2b, 5.1–5.4 and 7.1–7.2 are the sub-stages the orchestrator branches into along the way.</p>
+      <h2 class="col-head">the pipeline, end to end</h2>
+      <p>Nine stages across five phases, and the module that runs each one. Hover a box for what it does.</p>
     </div>
     <div class="pipeline reveal">
-            <section class="phase">
-        <div class="phase-head">
-          <span class="phase-n">Phase 1</span>
-          <h3 class="phase-name">Pre-detonation triage &amp; static analysis</h3>
-          <p class="phase-blurb">Nothing executes yet. The orchestrator triages the sample, forks it into a managed or a native path, and both converge on a decision about what — if anything — is safe to detonate.</p>
-        </div>
-        <div class="phase-stages">
-          <div class="stage">
-            <span class="n">Stage 1</span>
-            <b>Static triage</b>
-            <span class="tool">static_triage.py</span>
-            <small>Hashes, entropy, PE/ELF headers, digital signatures — first verdict and risk score</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 2</span>
-            <b>Generic deobfuscation</b>
-            <span class="tool">deobfuscator.py</span>
-            <small>Stack-string decoding, XOR/Base64/RC4 decryption, regex IoC extraction</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 2b</span>
-            <b>.NET unpacking</b>
-            <span class="tool">stage2b_dotnet.py</span>
-            <small>CLR header validation, de4dot unpacking, timing-patch injection, embedded C2 strings</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 3</span>
-            <b>CFG extraction</b>
-            <span class="tool">cfg_extractor.py</span>
-            <small>Control-flow graph via angr, cyclomatic complexity, obfuscation scoring</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 4</span>
-            <b>User-mode emulation</b>
-            <span class="tool">speakeasy_emulator.py</span>
-            <small>Conditional Windows API emulation and in-memory payload extraction</small>
-          </div>
-        </div>
-        <p class="phase-aside">A .NET verdict routes the sample to 2b; a native one falls through 2 → 3 → 4. Both paths end at detonation target determination, which chooses the extracted payload or falls back to the original binary.</p>
-      </section>
-      <section class="phase">
-        <div class="phase-head">
-          <span class="phase-n">Phase 2</span>
-          <h3 class="phase-name">Live detonation &amp; concurrent telemetry</h3>
-          <p class="phase-blurb">The dynamic window. CleanState restore, uptime-evasion patching, three monitoring engines and a network tap, all writing into one master timeline.</p>
-        </div>
-        <div class="phase-stages">
-          <div class="stage is-live">
-            <b>Snapshot &amp; evasion</b>
-            <span class="tool">QEMU monitor</span>
-            <small>CleanState restore, then KUSER_SHARED_DATA.TickCount is patched to defeat GetTickCount-based uptime checks</small>
-          </div>
-          <div class="stage is-live">
-            <b>eBPF monitor</b>
-            <span class="tool">ebpf_monitor.py</span>
-            <small>Host-context syscalls and socket operations from KVM tracepoints</small>
-          </div>
-          <div class="stage is-live">
-            <b>VMI process tree</b>
-            <span class="tool">vmi_monitor.py</span>
-            <small>Guest process creation, injection and termination via libVMI / Volatility 3</small>
-          </div>
-          <div class="stage is-live">
-            <b>Network TAP</b>
-            <span class="tool">network_tap.py</span>
-            <small>Virtual-NIC frame capture on virbr1</small>
-          </div>
-          <div class="stage is-live">
-            <b>Timeline correlation</b>
-            <span class="tool">TimelineCorrelator</span>
-            <small>eBPF and VMI events merged into master_timeline.json for the whole run</small>
-          </div>
-        </div>
-        <p class="phase-aside">INetSim, DNSChef and iptables stand up network deception and redirect every C2 call to the sinkhole on port 4444.</p>
-      </section>
-      <section class="phase">
-        <div class="phase-head">
-          <span class="phase-n">Phase 3</span>
-          <h3 class="phase-name">Post-detonation enrichment &amp; scoring</h3>
-          <p class="phase-blurb">Once the window closes the evidence is normalised, enriched against outside threat intel, and folded into a single weighted score.</p>
-        </div>
-        <div class="phase-stages">
-          <div class="stage">
-            <span class="n">Stage 5.1</span>
-            <b>Config decryption</b>
-            <span class="tool">config_decryptor.py</span>
-            <small>Family-specific config decryption for NjRAT, AsyncRAT and AgentTesla</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 5.2</span>
-            <b>IOC extraction</b>
-            <span class="tool">ioc_extractor.py</span>
-            <small>RFC-compliant normalisation and OS-telemetry noise filtering → validated_iocs.json</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 5.3</span>
-            <b>Threat-intel pivot</b>
-            <span class="tool">threat_intel_pivot.py</span>
-            <small>VirusTotal, AlienVault OTX and MalwareBazaar hits, correlated against INetSim DNS logs</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 5.4</span>
-            <b>Scoring</b>
-            <span class="tool">scorer.py</span>
-            <small>Every artefact aggregated into a unified weighted risk score and verdict</small>
-          </div>
-        </div>
-      </section>
-      <section class="phase">
-        <div class="phase-head">
-          <span class="phase-n">Phase 4</span>
-          <h3 class="phase-name">Master merge, clustering &amp; ATT&amp;CK mapping</h3>
-          <p class="phase-blurb">The run is compared against every previous run in the workspace, then enriched into the report skeleton.</p>
-        </div>
-        <div class="phase-stages">
-          <div class="stage">
-            <span class="n">Stage 6</span>
-            <b>Behavioural clustering</b>
-            <span class="tool">lsh_cluster.py</span>
-            <small>MinHash/LSH signatures over the workspace corpus, family-level consensus</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 7</span>
-            <b>Master merge</b>
-            <span class="tool">base merge</span>
-            <small>Every JSON artefact produced so far folded into the master report skeleton</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 7.1</span>
-            <b>ATT&amp;CK mapping</b>
-            <span class="tool">attck_mapper.py</span>
-            <small>Observed techniques mapped to tactics, plus a Navigator JSON layer</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 7.2</span>
-            <b>Campaign correlation</b>
-            <span class="tool">campaign_correlator.py</span>
-            <small>Matched against the local campaign registry, auto-registered on a strong hit</small>
-          </div>
-        </div>
-        <p class="phase-aside">Cluster similarity feeds a second scoring pass before the report is sealed as master_report_&lt;sha256&gt;.json.</p>
-      </section>
-      <section class="phase">
-        <div class="phase-head">
-          <span class="phase-n">Phase 5</span>
-          <h3 class="phase-name">Report generation &amp; retention</h3>
-          <p class="phase-blurb">Presentational, and then housekeeping.</p>
-        </div>
-        <div class="phase-stages">
-          <div class="stage">
-            <span class="n">Stage 8</span>
-            <b>Report generation</b>
-            <span class="tool">report_generator.py</span>
-            <small>Master JSON consumed and compiled into a structured PDF executive summary</small>
-          </div>
-          <div class="stage">
-            <span class="n">Stage 9</span>
-            <b>Retention</b>
-            <span class="tool">policy</span>
-            <small>Intermediate artefact purge — VMI memory dumps, raw eBPF event logs</small>
-          </div>
-        </div>
-        <p class="phase-aside">Stage 9 keeps the workspace from growing without bound: multi-gigabyte VMI memory dumps and raw eBPF event logs are purged according to the keep_vmi_memdump and keep_ebpf_raw flags in config.yaml.</p>
-      </section>
+            <div class="stage">
+        <span class="n">Stage 1</span>
+        <b>Static triage</b>
+        <span class="tool" title="Hashes, entropy, headers, signatures">static_triage.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 2</span>
+        <b>Deobfuscation</b>
+        <span class="tool" title="Stack strings, XOR, RC4">deobfuscator.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 2b</span>
+        <b>.NET unpacking</b>
+        <span class="tool" title="de4dot, timing patch, C2 strings">stage2b_dotnet.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 3</span>
+        <b>CFG extraction</b>
+        <span class="tool" title="angr, complexity, obfuscation score">cfg_extractor.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 4</span>
+        <b>Emulation</b>
+        <span class="tool" title="API emulation, payload extraction">speakeasy_emulator.py</span>
+      </div>
+      <div class="stage is-live">
+        <span class="n">Live window</span>
+        <b>Live detonation</b>
+        <span class="tool" title="eBPF + Volatility 3 + network tap, concurrent">QEMU / KVM</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 5.1</span>
+        <b>Config decryption</b>
+        <span class="tool" title="njRAT, AsyncRAT, AgentTesla">config_decryptor.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 5.2</span>
+        <b>IOC extraction</b>
+        <span class="tool" title="normalised, OS noise filtered">ioc_extractor.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 5.3</span>
+        <b>Intel pivot</b>
+        <span class="tool" title="VirusTotal, OTX, MalwareBazaar">threat_intel_pivot.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 5.4</span>
+        <b>Scoring</b>
+        <span class="tool" title="weighted risk score, verdict">scorer.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 6</span>
+        <b>Clustering</b>
+        <span class="tool" title="MinHash / LSH, family consensus">lsh_cluster.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 7</span>
+        <b>Master merge</b>
+        <span class="tool" title="every artefact, one report">report skeleton</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 7.1</span>
+        <b>ATT&amp;CK map</b>
+        <span class="tool" title="tactics, Navigator layer">attck_mapper.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 7.2</span>
+        <b>Campaign link</b>
+        <span class="tool" title="registry match, auto-register">campaign_correlator.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 8</span>
+        <b>PDF report</b>
+        <span class="tool" title="structured executive summary">report_generator.py</span>
+      </div>
+      <div class="stage">
+        <span class="n">Stage 9</span>
+        <b>Retention</b>
+        <span class="tool" title="dumps and raw logs purged">policy</span>
+      </div>
     </div>
   </div>
 </section>

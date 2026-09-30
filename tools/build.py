@@ -687,42 +687,24 @@ def block_experience(site: dict) -> str:
     })
 
 
-def render_pipeline(phases: list[dict]) -> str:
-    """The five-phase diagram.
+def render_pipeline(flow: list[dict]) -> str:
+    """The pipeline as one line of boxes.
 
-    Phase 2 is the live window rather than a step in the chain: the
-    orchestrator does not number it, so those cards drop the number slot
-    instead of inventing one, and get an `is-live` accent to show they
-    run concurrently rather than in sequence.
+    Each box carries its stage number, a short name and the module that
+    runs it; the arrow to the next box is a CSS ::after, so a row that
+    wraps never opens with a dangling arrow. The one unnumbered box is the
+    live detonation window — the orchestrator has no stage number for it,
+    so it shows the phase instead of inventing a stage.
     """
     out = []
-    for p in phases:
-        cards = []
-        for s in p["stages"]:
-            live = s["n"] is None
-            body = [f'          <div class="stage{" is-live" if live else ""}">']
-            if not live:
-                body.append(f'            <span class="n">Stage {esc(s["n"])}</span>')
-            body += [
-                f'            <b>{esc(s["name"])}</b>',
-                f'            <span class="tool">{esc(s["module"])}</span>',
-                f'            <small>{esc(s["note"])}</small>',
-                '          </div>',
-            ]
-            cards.append("\n".join(body))
-        aside = (f'\n        <p class="phase-aside">{esc(p["aside"])}</p>'
-                 if p.get("aside") else "")
+    for s in flow:
+        label = f"Stage {s['n']}" if s["n"] else "Live window"
         out.append(
-            f'      <section class="phase">\n'
-            f'        <div class="phase-head">\n'
-            f'          <span class="phase-n">Phase {p["n"]}</span>\n'
-            f'          <h3 class="phase-name">{esc(p["name"])}</h3>\n'
-            f'          <p class="phase-blurb">{esc(p["blurb"])}</p>\n'
-            f'        </div>\n'
-            f'        <div class="phase-stages">\n'
-            + "\n".join(cards) + "\n"
-            f'        </div>{aside}\n'
-            f'      </section>'
+            f'      <div class="stage{" is-live" if s.get("live") else ""}">\n'
+            f'        <span class="n">{esc(label)}</span>\n'
+            f'        <b>{esc(s["name"])}</b>\n'
+            f'        <span class="tool" title="{esc(s["note"])}">{esc(s["module"])}</span>\n'
+            f'      </div>'
         )
     return "\n".join(out)
 
@@ -752,7 +734,7 @@ def block_work(site: dict) -> str:
         <div class="skill-list">{stack}</div>
         <div class="project-foot">{cta}<span class="project-state">{esc(state_note)}</span></div>
       </article>""")
-    stages = render_pipeline(site["pipeline"]["phases"])
+    stages = render_pipeline(site["pipeline"]["flow"])
     return render("_work.html", {
         "HANDLE": esc(site["site"]["handle"]),
         "PROJ_COUNT": len(site["projects"]),
