@@ -2,6 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://0xmrerror.me/</loc><lastmod>2026-09-29</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
   <url><loc>https://0xmrerror.me/cv.html</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/easy-as-gdb/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://0xmrerror.me/writeups/keygenme/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
   <url><loc>https://0xmrerror.me/writeups/mr-robot/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
   <url><loc>https://0xmrerror.me/writeups/ww-buddy/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
   <url><loc>https://0xmrerror.me/writeups/broker/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
@@ -13,6 +15,4 @@
   <url><loc>https://0xmrerror.me/writeups/winantidbg0x200/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
   <url><loc>https://0xmrerror.me/writeups/winantidbg0x300/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
   <url><loc>https://0xmrerror.me/writeups/binary-instrumentation-2/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://0xmrerror.me/writeups/easy-as-gdb/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://0xmrerror.me/writeups/keygenme/</loc><lastmod>2026-09-29</lastmod><changefreq>yearly</changefreq><priority>0.8</priority></url>
 </urlset>

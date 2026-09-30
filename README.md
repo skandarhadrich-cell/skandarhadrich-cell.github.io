@@ -17,11 +17,15 @@ file — if you find yourself doing that, the content belongs in the data files.
 
 | File | What lives there |
 | --- | --- |
-| `data/site.json` | Identity, bio, skills, toolbelt, experience, education, projects, certifications, contact details |
+| `data/site.json` | Identity, bio, skills, experience, education, projects, certifications, contact details |
 | `data/writeups/NN-slug.md` | One write-up: front matter + body |
 | `templates/*.html` | Page shells — the HTML structure, not the content |
 | `data/site.json` → `nav` | Top navigation and left-rail items |
-| `data/site.json` → `pipeline` | The 8 stages of the flagship project |
+| `data/site.json` → `pipeline` | The 5 phases and 9 stages of the flagship project |
+
+The `NN-` prefix on a write-up file is its sort position, so the listing reads
+in numeric order. Number them hard first, then the rest, to order the list by
+difficulty rather than by platform.
 
 After editing either data file:
 

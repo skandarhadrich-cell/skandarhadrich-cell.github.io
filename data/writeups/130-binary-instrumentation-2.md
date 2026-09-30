@@ -3,7 +3,7 @@ title: "Binary Instrumentation 2 — Intercepting File Writes With Frida"
 slug: binary-instrumentation-2
 type: re
 diff: medium
-platform: ctf
+platform: picoctf
 read_time: 13
 summary: "picoCTF 2025 · 300 pts. Hook the file-write API with Frida and rewrite the payload before it ever touches disk."
 tags: frida, hooking, instrumentation, file-write, pictoctf

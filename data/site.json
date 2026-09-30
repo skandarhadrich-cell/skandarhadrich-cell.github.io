@@ -16,8 +16,8 @@
     "location": "Tunis, Tunisia",
     "timezone": "UTC+1",
     "flag": "🇹🇳",
-    "headline": "I break binaries for a living — and write down exactly how.",
-    "subline": "Reverse engineering, malware analysis and SOC automation. Solo-built an 8-stage nested-VM malware pipeline; ENIT placed 77th globally at HTB University CTF 2025.",
+    "headline": "I break websites and reverse binaries for a living — and write down exactly how.",
+    "subline": "Reverse engineering, malware analysis and SOC automation. Solo-built a 9-stage, 5-phase nested-VM malware pipeline; ENIT placed 77th globally at HTB University CTF 2025.",
     "availability": {
       "status": "available",
       "text": "Available for a 6-month internship from February 2027"
@@ -60,12 +60,20 @@
       "label": "skills"
     },
     {
+      "id": "experience",
+      "label": "experience"
+    },
+    {
       "id": "projects",
       "label": "projects"
     },
     {
       "id": "writeups",
       "label": "writeups"
+    },
+    {
+      "id": "credentials",
+      "label": "certs"
     },
     {
       "id": "contact",
@@ -110,24 +118,25 @@
   "skills": [
     {
       "icon": "🦠",
-      "name": "Malware Analysis & RE",
+      "name": "Reverse Engineering",
       "items": [
-        "Static & dynamic analysis",
-        "Sandbox automation",
-        "eBPF & VMI",
-        "Anti-debug & anti-sandbox evasion",
-        "CFG / graph analysis"
+        "Ghidra",
+        "Debugging (GDB + WinDbg)",
+        "Binary Instrumentation (Frida)",
+        "Android (JADX + Android Studio)"
       ]
     },
     {
       "icon": "🧠",
-      "name": "AI / ML for Security",
+      "name": "AI / ML",
       "items": [
         "Graph neural networks (GCN/GAT)",
-        "Double DQN / reinforcement learning",
         "LLM fine-tuning",
-        "Adversarial ML",
-        "PyTorch Geometric"
+        "Reinforcement learning algorithms (Monte Carlo)",
+        "PyTorch",
+        "TensorFlow",
+        "scikit-learn",
+        "OpenCV"
       ]
     },
     {
@@ -135,6 +144,9 @@
       "name": "SOC / Blue Team",
       "items": [
         "Wazuh SIEM",
+        "Splunk",
+        "ELK",
+        "Windows & Linux threat detection",
         "Shuffle SOAR",
         "Detection rule engineering",
         "IOC & log analysis",
@@ -157,12 +169,25 @@
       "icon": "🏗️",
       "name": "Infrastructure & DevSecOps",
       "items": [
-        "QEMU / KVM",
         "Docker",
         "Ansible",
         "CI/CD pipelines",
-        "iptables",
         "REST APIs"
+      ]
+    },
+    {
+      "icon": "🎯",
+      "name": "Penetration Testing",
+      "items": [
+        "Burp Suite",
+        "sqlmap",
+        "ffuf",
+        "nikto",
+        "Nmap",
+        "Hydra",
+        "Metasploit",
+        "John the Ripper",
+        "Linux & Windows privilege escalation"
       ]
     },
     {
@@ -170,55 +195,12 @@
       "name": "Network & Systems",
       "items": [
         "Wireshark / PCAP",
-        "Nmap & recon",
         "TCP/IP, IPv6, VLANs",
         "Windows Server",
         "Linux (Kali, Ubuntu)"
       ]
     }
   ],
-  "toolbelt": {
-    "malware": [
-      "Speakeasy",
-      "Volatility3",
-      "de4dot",
-      "Ghidra",
-      "angr",
-      "Binary Ninja",
-      "CAPE",
-      "INetSim",
-      "DNSChef",
-      "QEMU-KVM"
-    ],
-    "soc": [
-      "Wazuh",
-      "Shuffle SOAR",
-      "Splunk",
-      "Ansible",
-      "Docker",
-      "VirusTotal",
-      "AlienVault OTX",
-      "MalwareBazaar"
-    ],
-    "ai": [
-      "PyTorch",
-      "PyTorch Geometric",
-      "Gymnasium",
-      "TensorFlow",
-      "scikit-learn",
-      "OpenCV"
-    ],
-    "web_net": [
-      "Burp Suite",
-      "sqlmap",
-      "ffuf",
-      "nikto",
-      "Bettercap",
-      "Wireshark",
-      "Nmap",
-      "Hydra"
-    ]
-  },
   "experience": [
     {
       "org": "Keystone Group",
@@ -226,7 +208,7 @@
       "period": "Jul 2026 – Sep 2026",
       "place": "Tunis, TN",
       "bullets": [
-        "Architected an 8-stage automated malware analysis pipeline: static triage → de4dot deobfuscation → Speakeasy emulation → live QEMU-KVM detonation → eBPF syscall capture → Volatility3 VMI correlation → MITRE ATT&CK mapping → automated PDF reporting.",
+        "Architected an end-to-end 9-stage automated malware analysis pipeline in five phases: static triage with a .NET/native fork, live KVM/QEMU detonation with concurrent eBPF, VMI and network telemetry, then IOC extraction, threat-intel pivoting, weighted scoring, MinHash/LSH clustering and MITRE ATT&CK mapping into an automated PDF report.",
         "Correlated host-side eBPF KVM tracepoints with Volatility3 VMI on a live guest, and patched <code>KUSER_SHARED_DATA.TickCount</code> in guest memory to defeat anti-sandbox timing checks. Validated against live AsyncRAT, AgentTesla and njRAT samples.",
         "Deployed a multi-layer C2 sinkhole (iptables + DNSChef + INetSim) to capture malware traffic and extract actionable IOCs with false-positive filtering against Windows telemetry.",
         "Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX and MalwareBazaar, grouping behavioural families with MinHash LSH clustering and generating PDF reports automatically."
@@ -264,9 +246,10 @@
       "badge": "flagship",
       "state": "code",
       "repo": "https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring",
-      "desc": "An end-to-end 8-stage automated malware analysis pipeline. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.",
+      "desc": "An end-to-end 9-stage automated malware analysis pipeline in five phases. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.",
       "metrics": [
-        "8 stages",
+        "9 stages",
+        "5 phases",
         "eBPF + VMI",
         "3 malware families"
       ],
@@ -451,10 +434,6 @@
     }
   ],
   "facts": {
-    "ctf": [
-      "HTB University CTF 2025 — ENIT team ranked **77th globally**",
-      "TryHackMe — **top 1%** worldwide ranking"
-    ],
     "clubs": [
       "SECURINETS ENIT — cybersecurity club",
       "G2FOSS — open-source software group"
@@ -462,59 +441,176 @@
     "languages": [
       "Arabic — native",
       "English — C1",
-      "French — B2"
+      "French — B2",
+      "German — A2"
+    ],
+    "ctf": [
+      "HTB University CTF 2025 — ENIT team ranked **77th globally**",
+      "TryHackMe — **top 1%** worldwide ranking"
     ]
   },
   "pipeline": {
-    "title": "8-stage nested-VM malware analysis pipeline",
-    "stages": [
+    "title": "9-stage, 5-phase nested-VM malware analysis pipeline",
+    "phases": [
       {
         "n": 1,
-        "name": "Static triage",
-        "tool": "file / exiftool",
-        "note": "Magic bytes, entropy, packer fingerprint"
+        "name": "Pre-detonation triage & static analysis",
+        "blurb": "Nothing executes yet. The orchestrator triages the sample, forks it into a managed or a native path, and both converge on a decision about what — if anything — is safe to detonate.",
+        "aside": "A .NET verdict routes the sample to 2b; a native one falls through 2 → 3 → 4. Both paths end at detonation target determination, which chooses the extracted payload or falls back to the original binary.",
+        "stages": [
+          {
+            "n": "1",
+            "name": "Static triage",
+            "module": "static_triage.py",
+            "note": "Hashes, entropy, PE/ELF headers, digital signatures — first verdict and risk score"
+          },
+          {
+            "n": "2",
+            "name": "Generic deobfuscation",
+            "module": "deobfuscator.py",
+            "note": "Stack-string decoding, XOR/Base64/RC4 decryption, regex IoC extraction"
+          },
+          {
+            "n": "2b",
+            "name": ".NET unpacking",
+            "module": "stage2b_dotnet.py",
+            "note": "CLR header validation, de4dot unpacking, timing-patch injection, embedded C2 strings"
+          },
+          {
+            "n": "3",
+            "name": "CFG extraction",
+            "module": "cfg_extractor.py",
+            "note": "Control-flow graph via angr, cyclomatic complexity, obfuscation scoring"
+          },
+          {
+            "n": "4",
+            "name": "User-mode emulation",
+            "module": "speakeasy_emulator.py",
+            "note": "Conditional Windows API emulation and in-memory payload extraction"
+          }
+        ]
       },
       {
         "n": 2,
-        "name": "Deobfuscation",
-        "tool": "de4dot",
-        "note": "Strip .NET obfuscation layers"
+        "name": "Live detonation & concurrent telemetry",
+        "blurb": "The dynamic window. CleanState restore, uptime-evasion patching, three monitoring engines and a network tap, all writing into one master timeline.",
+        "aside": "INetSim, DNSChef and iptables stand up network deception and redirect every C2 call to the sinkhole on port 4444.",
+        "stages": [
+          {
+            "n": null,
+            "name": "Snapshot & evasion",
+            "module": "QEMU monitor",
+            "note": "CleanState restore, then KUSER_SHARED_DATA.TickCount is patched to defeat GetTickCount-based uptime checks"
+          },
+          {
+            "n": null,
+            "name": "eBPF monitor",
+            "module": "ebpf_monitor.py",
+            "note": "Host-context syscalls and socket operations from KVM tracepoints"
+          },
+          {
+            "n": null,
+            "name": "VMI process tree",
+            "module": "vmi_monitor.py",
+            "note": "Guest process creation, injection and termination via libVMI / Volatility 3"
+          },
+          {
+            "n": null,
+            "name": "Network TAP",
+            "module": "network_tap.py",
+            "note": "Virtual-NIC frame capture on virbr1"
+          },
+          {
+            "n": null,
+            "name": "Timeline correlation",
+            "module": "TimelineCorrelator",
+            "note": "eBPF and VMI events merged into master_timeline.json for the whole run"
+          }
+        ]
       },
       {
         "n": 3,
-        "name": "Emulation",
-        "tool": "Speakeasy",
-        "note": "Sandboxed shellcode execution"
+        "name": "Post-detonation enrichment & scoring",
+        "blurb": "Once the window closes the evidence is normalised, enriched against outside threat intel, and folded into a single weighted score.",
+        "aside": null,
+        "stages": [
+          {
+            "n": "5.1",
+            "name": "Config decryption",
+            "module": "config_decryptor.py",
+            "note": "Family-specific config decryption for NjRAT, AsyncRAT and AgentTesla"
+          },
+          {
+            "n": "5.2",
+            "name": "IOC extraction",
+            "module": "ioc_extractor.py",
+            "note": "RFC-compliant normalisation and OS-telemetry noise filtering → validated_iocs.json"
+          },
+          {
+            "n": "5.3",
+            "name": "Threat-intel pivot",
+            "module": "threat_intel_pivot.py",
+            "note": "VirusTotal, AlienVault OTX and MalwareBazaar hits, correlated against INetSim DNS logs"
+          },
+          {
+            "n": "5.4",
+            "name": "Scoring",
+            "module": "scorer.py",
+            "note": "Every artefact aggregated into a unified weighted risk score and verdict"
+          }
+        ]
       },
       {
         "n": 4,
-        "name": "Detonation",
-        "tool": "QEMU-KVM",
-        "note": "Live guest, isolated network"
+        "name": "Master merge, clustering & ATT&CK mapping",
+        "blurb": "The run is compared against every previous run in the workspace, then enriched into the report skeleton.",
+        "aside": "Cluster similarity feeds a second scoring pass before the report is sealed as master_report_<sha256>.json.",
+        "stages": [
+          {
+            "n": "6",
+            "name": "Behavioural clustering",
+            "module": "lsh_cluster.py",
+            "note": "MinHash/LSH signatures over the workspace corpus, family-level consensus"
+          },
+          {
+            "n": "7",
+            "name": "Master merge",
+            "module": "base merge",
+            "note": "Every JSON artefact produced so far folded into the master report skeleton"
+          },
+          {
+            "n": "7.1",
+            "name": "ATT&CK mapping",
+            "module": "attck_mapper.py",
+            "note": "Observed techniques mapped to tactics, plus a Navigator JSON layer"
+          },
+          {
+            "n": "7.2",
+            "name": "Campaign correlation",
+            "module": "campaign_correlator.py",
+            "note": "Matched against the local campaign registry, auto-registered on a strong hit"
+          }
+        ]
       },
       {
         "n": 5,
-        "name": "Syscall capture",
-        "tool": "eBPF",
-        "note": "Host-side KVM tracepoints"
-      },
-      {
-        "n": 6,
-        "name": "Memory forensics",
-        "tool": "Volatility3 VMI",
-        "note": "Correlate trace with guest memory"
-      },
-      {
-        "n": 7,
-        "name": "ATT&CK mapping",
-        "tool": "LSH clustering",
-        "note": "IOCs → behavioural family"
-      },
-      {
-        "n": 8,
-        "name": "Reporting",
-        "tool": "PDF export",
-        "note": "Automated analyst report"
+        "name": "Report generation & retention",
+        "blurb": "Presentational, and then housekeeping.",
+        "aside": "Stage 9 keeps the workspace from growing without bound: multi-gigabyte VMI memory dumps and raw eBPF event logs are purged according to the keep_vmi_memdump and keep_ebpf_raw flags in config.yaml.",
+        "stages": [
+          {
+            "n": "8",
+            "name": "Report generation",
+            "module": "report_generator.py",
+            "note": "Master JSON consumed and compiled into a structured PDF executive summary"
+          },
+          {
+            "n": "9",
+            "name": "Retention",
+            "module": "policy",
+            "note": "Intermediate artefact purge — VMI memory dumps, raw eBPF event logs"
+          }
+        ]
       }
     ]
   },

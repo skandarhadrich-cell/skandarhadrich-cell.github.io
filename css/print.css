@@ -79,7 +79,7 @@ p, li, dd, .cert-skills, .stage small { color: #18181b !important; font-size: 10
 .card:hover { transform: none !important; }
 
 .grid--2, .grid--3, .grid--skills, .grid--projects, .grid--certs,
-.about-grid, .stat-strip, .edu-list, .writeup-list, .toolbelt-row {
+.about-grid, .stat-strip, .edu-list, .writeup-list {
   display: block !important;
   background: none !important;
   border: 0 !important;
@@ -87,7 +87,9 @@ p, li, dd, .cert-skills, .stage small { color: #18181b !important; font-size: 10
 }
 .grid--projects .card, .grid--certs .card, .grid--skills .card { margin-bottom: 3mm; }
 .about-field, .stat { border: 0 !important; border-bottom: 1px solid var(--line-soft) !important; }
-.pipeline { display: block !important; }
+.pipeline, .phase, .phase-stages { display: block !important; }
+.phase { break-inside: avoid; margin-bottom: 3mm; }
+.phase-head, .phase-aside { padding: 0 !important; background: none !important; border: 0 !important; }
 .stage { margin-bottom: 2mm; }
 
 .timeline { gap: 4mm !important; }

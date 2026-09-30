@@ -3,7 +3,7 @@ title: "WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop"
 slug: winantidbg0x300
 type: re
 diff: medium
-platform: ctf
+platform: picoctf
 read_time: 15
 summary: "UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough."
 tags: upx, anti-debug, gdb, child-process, windows, reveng

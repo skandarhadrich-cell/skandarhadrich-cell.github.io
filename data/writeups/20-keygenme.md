@@ -3,7 +3,7 @@ title: "Keygenme — MD5 Hex Spliced Into a License Key"
 slug: keygenme
 type: re
 diff: hard
-platform: ctf
+platform: picoctf
 read_time: 18
 summary: "The binary assembles the full 36-character key on the stack out of two MD5 digests — so the lazy solve is to break in and read it out."
 tags: md5, keygen, reverse-engineering, gdb, stack, picoctf

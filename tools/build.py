@@ -51,7 +51,7 @@ TYPES = {
     "crypto": "Cryptography",
     "osint": "OSINT",
 }
-PLATFORMS = {"thm": "TryHackMe", "htb": "Hack The Box", "ctf": "CTF"}
+PLATFORMS = {"thm": "TryHackMe", "htb": "Hack The Box", "picoctf": "picoCTF"}
 PROJECT_STATE = {
     "code": ("view code", "Source on GitHub"),
     "writeup": ("read the write-up", "Repository holds a technical write-up, not source"),
@@ -132,6 +132,16 @@ def slugify(s: str) -> str:
     s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
     s = re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
     return s or "entry"
+
+
+def chip(text: str, extra: str = "") -> str:
+    """A label chip. A chip longer than ~40 characters is a sentence, not a
+    label: let it wrap instead of forcing a nowrap chip that pushes a
+    narrow viewport sideways."""
+    cls = "tag tag--long" if len(text) > 40 else "tag"
+    if extra:
+        cls += " " + extra
+    return f'<span class="{cls}">{esc(text)}</span>'
 
 
 def render(template: str, tokens: dict) -> str:
@@ -621,7 +631,6 @@ def block_whoami(site: dict) -> str:
     )
     return render("_whoami.html", {
         "HANDLE": esc(site["site"]["handle"]),
-        "SUBLINE_SHORT": esc(re.sub(r"\*\*(.+?)\*\*", r"\1", site["facts"]["ctf"][0])),
         "ABOUT_FIELDS": fields,
         "BIO": esc(a["bio"]),
         "ABOUT_BADGES": badges,
@@ -634,21 +643,13 @@ def block_arsenal(site: dict) -> str:
         f'        <div class="skill-group-head"><span class="ico" aria-hidden="true">{esc(g["icon"])}</span>'
         f'<h3>{esc(g["name"])}</h3></div>\n'
         f'        <ul class="skill-list">'
-        + "".join(f'<li><span class="tag">{esc(i)}</span></li>' for i in g["items"])
+        + "".join(f'<li>{chip(i)}</li>' for i in g["items"])
         + "</ul>\n      </article>"
         for g in site["skills"]
     )
-    toolbelt = "\n".join(
-        f'      <div class="toolbelt-row">\n        <h4>{esc(label)}</h4>\n        '
-        + "".join(f'<span class="tag">{esc(t)}</span>' for t in tools)
-        + "\n      </div>"
-        for label, tools in site["toolbelt"].items()
-    )
     return render("_arsenal.html", {
         "HANDLE": esc(site["site"]["handle"]),
-        "SKILL_COUNT": len(site["skills"]),
         "SKILLS": skills,
-        "TOOLBELT": toolbelt,
     })
 
 
@@ -672,25 +673,58 @@ def block_experience(site: dict) -> str:
         for e in site["education"]
     )
     facts = site["facts"]
-    # A tag longer than ~40 characters is a sentence, not a label: let it wrap
-    # instead of forcing a nowrap chip that overflows narrow viewports.
-    def fact_tag(x: str) -> str:
-        cls = "tag tag--long" if len(x) > 40 else "tag"
-        return f'<span class="{cls}">{esc(x)}</span>'
-
     facts_html = "".join(
-        f'<p class="dim fact-line">'
-        + "".join(fact_tag(x) for x in facts[key])
+        f'<p class="dim fact-line fact-line--lg">'
+        + "".join(chip(x) for x in facts[key])
         + "</p>"
-        for key in ("ctf", "clubs", "languages")
+        for key in ("clubs", "languages")
     )
     return render("_experience.html", {
         "HANDLE": esc(site["site"]["handle"]),
-        "EXP_COUNT": len(site["experience"]),
         "EXPERIENCE": exp,
         "EDUCATION": edu,
         "FACTS": facts_html,
     })
+
+
+def render_pipeline(phases: list[dict]) -> str:
+    """The five-phase diagram.
+
+    Phase 2 is the live window rather than a step in the chain: the
+    orchestrator does not number it, so those cards drop the number slot
+    instead of inventing one, and get an `is-live` accent to show they
+    run concurrently rather than in sequence.
+    """
+    out = []
+    for p in phases:
+        cards = []
+        for s in p["stages"]:
+            live = s["n"] is None
+            body = [f'          <div class="stage{" is-live" if live else ""}">']
+            if not live:
+                body.append(f'            <span class="n">Stage {esc(s["n"])}</span>')
+            body += [
+                f'            <b>{esc(s["name"])}</b>',
+                f'            <span class="tool">{esc(s["module"])}</span>',
+                f'            <small>{esc(s["note"])}</small>',
+                '          </div>',
+            ]
+            cards.append("\n".join(body))
+        aside = (f'\n        <p class="phase-aside">{esc(p["aside"])}</p>'
+                 if p.get("aside") else "")
+        out.append(
+            f'      <section class="phase">\n'
+            f'        <div class="phase-head">\n'
+            f'          <span class="phase-n">Phase {p["n"]}</span>\n'
+            f'          <h3 class="phase-name">{esc(p["name"])}</h3>\n'
+            f'          <p class="phase-blurb">{esc(p["blurb"])}</p>\n'
+            f'        </div>\n'
+            f'        <div class="phase-stages">\n'
+            + "\n".join(cards) + "\n"
+            f'        </div>{aside}\n'
+            f'      </section>'
+        )
+    return "\n".join(out)
 
 
 def block_work(site: dict) -> str:
@@ -718,12 +752,7 @@ def block_work(site: dict) -> str:
         <div class="skill-list">{stack}</div>
         <div class="project-foot">{cta}<span class="project-state">{esc(state_note)}</span></div>
       </article>""")
-    stages = "".join(
-        f'      <div class="stage">\n        <span class="n">STAGE {s["n"]:02d}</span>\n'
-        f'        <b>{esc(s["name"])}</b>\n        <span class="tool">{esc(s["tool"])}</span>\n'
-        f'        <small>{esc(s["note"])}</small>\n      </div>'
-        for s in site["pipeline"]["stages"]
-    )
+    stages = render_pipeline(site["pipeline"]["phases"])
     return render("_work.html", {
         "HANDLE": esc(site["site"]["handle"]),
         "PROJ_COUNT": len(site["projects"]),
@@ -775,7 +804,7 @@ def block_certs(site: dict) -> str:
     )
     return render("_certs.html", {
         "HANDLE": esc(site["site"]["handle"]),
-        "CERT_COUNT": len(site["certs"]),
+        "CERT_COUNT": len(published),
         "CERTS": cards,
     })
 
@@ -801,7 +830,6 @@ def block_contact(site: dict) -> str:
             ("cv", '<a href="/cv.html">CV \u2192</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)'),
             ("github", f'<a href="{esc(ident["links"]["github"])}" rel="noopener">{esc(ident["github"])}</a>'),
             ("linkedin", f'<a href="{esc(ident["links"]["linkedin"])}" rel="noopener">{esc(ident["linkedin"])}</a>'),
-            ("privacy", "no trackers, no cookies, no third-party requests on this site"),
         )
     )
     return render("_contact.html", {
@@ -812,7 +840,6 @@ def block_contact(site: dict) -> str:
         "LINKEDIN_URL": esc(ident["links"]["linkedin"]),
         "CONTACT_FIELDS": fields,
         "CONTACT_ELSEWHERE": elsewhere,
-        "FOOTER_NOTE": esc(site["footer"]["note"]),
     })
 
 
@@ -936,7 +963,7 @@ def build_cv(site: dict) -> bool:
         "ICT Engineering student at ENIT specialising in cybersecurity and systems software, "
         "ranked in the top 1% on TryHackMe globally. Hands-on expertise in malware analysis, "
         "reverse engineering (Ghidra, GDB, Frida, JADX), LLM fine-tuning, penetration testing and "
-        "security automation. Architected an end-to-end 8-stage nested-VM malware analysis pipeline "
+        "security automation. Architected an end-to-end 9-stage nested-VM malware analysis pipeline "
         "as a sole-contributor research intern at Keystone Group. Active CTF competitor — the ENIT "
         "team placed 77th globally at HTB University CTF 2025."
     )
@@ -979,9 +1006,14 @@ def build_cv(site: dict) -> bool:
         for c in site["certs"] if c.get("published", True)) + "</ul>")
     parts.append(h3("ctf, clubs &amp; languages"))
     facts = site["facts"]
+    # escape each fact *before* the emphasis pass, so `**bold**` in the data
+    # becomes a real <b> instead of literal asterisks in the document
+    def emph(text: str) -> str:
+        return re.sub(r"\*\*(.+?)\*\*", r'<b class="hi">\1</b>', esc(text))
+
     parts.append(
         f'<p class="dim cv-desc">'
-        f'<b class="hi">CTF</b> — {esc(" · ".join(re.sub(r"\\*\\*(.+?)\\*\\*", r"\\1", c) for c in facts["ctf"]))}<br>'
+        f'<b class="hi">CTF</b> — {" · ".join(emph(c) for c in facts["ctf"])}<br>'
         f'<b class="hi">Clubs</b> — {esc(" · ".join(facts["clubs"]))}<br>'
         f'<b class="hi">Languages</b> — {esc(" · ".join(facts["languages"]))}</p>'
     )

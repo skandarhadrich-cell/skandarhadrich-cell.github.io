@@ -7,29 +7,36 @@
 
     <div class="section-head">
       <h2>writeups<span class="cursor-block" aria-hidden="true"></span></h2>
-      <p>Every box I solved, written the way I actually solved it — the dead ends included. Each one is a real page with its own URL, so you can send someone straight to it.</p>
+      <p>Every box I solved, written the way I actually solved it — the dead ends included.</p>
     </div>
 
     <div class="filters" data-filters>
-      <div class="filter-group" role="group" aria-label="Filter by category">
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="all" aria-pressed="true">all</button>
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="web" aria-pressed="false">web</button>
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="re" aria-pressed="false">reverse engineering</button>
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="pwn" aria-pressed="false">binary exploitation</button>
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="forensics" aria-pressed="false">forensics</button>
+      <div class="filter-set">
+        <span class="filter-label" aria-hidden="true">Type</span>
+        <div class="filter-group" role="group" aria-label="Filter by type">
+          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="all" aria-pressed="true">All</button>
+          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="web" aria-pressed="false">Web Exploitation</button>
+          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="re" aria-pressed="false">Reverse Engineering</button>
+          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="pwn" aria-pressed="false">Binary Exploitation</button>
+        </div>
       </div>
-      <span class="filter-sep" aria-hidden="true"></span>
-      <div class="filter-group" role="group" aria-label="Filter by difficulty">
-        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="all" aria-pressed="true">all</button>
-        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="easy" aria-pressed="false">easy</button>
-        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="medium" aria-pressed="false">medium</button>
-        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="hard" aria-pressed="false">hard</button>
+      <div class="filter-set">
+        <span class="filter-label" aria-hidden="true">Difficulty</span>
+        <div class="filter-group" role="group" aria-label="Filter by difficulty">
+          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="all" aria-pressed="true">All</button>
+          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="easy" aria-pressed="false">Easy</button>
+          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="medium" aria-pressed="false">Medium</button>
+          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="hard" aria-pressed="false">Hard</button>
+        </div>
       </div>
-      <span class="filter-sep" aria-hidden="true"></span>
-      <div class="filter-group" role="group" aria-label="Filter by platform">
-        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="all" aria-pressed="true">all</button>
-        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="thm" aria-pressed="false">tryhackme</button>
-        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="ctf" aria-pressed="false">ctf</button>
+      <div class="filter-set">
+        <span class="filter-label" aria-hidden="true">Platform</span>
+        <div class="filter-group" role="group" aria-label="Filter by platform">
+          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="all" aria-pressed="true">All</button>
+          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="htb" aria-pressed="false">HackTheBox</button>
+          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="thm" aria-pressed="false">TryHackMe</button>
+          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="picoctf" aria-pressed="false">PicoCTF</button>
+        </div>
       </div>
       <span class="filter-count" data-filter-count aria-live="polite"></span>
     </div>

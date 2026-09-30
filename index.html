@@ -60,17 +60,21 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       "name": "ENIT \u2014 National School of Engineers of Tunis"
     },
     "knowsAbout": [
-      "Static & dynamic analysis",
-      "Sandbox automation",
-      "eBPF & VMI",
-      "Anti-debug & anti-sandbox evasion",
-      "CFG / graph analysis",
+      "Ghidra",
+      "Debugging (GDB + WinDbg)",
+      "Binary Instrumentation (Frida)",
+      "Android (JADX + Android Studio)",
       "Graph neural networks (GCN/GAT)",
-      "Double DQN / reinforcement learning",
       "LLM fine-tuning",
-      "Adversarial ML",
-      "PyTorch Geometric",
+      "Reinforcement learning algorithms (Monte Carlo)",
+      "PyTorch",
+      "TensorFlow",
+      "scikit-learn",
+      "OpenCV",
       "Wazuh SIEM",
+      "Splunk",
+      "ELK",
+      "Windows & Linux threat detection",
       "Shuffle SOAR",
       "Detection rule engineering",
       "IOC & log analysis",
@@ -81,14 +85,20 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       "C# / .NET",
       "Bash",
       "JavaScript",
-      "QEMU / KVM",
       "Docker",
       "Ansible",
       "CI/CD pipelines",
-      "iptables",
       "REST APIs",
+      "Burp Suite",
+      "sqlmap",
+      "ffuf",
+      "nikto",
+      "Nmap",
+      "Hydra",
+      "Metasploit",
+      "John the Ripper",
+      "Linux & Windows privilege escalation",
       "Wireshark / PCAP",
-      "Nmap & recon",
       "TCP/IP, IPv6, VLANs",
       "Windows Server",
       "Linux (Kali, Ubuntu)"
@@ -105,7 +115,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
 <aside class="rail" aria-label="Section navigation">
   <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
   <ul class="rail-nav" data-rail-nav>
-    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#experience">experience</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#credentials">certs</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
   </ul>
   <div class="rail-progress" aria-hidden="true"><i></i></div>
   <div class="rail-meta">
@@ -120,12 +130,12 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
   </div>
 </aside>
 <!-- palette entries (hidden, read by js/main.js) -->
-<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li></ul>
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="experience" data-palette-hint="section" data-palette-kind="section" href="/#experience"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="certs" data-palette-hint="section" data-palette-kind="section" href="/#credentials"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li></ul>
 <nav id="nav" aria-label="Primary">
   <div class="nav-inner">
     <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
     <ul class="nav-links" id="navLinks">
-      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#experience">experience</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#credentials">certs</a></li><li><a data-nav-link href="/#contact">contact</a></li>
     </ul>
     <div class="nav-actions">
       <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
@@ -145,8 +155,8 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
 <section class="hero">
   <div class="container">
     <p class="hero-kicker">🇹🇳 Tunis, Tunisia &nbsp;·&nbsp; ICT Engineering Student @ ENIT</p>
-    <h1>I break binaries for a living — and write down exactly how.</h1>
-    <p class="hero-lede">Reverse engineering, malware analysis and SOC automation. Solo-built an 8-stage nested-VM malware pipeline; ENIT placed 77th globally at HTB University CTF 2025.</p>
+    <h1>I break websites and reverse binaries for a living — and write down exactly how.</h1>
+    <p class="hero-lede">Reverse engineering, malware analysis and SOC automation. Solo-built a 9-stage, 5-phase nested-VM malware pipeline; ENIT placed 77th globally at HTB University CTF 2025.</p>
 
     <div class="hero-cta">
       <a class="btn btn--primary" href="#writeups">Read the writeups <span aria-hidden="true">→</span></a>
@@ -183,7 +193,6 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
 
     <div class="section-head">
       <h2><span class="sr-only">About — </span>whoami</h2>
-      <p>HTB University CTF 2025 — ENIT team ranked 77th globally</p>
     </div>
 
     <div class="term reveal">
@@ -208,26 +217,24 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
   <div class="container">
     <p class="cmd-line">
       <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">ls -la ./arsenal</span>
-      <span class="p-out">6 categories</span>
     </p>
 
     <div class="section-head">
-      <h2><span class="sr-only">Skills and toolbelt — </span>skills</h2>
-      <p>Six areas, chosen by what I have actually used to break or defend something — not by self-assigned percentages.</p>
+      <h2><span class="sr-only">Skills — </span>skills</h2>
     </div>
 
     <div class="grid grid--skills">
             <article class="card skill-group reveal">
-        <div class="skill-group-head"><span class="ico" aria-hidden="true">🦠</span><h3>Malware Analysis &amp; RE</h3></div>
-        <ul class="skill-list"><li><span class="tag">Static &amp; dynamic analysis</span></li><li><span class="tag">Sandbox automation</span></li><li><span class="tag">eBPF &amp; VMI</span></li><li><span class="tag">Anti-debug &amp; anti-sandbox evasion</span></li><li><span class="tag">CFG / graph analysis</span></li></ul>
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">🦠</span><h3>Reverse Engineering</h3></div>
+        <ul class="skill-list"><li><span class="tag">Ghidra</span></li><li><span class="tag">Debugging (GDB + WinDbg)</span></li><li><span class="tag">Binary Instrumentation (Frida)</span></li><li><span class="tag">Android (JADX + Android Studio)</span></li></ul>
       </article>
       <article class="card skill-group reveal">
-        <div class="skill-group-head"><span class="ico" aria-hidden="true">🧠</span><h3>AI / ML for Security</h3></div>
-        <ul class="skill-list"><li><span class="tag">Graph neural networks (GCN/GAT)</span></li><li><span class="tag">Double DQN / reinforcement learning</span></li><li><span class="tag">LLM fine-tuning</span></li><li><span class="tag">Adversarial ML</span></li><li><span class="tag">PyTorch Geometric</span></li></ul>
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">🧠</span><h3>AI / ML</h3></div>
+        <ul class="skill-list"><li><span class="tag">Graph neural networks (GCN/GAT)</span></li><li><span class="tag">LLM fine-tuning</span></li><li><span class="tag tag--long">Reinforcement learning algorithms (Monte Carlo)</span></li><li><span class="tag">PyTorch</span></li><li><span class="tag">TensorFlow</span></li><li><span class="tag">scikit-learn</span></li><li><span class="tag">OpenCV</span></li></ul>
       </article>
       <article class="card skill-group reveal">
         <div class="skill-group-head"><span class="ico" aria-hidden="true">🛡️</span><h3>SOC / Blue Team</h3></div>
-        <ul class="skill-list"><li><span class="tag">Wazuh SIEM</span></li><li><span class="tag">Shuffle SOAR</span></li><li><span class="tag">Detection rule engineering</span></li><li><span class="tag">IOC &amp; log analysis</span></li><li><span class="tag">MITRE ATT&amp;CK mapping</span></li></ul>
+        <ul class="skill-list"><li><span class="tag">Wazuh SIEM</span></li><li><span class="tag">Splunk</span></li><li><span class="tag">ELK</span></li><li><span class="tag">Windows &amp; Linux threat detection</span></li><li><span class="tag">Shuffle SOAR</span></li><li><span class="tag">Detection rule engineering</span></li><li><span class="tag">IOC &amp; log analysis</span></li><li><span class="tag">MITRE ATT&amp;CK mapping</span></li></ul>
       </article>
       <article class="card skill-group reveal">
         <div class="skill-group-head"><span class="ico" aria-hidden="true">💻</span><h3>Programming</h3></div>
@@ -235,31 +242,16 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </article>
       <article class="card skill-group reveal">
         <div class="skill-group-head"><span class="ico" aria-hidden="true">🏗️</span><h3>Infrastructure &amp; DevSecOps</h3></div>
-        <ul class="skill-list"><li><span class="tag">QEMU / KVM</span></li><li><span class="tag">Docker</span></li><li><span class="tag">Ansible</span></li><li><span class="tag">CI/CD pipelines</span></li><li><span class="tag">iptables</span></li><li><span class="tag">REST APIs</span></li></ul>
+        <ul class="skill-list"><li><span class="tag">Docker</span></li><li><span class="tag">Ansible</span></li><li><span class="tag">CI/CD pipelines</span></li><li><span class="tag">REST APIs</span></li></ul>
+      </article>
+      <article class="card skill-group reveal">
+        <div class="skill-group-head"><span class="ico" aria-hidden="true">🎯</span><h3>Penetration Testing</h3></div>
+        <ul class="skill-list"><li><span class="tag">Burp Suite</span></li><li><span class="tag">sqlmap</span></li><li><span class="tag">ffuf</span></li><li><span class="tag">nikto</span></li><li><span class="tag">Nmap</span></li><li><span class="tag">Hydra</span></li><li><span class="tag">Metasploit</span></li><li><span class="tag">John the Ripper</span></li><li><span class="tag">Linux &amp; Windows privilege escalation</span></li></ul>
       </article>
       <article class="card skill-group reveal">
         <div class="skill-group-head"><span class="ico" aria-hidden="true">📡</span><h3>Network &amp; Systems</h3></div>
-        <ul class="skill-list"><li><span class="tag">Wireshark / PCAP</span></li><li><span class="tag">Nmap &amp; recon</span></li><li><span class="tag">TCP/IP, IPv6, VLANs</span></li><li><span class="tag">Windows Server</span></li><li><span class="tag">Linux (Kali, Ubuntu)</span></li></ul>
+        <ul class="skill-list"><li><span class="tag">Wireshark / PCAP</span></li><li><span class="tag">TCP/IP, IPv6, VLANs</span></li><li><span class="tag">Windows Server</span></li><li><span class="tag">Linux (Kali, Ubuntu)</span></li></ul>
       </article>
-    </div>
-
-    <div class="toolbelt">
-            <div class="toolbelt-row">
-        <h4>malware</h4>
-        <span class="tag">Speakeasy</span><span class="tag">Volatility3</span><span class="tag">de4dot</span><span class="tag">Ghidra</span><span class="tag">angr</span><span class="tag">Binary Ninja</span><span class="tag">CAPE</span><span class="tag">INetSim</span><span class="tag">DNSChef</span><span class="tag">QEMU-KVM</span>
-      </div>
-      <div class="toolbelt-row">
-        <h4>soc</h4>
-        <span class="tag">Wazuh</span><span class="tag">Shuffle SOAR</span><span class="tag">Splunk</span><span class="tag">Ansible</span><span class="tag">Docker</span><span class="tag">VirusTotal</span><span class="tag">AlienVault OTX</span><span class="tag">MalwareBazaar</span>
-      </div>
-      <div class="toolbelt-row">
-        <h4>ai</h4>
-        <span class="tag">PyTorch</span><span class="tag">PyTorch Geometric</span><span class="tag">Gymnasium</span><span class="tag">TensorFlow</span><span class="tag">scikit-learn</span><span class="tag">OpenCV</span>
-      </div>
-      <div class="toolbelt-row">
-        <h4>web_net</h4>
-        <span class="tag">Burp Suite</span><span class="tag">sqlmap</span><span class="tag">ffuf</span><span class="tag">nikto</span><span class="tag">Bettercap</span><span class="tag">Wireshark</span><span class="tag">Nmap</span><span class="tag">Hydra</span>
-      </div>
     </div>
   </div>
 </section>
@@ -268,7 +260,6 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
   <div class="container">
     <p class="cmd-line">
       <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">cat /var/log/experience.log</span>
-      <span class="p-out">2 entries</span>
     </p>
 
     <div class="section-head">
@@ -283,7 +274,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
                     <div class="tl-item">
             <div class="tl-top"><span class="tl-org">Keystone Group</span><span class="tl-when">Jul 2026 – Sep 2026 · Tunis, TN</span></div>
             <div class="tl-role">Security Engineering Intern — Malware Analysis</div>
-            <ul><li>Architected an 8-stage automated malware analysis pipeline: static triage → de4dot deobfuscation → Speakeasy emulation → live QEMU-KVM detonation → eBPF syscall capture → Volatility3 VMI correlation → MITRE ATT&amp;CK mapping → automated PDF reporting.</li><li>Correlated host-side eBPF KVM tracepoints with Volatility3 VMI on a live guest, and patched <code>KUSER_SHARED_DATA.TickCount</code> in guest memory to defeat anti-sandbox timing checks. Validated against live AsyncRAT, AgentTesla and njRAT samples.</li><li>Deployed a multi-layer C2 sinkhole (iptables + DNSChef + INetSim) to capture malware traffic and extract actionable IOCs with false-positive filtering against Windows telemetry.</li><li>Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX and MalwareBazaar, grouping behavioural families with MinHash LSH clustering and generating PDF reports automatically.</li></ul>
+            <ul><li>Architected an end-to-end 9-stage automated malware analysis pipeline in five phases: static triage with a .NET/native fork, live KVM/QEMU detonation with concurrent eBPF, VMI and network telemetry, then IOC extraction, threat-intel pivoting, weighted scoring, MinHash/LSH clustering and MITRE ATT&amp;CK mapping into an automated PDF report.</li><li>Correlated host-side eBPF KVM tracepoints with Volatility3 VMI on a live guest, and patched <code>KUSER_SHARED_DATA.TickCount</code> in guest memory to defeat anti-sandbox timing checks. Validated against live AsyncRAT, AgentTesla and njRAT samples.</li><li>Deployed a multi-layer C2 sinkhole (iptables + DNSChef + INetSim) to capture malware traffic and extract actionable IOCs with false-positive filtering against Windows telemetry.</li><li>Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX and MalwareBazaar, grouping behavioural families with MinHash LSH clustering and generating PDF reports automatically.</li></ul>
           </div>
           <div class="tl-item">
             <div class="tl-top"><span class="tl-org">Tunisie Telecom</span><span class="tl-when">Jun 2025 – Jul 2025 · Sfax, TN</span></div>
@@ -312,7 +303,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
 
         </div>
         <h3 class="col-head col-head--spaced">beyond the keyboard</h3>
-        <p class="dim fact-line"><span class="tag tag--long">HTB University CTF 2025 — ENIT team ranked **77th globally**</span><span class="tag">TryHackMe — **top 1%** worldwide ranking</span></p><p class="dim fact-line"><span class="tag">SECURINETS ENIT — cybersecurity club</span><span class="tag">G2FOSS — open-source software group</span></p><p class="dim fact-line"><span class="tag">Arabic — native</span><span class="tag">English — C1</span><span class="tag">French — B2</span></p>
+        <p class="dim fact-line fact-line--lg"><span class="tag">SECURINETS ENIT — cybersecurity club</span><span class="tag">G2FOSS — open-source software group</span></p><p class="dim fact-line fact-line--lg"><span class="tag">Arabic — native</span><span class="tag">English — C1</span><span class="tag">French — B2</span><span class="tag">German — A2</span></p>
       </div>
     </div>
   </div>
@@ -333,8 +324,8 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
     <div class="grid grid--projects">
             <article class="card project-card project-card--featured reveal span-all">
         <div class="project-head"><h3>Nested-VM Malware Analysis Pipeline</h3><span class="project-flag">flagship</span></div>
-        <p>An end-to-end 8-stage automated malware analysis pipeline. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&amp;CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.</p>
-        <div class="project-metrics"><span>8 stages</span><span>eBPF + VMI</span><span>3 malware families</span></div>
+        <p>An end-to-end 9-stage automated malware analysis pipeline in five phases. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&amp;CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.</p>
+        <div class="project-metrics"><span>9 stages</span><span>5 phases</span><span>eBPF + VMI</span><span>3 malware families</span></div>
         <div class="skill-list"><span class="tag">Python</span><span class="tag">QEMU-KVM</span><span class="tag">eBPF</span><span class="tag">Volatility3</span><span class="tag">Speakeasy</span><span class="tag">de4dot</span><span class="tag">INetSim</span><span class="tag">DNSChef</span></div>
         <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
       </article>
@@ -383,51 +374,174 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
     </div>
 
     <div class="section-head section-head--panel">
-      <h2 class="col-head">the pipeline, stage by stage</h2>
-      <p>The flagship project is one long chain. Here is every stage it runs through, in order, with the tool that does the work.</p>
+      <h2 class="col-head">the pipeline, phase by phase</h2>
+      <p>Nine stages across five phases, each with the module that runs it. Stage 2b, 5.1–5.4 and 7.1–7.2 are the sub-stages the orchestrator branches into along the way.</p>
     </div>
     <div class="pipeline reveal">
-            <div class="stage">
-        <span class="n">STAGE 01</span>
-        <b>Static triage</b>
-        <span class="tool">file / exiftool</span>
-        <small>Magic bytes, entropy, packer fingerprint</small>
-      </div>      <div class="stage">
-        <span class="n">STAGE 02</span>
-        <b>Deobfuscation</b>
-        <span class="tool">de4dot</span>
-        <small>Strip .NET obfuscation layers</small>
-      </div>      <div class="stage">
-        <span class="n">STAGE 03</span>
-        <b>Emulation</b>
-        <span class="tool">Speakeasy</span>
-        <small>Sandboxed shellcode execution</small>
-      </div>      <div class="stage">
-        <span class="n">STAGE 04</span>
-        <b>Detonation</b>
-        <span class="tool">QEMU-KVM</span>
-        <small>Live guest, isolated network</small>
-      </div>      <div class="stage">
-        <span class="n">STAGE 05</span>
-        <b>Syscall capture</b>
-        <span class="tool">eBPF</span>
-        <small>Host-side KVM tracepoints</small>
-      </div>      <div class="stage">
-        <span class="n">STAGE 06</span>
-        <b>Memory forensics</b>
-        <span class="tool">Volatility3 VMI</span>
-        <small>Correlate trace with guest memory</small>
-      </div>      <div class="stage">
-        <span class="n">STAGE 07</span>
-        <b>ATT&amp;CK mapping</b>
-        <span class="tool">LSH clustering</span>
-        <small>IOCs → behavioural family</small>
-      </div>      <div class="stage">
-        <span class="n">STAGE 08</span>
-        <b>Reporting</b>
-        <span class="tool">PDF export</span>
-        <small>Automated analyst report</small>
-      </div>
+            <section class="phase">
+        <div class="phase-head">
+          <span class="phase-n">Phase 1</span>
+          <h3 class="phase-name">Pre-detonation triage &amp; static analysis</h3>
+          <p class="phase-blurb">Nothing executes yet. The orchestrator triages the sample, forks it into a managed or a native path, and both converge on a decision about what — if anything — is safe to detonate.</p>
+        </div>
+        <div class="phase-stages">
+          <div class="stage">
+            <span class="n">Stage 1</span>
+            <b>Static triage</b>
+            <span class="tool">static_triage.py</span>
+            <small>Hashes, entropy, PE/ELF headers, digital signatures — first verdict and risk score</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 2</span>
+            <b>Generic deobfuscation</b>
+            <span class="tool">deobfuscator.py</span>
+            <small>Stack-string decoding, XOR/Base64/RC4 decryption, regex IoC extraction</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 2b</span>
+            <b>.NET unpacking</b>
+            <span class="tool">stage2b_dotnet.py</span>
+            <small>CLR header validation, de4dot unpacking, timing-patch injection, embedded C2 strings</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 3</span>
+            <b>CFG extraction</b>
+            <span class="tool">cfg_extractor.py</span>
+            <small>Control-flow graph via angr, cyclomatic complexity, obfuscation scoring</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 4</span>
+            <b>User-mode emulation</b>
+            <span class="tool">speakeasy_emulator.py</span>
+            <small>Conditional Windows API emulation and in-memory payload extraction</small>
+          </div>
+        </div>
+        <p class="phase-aside">A .NET verdict routes the sample to 2b; a native one falls through 2 → 3 → 4. Both paths end at detonation target determination, which chooses the extracted payload or falls back to the original binary.</p>
+      </section>
+      <section class="phase">
+        <div class="phase-head">
+          <span class="phase-n">Phase 2</span>
+          <h3 class="phase-name">Live detonation &amp; concurrent telemetry</h3>
+          <p class="phase-blurb">The dynamic window. CleanState restore, uptime-evasion patching, three monitoring engines and a network tap, all writing into one master timeline.</p>
+        </div>
+        <div class="phase-stages">
+          <div class="stage is-live">
+            <b>Snapshot &amp; evasion</b>
+            <span class="tool">QEMU monitor</span>
+            <small>CleanState restore, then KUSER_SHARED_DATA.TickCount is patched to defeat GetTickCount-based uptime checks</small>
+          </div>
+          <div class="stage is-live">
+            <b>eBPF monitor</b>
+            <span class="tool">ebpf_monitor.py</span>
+            <small>Host-context syscalls and socket operations from KVM tracepoints</small>
+          </div>
+          <div class="stage is-live">
+            <b>VMI process tree</b>
+            <span class="tool">vmi_monitor.py</span>
+            <small>Guest process creation, injection and termination via libVMI / Volatility 3</small>
+          </div>
+          <div class="stage is-live">
+            <b>Network TAP</b>
+            <span class="tool">network_tap.py</span>
+            <small>Virtual-NIC frame capture on virbr1</small>
+          </div>
+          <div class="stage is-live">
+            <b>Timeline correlation</b>
+            <span class="tool">TimelineCorrelator</span>
+            <small>eBPF and VMI events merged into master_timeline.json for the whole run</small>
+          </div>
+        </div>
+        <p class="phase-aside">INetSim, DNSChef and iptables stand up network deception and redirect every C2 call to the sinkhole on port 4444.</p>
+      </section>
+      <section class="phase">
+        <div class="phase-head">
+          <span class="phase-n">Phase 3</span>
+          <h3 class="phase-name">Post-detonation enrichment &amp; scoring</h3>
+          <p class="phase-blurb">Once the window closes the evidence is normalised, enriched against outside threat intel, and folded into a single weighted score.</p>
+        </div>
+        <div class="phase-stages">
+          <div class="stage">
+            <span class="n">Stage 5.1</span>
+            <b>Config decryption</b>
+            <span class="tool">config_decryptor.py</span>
+            <small>Family-specific config decryption for NjRAT, AsyncRAT and AgentTesla</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 5.2</span>
+            <b>IOC extraction</b>
+            <span class="tool">ioc_extractor.py</span>
+            <small>RFC-compliant normalisation and OS-telemetry noise filtering → validated_iocs.json</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 5.3</span>
+            <b>Threat-intel pivot</b>
+            <span class="tool">threat_intel_pivot.py</span>
+            <small>VirusTotal, AlienVault OTX and MalwareBazaar hits, correlated against INetSim DNS logs</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 5.4</span>
+            <b>Scoring</b>
+            <span class="tool">scorer.py</span>
+            <small>Every artefact aggregated into a unified weighted risk score and verdict</small>
+          </div>
+        </div>
+      </section>
+      <section class="phase">
+        <div class="phase-head">
+          <span class="phase-n">Phase 4</span>
+          <h3 class="phase-name">Master merge, clustering &amp; ATT&amp;CK mapping</h3>
+          <p class="phase-blurb">The run is compared against every previous run in the workspace, then enriched into the report skeleton.</p>
+        </div>
+        <div class="phase-stages">
+          <div class="stage">
+            <span class="n">Stage 6</span>
+            <b>Behavioural clustering</b>
+            <span class="tool">lsh_cluster.py</span>
+            <small>MinHash/LSH signatures over the workspace corpus, family-level consensus</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 7</span>
+            <b>Master merge</b>
+            <span class="tool">base merge</span>
+            <small>Every JSON artefact produced so far folded into the master report skeleton</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 7.1</span>
+            <b>ATT&amp;CK mapping</b>
+            <span class="tool">attck_mapper.py</span>
+            <small>Observed techniques mapped to tactics, plus a Navigator JSON layer</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 7.2</span>
+            <b>Campaign correlation</b>
+            <span class="tool">campaign_correlator.py</span>
+            <small>Matched against the local campaign registry, auto-registered on a strong hit</small>
+          </div>
+        </div>
+        <p class="phase-aside">Cluster similarity feeds a second scoring pass before the report is sealed as master_report_&lt;sha256&gt;.json.</p>
+      </section>
+      <section class="phase">
+        <div class="phase-head">
+          <span class="phase-n">Phase 5</span>
+          <h3 class="phase-name">Report generation &amp; retention</h3>
+          <p class="phase-blurb">Presentational, and then housekeeping.</p>
+        </div>
+        <div class="phase-stages">
+          <div class="stage">
+            <span class="n">Stage 8</span>
+            <b>Report generation</b>
+            <span class="tool">report_generator.py</span>
+            <small>Master JSON consumed and compiled into a structured PDF executive summary</small>
+          </div>
+          <div class="stage">
+            <span class="n">Stage 9</span>
+            <b>Retention</b>
+            <span class="tool">policy</span>
+            <small>Intermediate artefact purge — VMI memory dumps, raw eBPF event logs</small>
+          </div>
+        </div>
+        <p class="phase-aside">Stage 9 keeps the workspace from growing without bound: multi-gigabyte VMI memory dumps and raw eBPF event logs are purged according to the keep_vmi_memdump and keep_ebpf_raw flags in config.yaml.</p>
+      </section>
     </div>
   </div>
 </section>
@@ -441,37 +555,72 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
 
     <div class="section-head">
       <h2>writeups<span class="cursor-block" aria-hidden="true"></span></h2>
-      <p>Every box I solved, written the way I actually solved it — the dead ends included. Each one is a real page with its own URL, so you can send someone straight to it.</p>
+      <p>Every box I solved, written the way I actually solved it — the dead ends included.</p>
     </div>
 
     <div class="filters" data-filters>
-      <div class="filter-group" role="group" aria-label="Filter by category">
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="all" aria-pressed="true">all</button>
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="web" aria-pressed="false">web</button>
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="re" aria-pressed="false">reverse engineering</button>
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="pwn" aria-pressed="false">binary exploitation</button>
-        <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="forensics" aria-pressed="false">forensics</button>
+      <div class="filter-set">
+        <span class="filter-label" aria-hidden="true">Type</span>
+        <div class="filter-group" role="group" aria-label="Filter by type">
+          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="all" aria-pressed="true">All</button>
+          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="web" aria-pressed="false">Web Exploitation</button>
+          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="re" aria-pressed="false">Reverse Engineering</button>
+          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="pwn" aria-pressed="false">Binary Exploitation</button>
+        </div>
       </div>
-      <span class="filter-sep" aria-hidden="true"></span>
-      <div class="filter-group" role="group" aria-label="Filter by difficulty">
-        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="all" aria-pressed="true">all</button>
-        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="easy" aria-pressed="false">easy</button>
-        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="medium" aria-pressed="false">medium</button>
-        <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="hard" aria-pressed="false">hard</button>
+      <div class="filter-set">
+        <span class="filter-label" aria-hidden="true">Difficulty</span>
+        <div class="filter-group" role="group" aria-label="Filter by difficulty">
+          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="all" aria-pressed="true">All</button>
+          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="easy" aria-pressed="false">Easy</button>
+          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="medium" aria-pressed="false">Medium</button>
+          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="hard" aria-pressed="false">Hard</button>
+        </div>
       </div>
-      <span class="filter-sep" aria-hidden="true"></span>
-      <div class="filter-group" role="group" aria-label="Filter by platform">
-        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="all" aria-pressed="true">all</button>
-        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="thm" aria-pressed="false">tryhackme</button>
-        <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="ctf" aria-pressed="false">ctf</button>
+      <div class="filter-set">
+        <span class="filter-label" aria-hidden="true">Platform</span>
+        <div class="filter-group" role="group" aria-label="Filter by platform">
+          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="all" aria-pressed="true">All</button>
+          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="htb" aria-pressed="false">HackTheBox</button>
+          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="thm" aria-pressed="false">TryHackMe</button>
+          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="picoctf" aria-pressed="false">PicoCTF</button>
+        </div>
       </div>
       <span class="filter-count" data-filter-count aria-live="polite"></span>
     </div>
 
     <div class="writeup-list">
-            <a class="writeup-card" href="/writeups/mr-robot/" data-writeup-card
-         data-type="web" data-diff="medium" data-platform="thm">
+            <a class="writeup-card" href="/writeups/easy-as-gdb/" data-writeup-card
+         data-type="re" data-diff="hard" data-platform="picoctf">
         <span class="writeup-idx">01.</span>
+        <span class="writeup-body">
+          <span class="writeup-title">Easy as GDB — Scripted Character-by-Character Brute Force</span>
+          <span class="writeup-sum">The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="hard">Hard</span>
+            <span class="badge-platform" data-platform="picoctf">picoCTF</span>
+            <span class="writeup-time">Reverse engineering · 17 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/keygenme/" data-writeup-card
+         data-type="re" data-diff="hard" data-platform="picoctf">
+        <span class="writeup-idx">02.</span>
+        <span class="writeup-body">
+          <span class="writeup-title">Keygenme — MD5 Hex Spliced Into a License Key</span>
+          <span class="writeup-sum">The binary assembles the full 36-character key on the stack out of two MD5 digests — so the lazy solve is to break in and read it out.</span>
+          <span class="writeup-meta">
+            <span class="badge-diff" data-diff="hard">Hard</span>
+            <span class="badge-platform" data-platform="picoctf">picoCTF</span>
+            <span class="writeup-time">Reverse engineering · 18 min</span>
+          </span>
+        </span>
+        <span class="writeup-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="writeup-card" href="/writeups/mr-robot/" data-writeup-card
+         data-type="web" data-diff="medium" data-platform="thm">
+        <span class="writeup-idx">03.</span>
         <span class="writeup-body">
           <span class="writeup-title">Mr Robot CTF — WordPress to Root</span>
           <span class="writeup-sum">A WordPress blog with a leaked wordlist, weak credentials and a hidden base64 login — a four-stage chain from recon to root.</span>
@@ -485,7 +634,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </a>
       <a class="writeup-card" href="/writeups/ww-buddy/" data-writeup-card
          data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">02.</span>
+        <span class="writeup-idx">04.</span>
         <span class="writeup-body">
           <span class="writeup-title">WWBuddy — SQLi to Env-Var Privesc</span>
           <span class="writeup-sum">A half-built &#x27;make friends&#x27; site with SQLi in the signup flow, and an environment-variable leak that turns a web foothold into sudo.</span>
@@ -499,7 +648,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </a>
       <a class="writeup-card" href="/writeups/broker/" data-writeup-card
          data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">03.</span>
+        <span class="writeup-idx">05.</span>
         <span class="writeup-body">
           <span class="writeup-title">Broker — MQTT Eavesdrop to Webshell</span>
           <span class="writeup-sum">An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network — then a webshell upgrade path to root.</span>
@@ -513,7 +662,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </a>
       <a class="writeup-card" href="/writeups/watcher/" data-writeup-card
          data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">04.</span>
+        <span class="writeup-idx">06.</span>
         <span class="writeup-body">
           <span class="writeup-title">Watcher — LFI to Root in 7 Flags</span>
           <span class="writeup-sum">A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way.</span>
@@ -527,7 +676,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </a>
       <a class="writeup-card" href="/writeups/fortress/" data-writeup-card
          data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">05.</span>
+        <span class="writeup-idx">07.</span>
         <span class="writeup-body">
           <span class="writeup-title">Fortress — SHA-1 Collision to Root</span>
           <span class="writeup-sum">Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root.</span>
@@ -541,7 +690,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </a>
       <a class="writeup-card" href="/writeups/umbrella/" data-writeup-card
          data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">06.</span>
+        <span class="writeup-idx">08.</span>
         <span class="writeup-body">
           <span class="writeup-title">Umbrella — Registry Loot to SUID Bash</span>
           <span class="writeup-sum">An open Docker registry leaks database secrets, MySQL credentials unlock the source, and a writable PATH entry hands over SUID bash.</span>
@@ -555,7 +704,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </a>
       <a class="writeup-card" href="/writeups/super-secret-tip/" data-writeup-card
          data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">07.</span>
+        <span class="writeup-idx">09.</span>
         <span class="writeup-body">
           <span class="writeup-title">Super Secret Tip — Jinja SSTI to curl -K Root</span>
           <span class="writeup-sum">Jinja SSTI in a password-protected Werkzeug debugger chains into a planted curl config file — and curl -K becomes root.</span>
@@ -569,7 +718,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </a>
       <a class="writeup-card" href="/writeups/smol/" data-writeup-card
          data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">08.</span>
+        <span class="writeup-idx">10.</span>
         <span class="writeup-body">
           <span class="writeup-title">Smol — WP Plugin SSRF to sudo Bash</span>
           <span class="writeup-sum">A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file.</span>
@@ -582,71 +731,43 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <span class="writeup-arrow" aria-hidden="true">→</span>
       </a>
       <a class="writeup-card" href="/writeups/winantidbg0x200/" data-writeup-card
-         data-type="re" data-diff="medium" data-platform="ctf">
-        <span class="writeup-idx">09.</span>
+         data-type="re" data-diff="medium" data-platform="picoctf">
+        <span class="writeup-idx">11.</span>
         <span class="writeup-body">
           <span class="writeup-title">WinAntiDbg0x200 — Three Anti-Debug Checks</span>
           <span class="writeup-sum">Three stacked anti-debug checks — PEB flag, timing and NtQueryInformationProcess — reversed live in GDB to recover the flag.</span>
           <span class="writeup-meta">
             <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="ctf">CTF</span>
+            <span class="badge-platform" data-platform="picoctf">picoCTF</span>
             <span class="writeup-time">Reverse engineering · 12 min</span>
           </span>
         </span>
         <span class="writeup-arrow" aria-hidden="true">→</span>
       </a>
       <a class="writeup-card" href="/writeups/winantidbg0x300/" data-writeup-card
-         data-type="re" data-diff="medium" data-platform="ctf">
-        <span class="writeup-idx">10.</span>
+         data-type="re" data-diff="medium" data-platform="picoctf">
+        <span class="writeup-idx">12.</span>
         <span class="writeup-body">
           <span class="writeup-title">WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop</span>
           <span class="writeup-sum">UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough.</span>
           <span class="writeup-meta">
             <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="ctf">CTF</span>
+            <span class="badge-platform" data-platform="picoctf">picoCTF</span>
             <span class="writeup-time">Reverse engineering · 15 min</span>
           </span>
         </span>
         <span class="writeup-arrow" aria-hidden="true">→</span>
       </a>
       <a class="writeup-card" href="/writeups/binary-instrumentation-2/" data-writeup-card
-         data-type="re" data-diff="medium" data-platform="ctf">
-        <span class="writeup-idx">11.</span>
+         data-type="re" data-diff="medium" data-platform="picoctf">
+        <span class="writeup-idx">13.</span>
         <span class="writeup-body">
           <span class="writeup-title">Binary Instrumentation 2 — Intercepting File Writes With Frida</span>
           <span class="writeup-sum">picoCTF 2025 · 300 pts. Hook the file-write API with Frida and rewrite the payload before it ever touches disk.</span>
           <span class="writeup-meta">
             <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="ctf">CTF</span>
+            <span class="badge-platform" data-platform="picoctf">picoCTF</span>
             <span class="writeup-time">Reverse engineering · 13 min</span>
-          </span>
-        </span>
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/easy-as-gdb/" data-writeup-card
-         data-type="re" data-diff="hard" data-platform="ctf">
-        <span class="writeup-idx">12.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Easy as GDB — Scripted Character-by-Character Brute Force</span>
-          <span class="writeup-sum">The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="hard">Hard</span>
-            <span class="badge-platform" data-platform="ctf">CTF</span>
-            <span class="writeup-time">Reverse engineering · 17 min</span>
-          </span>
-        </span>
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/keygenme/" data-writeup-card
-         data-type="re" data-diff="hard" data-platform="ctf">
-        <span class="writeup-idx">13.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Keygenme — MD5 Hex Spliced Into a License Key</span>
-          <span class="writeup-sum">The binary assembles the full 36-character key on the stack out of two MD5 digests — so the lazy solve is to break in and read it out.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="hard">Hard</span>
-            <span class="badge-platform" data-platform="ctf">CTF</span>
-            <span class="writeup-time">Reverse engineering · 18 min</span>
           </span>
         </span>
         <span class="writeup-arrow" aria-hidden="true">→</span>
@@ -659,12 +780,12 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
   <div class="container">
     <p class="cmd-line">
       <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">jq . ~/certs/verified.json</span>
-      <span class="p-out">7 credentials</span>
+      <span class="p-out">6 certifications</span>
     </p>
 
     <div class="section-head">
-      <h2><span class="sr-only">Certifications — </span>credentials</h2>
-      <p>Seven verified credentials across offensive security, SOC operations, DevSecOps, networking and machine learning.</p>
+      <h2><span class="sr-only">Certifications — </span>certifications</h2>
+      <p>Verified certifications across offensive security, SOC operations, DevSecOps, networking and machine learning.</p>
     </div>
 
     <div class="grid grid--certs">
@@ -771,10 +892,6 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">cv       </span> <a href="/cv.html">CV →</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)</p>
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">github   </span> <a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></p>
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">linkedin </span> <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">skandar-hadrich</a></p>
-        <p class="dim elsewhere-line"><span class="faint elsewhere-key">privacy  </span> no trackers, no cookies, no third-party requests on this site</p>
-        <p class="faint margin-top-6">
-          Hosted on GitHub Pages. Built with no framework, no build server, no trackers. This site has no analytics, no cookies and no third-party requests.
-        </p>
       </div>
     </div>
   </div>

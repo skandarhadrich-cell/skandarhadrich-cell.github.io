@@ -92,6 +92,37 @@ jobs:
           print("ok")
           PY
 
+      - name: No unrendered markup in prose
+        # data/site.json holds plain text that is escaped on the way in, so a
+        # `**bold**` in it ships as literal asterisks. It shipped that way
+        # once already, alongside a regex whose replacement was a literal
+        # "\1" rather than a backreference and printed 40 copies of it per
+        # character. Nothing else in the suite can see either.
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          # markdown that was meant to be rendered, and backreferences that
+          # were meant to be substituted
+          PAT = re.compile(r"\*\*|(?<![\w\\])\\1")
+          VERBATIM = re.compile(r"<(pre|textarea|code)\b.*?</\1>", re.S | re.I)
+          bad = []
+          for dirpath, dirnames, files in os.walk(os.getcwd()):
+              dirnames[:] = [d for d in dirnames if d not in ('.git', 'node_modules')]
+              for fn in files:
+                  if not fn.endswith(('.html', '.xml')):
+                      continue
+                  p = os.path.join(dirpath, fn)
+                  doc = VERBATIM.sub(" ", open(p, encoding='utf-8').read())
+                  for m in PAT.finditer(doc):
+                      line = doc.count("\n", 0, m.start()) + 1
+                      bad.append(f"{os.path.relpath(p)}:{line}  {m.group(0)!r}")
+          if bad:
+              print("::error::unrendered markup in prose:")
+              print("\n".join("  " + b for b in bad[:20]))
+              sys.exit(1)
+          print("ok")
+          PY
+
       - name: Start a preview server for the browser checks
         # nohup so the server outlives this step; the browser checks below
         # hit it over HTTP, because the site uses root-absolute URLs and
@@ -156,6 +187,11 @@ jobs:
               '.p-host','.p-cmd','.about-bio','.about-grid dt','.about-grid dd',
               '.read-time','.diff-badge','.platform-tag','.contact-label',
               '.contact-value','.code-copy','.series a','.toast','.btn',
+              // the phase diagram and the filter labels: both replaced
+              // markup this batch, so they need the same rendered check the
+              // rest of the component classes get
+              '.phase-n','.phase-name','.phase-blurb','.phase-aside',
+              '.stage .n','.stage b','.stage .tool','.filter-label',
               // structural, not styled text: the audit walks up for the real
               // background, so plain <li>/<a>/<small> inside a panel have to be
               // measured too or a genuinely unreadable list slips through

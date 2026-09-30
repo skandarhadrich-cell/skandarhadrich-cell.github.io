@@ -3,7 +3,7 @@ title: "Easy as GDB — Scripted Character-by-Character Brute Force"
 slug: easy-as-gdb
 type: re
 diff: hard
-platform: ctf
+platform: picoctf
 read_time: 17
 summary: "The flag is validated one character at a time, so automate it: script GDB to brute-force the key space inside a single session."
 tags: gdb, scripting, brute-force, bruteforce, picoctf, reveng

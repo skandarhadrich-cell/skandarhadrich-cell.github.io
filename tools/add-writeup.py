@@ -188,7 +188,7 @@ def main() -> int:
     slug = args.slug or slugify(title.split("—")[0].strip())
     wtype = args.type or pick("type", TYPES, "web")
     diff = args.diff or pick("difficulty", DIFFS, "medium")
-    platform = args.platform or pick("platform", PLATFORMS, "ctf")
+    platform = args.platform or pick("platform", PLATFORMS, "picoctf")
     summary = args.summary or ask("summary (one line, under 180 chars)")
 
     if len(summary) > 180:

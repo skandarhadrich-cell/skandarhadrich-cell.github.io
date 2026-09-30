@@ -3,7 +3,7 @@ title: "WinAntiDbg0x200 — Three Anti-Debug Checks"
 slug: winantidbg0x200
 type: re
 diff: medium
-platform: ctf
+platform: picoctf
 read_time: 12
 summary: "Three stacked anti-debug checks — PEB flag, timing and NtQueryInformationProcess — reversed live in GDB to recover the flag."
 tags: anti-debug, peb, gdb, timing-check, windows, reveng
