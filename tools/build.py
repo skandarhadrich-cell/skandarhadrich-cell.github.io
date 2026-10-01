@@ -144,6 +144,35 @@ def chip(text: str, extra: str = "") -> str:
     return f'<span class="{cls}">{esc(text)}</span>'
 
 
+def png_size(path: str) -> tuple[int, int]:
+    """Intrinsic dimensions straight out of a PNG's IHDR chunk.
+
+    Room icons are hand-supplied and all a slightly different size, so the
+    width/height attributes are read from the file rather than assumed: that
+    lets the browser reserve the right box and keeps the rows from shifting
+    when the images arrive.
+    """
+    with open(path, "rb") as fh:
+        head = fh.read(24)
+    if head[:8] != b"\x89PNG\r\n\x1a\n":
+        return (0, 0)
+    return (int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big"))
+
+
+def room_icon(w: dict, cls: str = "room-icon") -> str:
+    """The room artwork for a write-up, or "" when it has none.
+
+    Decorative: the room is already named in the write-up's title, so an empty
+    alt is the honest label and stops a screen reader reading eight filenames
+    out as captions.
+    """
+    if not w.get("icon"):
+        return ""
+    pw, ph = png_size(os.path.join(ROOT, "assets", "ctf", w["icon"] + ".png"))
+    return (f'<img class="{cls}" src="/assets/ctf/{esc(w["icon"])}.png" alt=""'
+            f' width="{pw}" height="{ph}" loading="lazy" decoding="async">')
+
+
 def render(template: str, tokens: dict) -> str:
     src = read(os.path.join(TPL, template))
     for key, value in tokens.items():
@@ -206,6 +235,9 @@ def load_writeups() -> list[dict]:
             "summary": fm.get("summary", ""),
             "date": fm.get("date", ""),
             "tags": [t for t in re.split(r"[,\s]+", fm.get("tags", "")) if t],
+            # room artwork, if one was placed in assets/ctf/ under this name
+            "icon": fm.get("icon", "") if os.path.isfile(
+                os.path.join(ROOT, "assets", "ctf", fm.get("icon", "") + ".png")) else "",
             "url": f"/writeups/{slug}/",
         })
     items.sort(key=lambda w: w["order"])
@@ -573,6 +605,27 @@ def footer(site: dict) -> str:
 </footer>"""
 
 
+def certlightbox() -> str:
+    """The overlay a certificate opens into.
+
+    Built the same way as the command palette: a fixed, hidden layer that
+    main.js fills in. The image itself is not in the document -- each card
+    carries a <template>, which is inert and so never fetched, and the click
+    handler clones it in. That keeps seven certificate images off the critical
+    path while still letting the trigger be a plain <a> that degrades to
+    showing the image if the script never runs.
+    """
+    return """<div class="certbox" id="certBox" role="dialog" aria-modal="true" aria-label="Certificate" hidden>
+  <div class="certbox-panel">
+    <button class="certbox-x" type="button" data-cert-close>
+      <span aria-hidden="true">&#10005;</span><span class="sr-only">Close certificate</span>
+    </button>
+    <div class="certbox-shot" data-cert-slot></div>
+    <p class="certbox-cap" data-cert-cap></p>
+  </div>
+</div>"""
+
+
 def palette() -> str:
     return """<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
   <div class="palette-box">
@@ -588,7 +641,12 @@ def palette() -> str:
 
 
 def scripts() -> str:
-    return '<script src="/js/main.js" defer></script>\n<script src="/js/writeups.js" defer></script>'
+    return ("<script src=\"/js/main.js\" defer></script>\n"
+            "<script src=\"/js/writeups.js\" defer></script>\n"
+            # certs.js returns immediately when there is no #certBox, so it is
+            # harmless on the write-up and CV pages; splitting it out keeps
+            # main.js from growing further.
+            "<script src=\"/js/certs.js\" defer></script>")
 
 
 # ── index page blocks ──────────────────────────────────────────────────────
@@ -609,10 +667,24 @@ def block_hero(site: dict, writeups: list[dict]) -> str:
 
 
 def block_stats(site: dict) -> str:
-    return "\n".join(
-        f'      <div class="stat"><b>{esc(s["value"])}</b><span>{esc(s["label"])}</span></div>'
-        for s in site["stats"]
-    )
+    """The stat strip.
+
+    The certifications figure is counted from the certs themselves rather than
+    read from data/site.json. It used to be hand-written, and adding a
+    certificate left the strip claiming 6 while the section below listed 8 --
+    which is exactly the drift the _todo note on the unpublished cert warned
+    about. A count that cannot go stale beats a comment asking you to remember
+    to update it.
+    """
+    published = sum(1 for c in site["certs"] if c.get("published", True))
+    out = []
+    for s in site["stats"]:
+        value = str(published) if s["label"] == "certifications" else s["value"]
+        out.append(
+            f'      <div class="stat"><b>{esc(value)}</b>'
+            f'<span>{esc(s["label"])}</span></div>'
+        )
+    return "\n".join(out)
 
 
 def block_whoami(site: dict) -> str:
@@ -746,6 +818,11 @@ def block_work(site: dict) -> str:
 def block_writeups(site: dict, writeups: list[dict]) -> str:
     cards = []
     for i, w in enumerate(writeups, 1):
+        # Room artwork from assets/ctf/. It goes in the meta row beside the
+        # platform badge rather than in its own card column: only the eight
+        # TryHackMe rooms have an icon, so a leading column would leave the
+        # picoCTF cards visibly short by it.
+        icon = room_icon(w)
         cards.append(f"""      <a class="writeup-card" href="{esc(w['url'])}" data-writeup-card
          data-type="{esc(w['type'])}" data-diff="{esc(w['diff'])}" data-platform="{esc(w['platform'])}">
         <span class="writeup-idx">{i:02d}.</span>
@@ -753,7 +830,7 @@ def block_writeups(site: dict, writeups: list[dict]) -> str:
           <span class="writeup-title">{esc(w['title'])}</span>
           <span class="writeup-sum">{esc(w['summary'])}</span>
           <span class="writeup-meta">
-            <span class="badge-diff" data-diff="{esc(w['diff'])}">{esc(DIFFS.get(w['diff'], w['diff']))}</span>
+            {icon}<span class="badge-diff" data-diff="{esc(w['diff'])}">{esc(DIFFS.get(w['diff'], w['diff']))}</span>
             <span class="badge-platform" data-platform="{esc(w['platform'])}">{esc(PLATFORMS.get(w['platform'], w['platform']))}</span>
             <span class="writeup-time">{esc(TYPES.get(w['type'], w['type']))} · {esc(w['read_time'])} min</span>
           </span>
@@ -769,9 +846,32 @@ def block_writeups(site: dict, writeups: list[dict]) -> str:
 
 def block_certs(site: dict) -> str:
     published = [c for c in site["certs"] if c.get("published", True)]
-    cards = "".join(
-        f'      <article class="card cert-card reveal">\n'
-        f'        <div class="cert-issuer">'
+    cards = []
+    for c in published:
+        # The certificate image is a rendering of the PDF, and the PDF itself is
+        # never published, so there is nothing here to download. The trigger is
+        # an <a> to the image so it still works without the script; main.js
+        # upgrades it to the overlay. The <template> holds the real <img>, so
+        # the seven of them are not fetched until one is asked for.
+        view = ""
+        if c.get("preview"):
+            alt = (f"{c['issuer']} certificate — {c['name']}, {c['date']}"
+                   + (f", certificate {c['id']}" if c.get("id") else ""))
+            view = (
+                f'\n        <a class="cert-view" href="/assets/certs/preview/'
+                f'{esc(c["preview"])}.webp" data-cert-open'
+                f' data-issuer="{esc(c["issuer"])}" data-name="{esc(c["name"])}"'
+                f' data-date="{esc(c["date"])}" data-cert-id="{esc(c.get("id", ""))}">'
+                f'<span class="cert-view-icon" aria-hidden="true">&#128269;</span>'
+                f'view certificate</a>'
+                f'\n        <template data-cert>'
+                f'<img src="/assets/certs/preview/{esc(c["preview"])}.webp"'
+                f' width="1200" height="850" alt="{esc(alt)}" decoding="async">'
+                f'</template>'
+            )
+        cards.append(
+            f'      <article class="card cert-card reveal">\n'
+            f'        <div class="cert-issuer">'
         f'<img src="/assets/certs/{esc(c["issuer_slug"])}.png" alt="" width="20" height="20" loading="lazy">'
         f'<span>{esc(c["issuer"])}</span></div>\n'
         f'        <h3>{esc(c["name"])}</h3>\n'
@@ -781,13 +881,13 @@ def block_certs(site: dict) -> str:
         f'          <span class="cert-verify"><span aria-hidden="true">\u2713</span> verified</span>\n'
         f'        </div>\n'
         + (f'        <div class="cert-id">{esc(c["id"])}</div>\n' if c.get("id") else "")
+        + (view + "\n" if view else "")
         + '      </article>\n'
-        for c in published
-    )
+        )
     return render("_certs.html", {
         "HANDLE": esc(site["site"]["handle"]),
         "CERT_COUNT": len(published),
-        "CERTS": cards,
+        "CERTS": "".join(cards),
     })
 
 
@@ -860,6 +960,7 @@ def build_index(site: dict, writeups: list[dict]) -> bool:
         "CONTACT": block_contact(site),
         "FOOTER": footer(site),
         "PALETTE": palette(),
+        "CERT_BOX": certlightbox(),
         "SCRIPTS": scripts(),
     })
     return write(os.path.join(ROOT, "index.html"), page)
@@ -909,7 +1010,8 @@ def build_writeup(site: dict, w: dict, writeups: list[dict], index: int) -> bool
                  f'<span>{esc(next_w["title"])}</span></a>') if next_w else ""
 
     meta = (
-        f'<span class="badge-diff" data-diff="{esc(w["diff"])}">{esc(DIFFS.get(w["diff"], w["diff"]))}</span>'
+        room_icon(w, "room-icon room-icon--lg")
+        + f'<span class="badge-diff" data-diff="{esc(w["diff"])}">{esc(DIFFS.get(w["diff"], w["diff"]))}</span>'
         f'<span class="badge-platform" data-platform="{esc(w["platform"])}">{esc(PLATFORMS.get(w["platform"], w["platform"]))}</span>'
         f'<span class="writeup-time">{esc(TYPES.get(w["type"], w["type"]))} · {esc(w["read_time"])} min read</span>'
         + "".join(f'<a class="tag" href="/?type={esc(w["type"])}#writeups">{esc(t)}</a>' for t in w["tags"])

@@ -2,6 +2,14 @@
 .build-check/
 _site/
 
+# Certificate source documents. These are held locally and rendered to the
+# inline previews in assets/certs/preview/ by tools/gen-certs.py; the previews
+# are committed, the PDFs are not. tools/stage.py keeps the PDFs out of the
+# deployed site, but this repository is public and raw.githubusercontent.com
+# serves anything committed here regardless -- so excluding them from git is
+# what actually makes a certificate non-downloadable.
+assets/certs/*.pdf
+
 # editors / OS
 .DS_Store
 Thumbs.db

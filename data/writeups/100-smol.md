@@ -4,6 +4,7 @@ slug: smol
 type: web
 diff: medium
 platform: thm
+icon: smol
 read_time: 20
 summary: "A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file."
 tags: wordpress, plugin-cve, ssrf, backdoor, sudoers, tryhackme

@@ -380,6 +380,84 @@
 .cert-id { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); word-break: break-all; }
 .cert-skills { font-size: var(--fs-2xs); color: var(--text-faint); }
 
+/* The trigger reads as an action on the card, not as another metadata line,
+   so it is set apart from the cert-id above it with a hairline. */
+.cert-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color var(--t) var(--ease);
+}
+.cert-view:hover, .cert-view:focus-visible { color: var(--accent-text); }
+.cert-view-icon { font-size: var(--fs-2xs); line-height: 1; }
+
+/* ══ certificate viewer ═══════════════════════════════════ */
+.certbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(var(--sp-4), 5vh, var(--sp-8)) var(--gutter);
+  background: var(--scrim);
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+}
+.certbox[hidden] { display: none; }
+.certbox-panel {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-3);
+  overflow: hidden;
+}
+/* The image is white paper on a dark page; a white mat stops it floating and
+   gives it an edge to sit on. */
+.certbox-shot {
+  background: #fff;
+  padding: var(--sp-4);
+  min-height: 120px;
+}
+.certbox-shot img { display: block; width: 100%; height: auto; }
+.certbox.is-loading .certbox-shot { min-height: 240px; }
+.certbox-x {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-2xs);
+  color: var(--text-hi);
+  background: var(--bg-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background var(--t) var(--ease), color var(--t) var(--ease);
+}
+.certbox-x:hover { background: var(--accent-soft); color: var(--accent-text); }
+.certbox-cap {
+  padding: var(--sp-3) var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  color: var(--text-dim);
+  border-top: 1px solid var(--line);
+}
+body.has-overlay { overflow: hidden; }
+
 /* ══ writeup cards ═══════════════════════════════════════ */
 .writeup-list { display: flex; flex-direction: column; gap: var(--sp-2); }
 .writeup-card {
@@ -413,6 +491,21 @@
   overflow: hidden;
 }
 .writeup-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 7px; }
+
+/* Room artwork. Sits in the meta row beside the platform badge rather than in
+   a column of its own: only the TryHackMe rooms have an icon, so a dedicated
+   column would leave the picoCTF cards visibly short by one. Scaled by width
+   with the height following from the intrinsic ratio, so the art is never
+   squashed and the row height does not depend on the file. */
+.room-icon {
+  width: 22px;
+  height: auto;
+  flex: none;
+  align-self: center;
+  opacity: .85;
+  border-radius: var(--r-sm);
+}
+.room-icon--lg { width: 34px; }
 .writeup-time { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); }
 .writeup-arrow { color: var(--text-faint); transition: transform var(--t) var(--ease), color var(--t) var(--ease); }
 .writeup-card:hover .writeup-arrow { color: var(--accent-text); transform: translateX(3px); }

@@ -4,6 +4,7 @@ slug: mr-robot
 type: web
 diff: medium
 platform: thm
+icon: mr-robot
 read_time: 20
 summary: "A WordPress blog with a leaked wordlist, weak credentials and a hidden base64 login — a four-stage chain from recon to root."
 tags: wordpress, credential-reuse, base64, privilege-escalation, tryhackme

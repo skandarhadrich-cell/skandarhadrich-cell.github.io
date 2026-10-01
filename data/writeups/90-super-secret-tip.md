@@ -4,6 +4,7 @@ slug: super-secret-tip
 type: web
 diff: medium
 platform: thm
+icon: super-secret-tip
 read_time: 35
 summary: "Jinja SSTI in a password-protected Werkzeug debugger chains into a planted curl config file — and curl -K becomes root."
 tags: jinja2, ssti, werkzeug-debugger, curl-config, tryhackme

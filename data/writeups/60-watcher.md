@@ -4,6 +4,7 @@ slug: watcher
 type: web
 diff: medium
 platform: thm
+icon: watcher
 read_time: 30
 summary: "A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way."
 tags: lfi, webshell, linux-privesc, boot2root, tryhackme

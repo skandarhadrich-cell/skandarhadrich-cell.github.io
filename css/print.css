@@ -20,6 +20,7 @@
   --accent-line: #a1a1aa;
   --ok: #14532d;  --warn: #713f12;  --danger: #7f1d1d;  --info: #1e3a8a;
   --ok-soft: transparent; --warn-soft: transparent; --danger-soft: transparent; --info-soft: transparent;
+  --plat-picoctf: #0a5fb4; --plat-htb: #14532d; --plat-thm: #8a3d00;
   --sh-1: none; --sh-2: none; --sh-3: none;
 }
 
@@ -33,7 +34,8 @@ html, body {
 .rail, #nav, .read-progress, .palette, .toast, .skip-link,
 .writeup-filters, .filters, .wu-nav, .wu-back, .hero-cta,
 .hero::before, .site-footer, .footer-base, .card:hover,
-.code-copy, .cursor-block, .chip-available .dot {
+.code-copy, .cursor-block, .chip-available .dot,
+.certbox, .cert-view {
   display: none !important;
 }
 

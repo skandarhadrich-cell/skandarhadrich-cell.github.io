@@ -4,6 +4,7 @@ slug: ww-buddy
 type: web
 diff: medium
 platform: thm
+icon: ww-buddy
 read_time: 20
 summary: "A half-built 'make friends' site with SQLi in the signup flow, and an environment-variable leak that turns a web foothold into sudo."
 tags: sqli, flask, environment-variables, privilege-escalation, django

@@ -4,6 +4,7 @@ slug: fortress
 type: web
 diff: medium
 platform: thm
+icon: fortress
 read_time: 30
 summary: "Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root."
 tags: python-bytecode, decompilation, telnet, boot2root, tryhackme

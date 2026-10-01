@@ -81,7 +81,7 @@
     }
   ],
   "about": {
-    "bio": "I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF. Most notably, I architected an 8-stage nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation. I hold 6 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly. I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.",
+    "bio": "I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF. Most notably, I architected an 8-stage nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation. I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly. I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.",
     "fields": [
       {
         "key": "handle",
@@ -379,6 +379,7 @@
       "name": "Efficient Large Language Model Customization",
       "date": "Jan 2025",
       "id": "OwtTbLiTRzW_BJNRHUzfWw",
+      "preview": "nvidia-llm",
       "skills": "Deep Learning · LLM Fine-tuning",
       "published": true
     },
@@ -386,7 +387,9 @@
       "issuer": "TryHackMe",
       "issuer_slug": "tryhackme",
       "name": "Jr Penetration Tester",
-      "date": "Aug 2025",
+      "date": "Mar 2026",
+      "id": "THM-AFHELZMNLN",
+      "preview": "thm-jrpentest",
       "skills": "Web exploitation · Buffer overflow",
       "published": true
     },
@@ -395,6 +398,8 @@
       "issuer_slug": "tryhackme",
       "name": "SOC Level 1",
       "date": "Sep 2026",
+      "id": "THM-GY2V8QPJGX",
+      "preview": "thm-soc1",
       "skills": "SIEM · Log analysis · Incident triage",
       "published": true
     },
@@ -403,7 +408,29 @@
       "issuer_slug": "tryhackme",
       "name": "DevSecOps",
       "date": "Jun 2026",
+      "id": "THM-BUSIPKRA7X",
+      "preview": "thm-devsecops",
       "skills": "CI/CD security · Pipeline hardening",
+      "published": true
+    },
+    {
+      "issuer": "TryHackMe",
+      "issuer_slug": "tryhackme",
+      "name": "Security Engineer",
+      "date": "Jun 2026",
+      "id": "THM-TAJSVJ6CJG",
+      "preview": "thm-security-engineer",
+      "skills": "Vulnerability assessment · Exploitation · Reporting",
+      "published": true
+    },
+    {
+      "issuer": "TryHackMe",
+      "issuer_slug": "tryhackme",
+      "name": "Web Fundamentals",
+      "date": "Mar 2026",
+      "id": "THM-CTUG1AAPGR",
+      "preview": "thm-web-fundamentals",
+      "skills": "HTTP · Web servers · Attack surface",
       "published": true
     },
     {
@@ -420,11 +447,11 @@
       "name": "Machine Learning",
       "date": "Nov 2024",
       "id": "CC-C39D4E2822",
+      "preview": "365ds-ml",
       "skills": "Data Science · Machine Learning",
       "published": true
     },
     {
-      "_todo": "FILL THIS IN — the 7th certification. Set published:true to render it, then bump the certifications stat above from 6 to 7. The stat is hand-written, so nothing keeps the two in step except this note; the count must always equal the number of entries with published:true.",
       "issuer": "Cyber Sec 101",
       "issuer_slug": "pending",
       "name": "Cyber Sec 101",

@@ -4,6 +4,7 @@ slug: umbrella
 type: web
 diff: medium
 platform: thm
+icon: umbrella
 read_time: 25
 summary: "An open Docker registry leaks database secrets, MySQL credentials unlock the source, and a writable PATH entry hands over SUID bash."
 tags: docker, open-registry, mysql, path-hijack, suid, tryhackme

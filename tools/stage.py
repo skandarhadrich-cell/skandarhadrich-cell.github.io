@@ -46,9 +46,22 @@ DIRS = ["css", "js", "fonts", "assets", "writeups"]
 # Written by this script, not by build.py.
 GENERATED = [".nojekyll"]
 
+# Kept in the repository, never deployed: the certificate PDFs under
+# assets/certs/ are the source tools/gen-certs.py renders the inline previews
+# from. The site shows those renderings, and shipping the PDFs too would put
+# back the download the preview exists to avoid. Scoped to that directory
+# rather than to the .pdf extension, because assets/CV_Eng.pdf is a deliberate
+# download and must still ship. Keyed on the directory, so a newly added
+# certificate is excluded by default -- the safe way round.
+SKIP_DIRS = (os.path.join("assets", "certs"),)
+
 
 def is_generated(rel: str) -> bool:
     return rel in GENERATED or rel.startswith(".nojekyll.")
+
+
+def is_skipped(rel: str) -> bool:
+    return rel.lower().endswith(".pdf") and rel.startswith(SKIP_DIRS)
 
 
 def expected_files() -> list[str]:
@@ -58,7 +71,9 @@ def expected_files() -> list[str]:
             dirs[:] = sorted(x for x in dirs if x != "__pycache__")
             for fn in sorted(files):
                 p = os.path.join(dirpath, fn)
-                out.append(os.path.relpath(p, ROOT))
+                rel = os.path.relpath(p, ROOT)
+                if not is_skipped(rel):
+                    out.append(rel)
     return sorted(out)
 
 
@@ -87,6 +102,22 @@ def check(out_dir: str) -> int:
     if not os.path.isdir(out):
         print(f"::error::{out_dir}/ does not exist -- run: python3 tools/stage.py")
         return 1
+
+    # Belt and braces on the skip list: --check already fails on any file in
+    # _site/ that expected_files() does not name, so a leaked PDF would be
+    # caught there. This names it explicitly, because "a PDF shipped" deserves
+    # its own message rather than an "extra file" one.
+    leaked = sorted(
+        rel for rel in (
+            os.path.relpath(os.path.join(dp, fn), out)
+            for dp, _, fns in os.walk(out) for fn in fns
+        )
+        if is_skipped(rel)
+    )
+    problems = [
+        f"{out_dir}/{rel}  (a skipped file is staged -- it must never be deployed)"
+        for rel in leaked
+    ]
 
     want = set(expected_files()) | {".nojekyll"}
     have = set()

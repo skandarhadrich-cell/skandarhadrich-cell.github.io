@@ -4,6 +4,7 @@ slug: broker
 type: web
 diff: medium
 platform: thm
+icon: broker
 read_time: 15
 summary: "An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network — then a webshell upgrade path to root."
 tags: mqtt, activemq, webshell, iot, tryhackme

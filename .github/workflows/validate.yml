@@ -22,6 +22,38 @@ jobs:
       - name: Build is reproducible
         run: python3 tools/build.py --check
 
+      - name: Staged tree is up to date
+        run: python3 tools/stage.py --check
+
+      # The certificate PDFs are gitignored and stage.py skips them, so they
+      # are not in the repository and not in the artifact. This asserts both
+      # halves: the source documents stay out of git history, and a PDF never
+      # reaches the deployed tree.
+      - name: Certificate PDFs are in neither git nor the staged site
+        run: |
+          tracked=$(git ls-files -- 'assets/certs/*.pdf')
+          if [ -n "$tracked" ]; then
+            echo "::error::certificate PDFs are tracked in git — anyone can fetch"
+            echo "them from raw.githubusercontent.com regardless of stage.py:"
+            echo "$tracked"
+            exit 1
+          fi
+          echo "ok - no certificate PDF in git"
+          if find _site -path '*certs*' -name '*.pdf' | grep -q .; then
+            echo "::error::a certificate PDF is staged for deployment:"
+            find _site -path '*certs*' -name '*.pdf'
+            exit 1
+          fi
+          test -f _site/assets/CV_Eng.pdf || {
+            echo "::error::_site/assets/CV_Eng.pdf is missing"; exit 1; }
+          n=$(ls _site/assets/certs/preview/*.webp 2>/dev/null | wc -l)
+          echo "ok - $n certificate previews staged, no certificate PDFs"
+
+      # The certificate PDFs in assets/certs/ are the source the inline
+      # previews are rendered from and are meant never to ship: the whole point
+      # of the preview is that a visitor can read a certificate without there
+      # being a file to download.
+
       - name: No unfilled template tokens
         run: |
           if grep -rnE '\{\{[A-Z_]+\}\}' index.html cv.html 404.html writeups/ ; then
@@ -191,6 +223,9 @@ jobs:
               // self-contained components, so they get the same rendered
               // check the rest of the classes get
               '.stage .n','.stage b','.stage .tool','.filter-label',
+              // the certificate card's own text: the ID and the viewer
+              // trigger are set smaller and dimmer than the rest of the card
+              '.cert-view','.certbox-cap','.cert-id','.cert-date','.cert-skills',
               // structural, not styled text: the audit walks up for the real
               // background, so plain <li>/<a>/<small> inside a panel have to be
               // measured too or a genuinely unreadable list slips through
