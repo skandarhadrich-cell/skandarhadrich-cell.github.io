@@ -1,8 +1,19 @@
 name: Deploy to GitHub Pages
 
+# Fires on the *completion* of Validate, not on the push itself. Both used to
+# trigger on push, independently, so the two raced and neither could stop the
+# other: Validate failed six times while the site deployed through every one.
+# A green Validate is now the only thing that can reach the deploy job.
+#
+# workflow_run reports the run that finished, which is why the checkout has to
+# pin that commit explicitly -- `github.sha` here is the tip of main, not the
+# commit that was validated.
 on:
-  push:
-    branches: [main]
+  workflow_run:
+    workflows: [Validate]
+    types: [completed]
+  # Escape hatch for publishing without a validation run first. Deliberately
+  # unvalidated, so it is named for what it does.
   workflow_dispatch:
 
 permissions:
@@ -10,25 +21,17 @@ permissions:
   pages: write
   id-token: write
 
-# never run two deploys at once, but do not cancel a live one either
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Verify generated output is current
-        run: python3 tools/build.py --check
-
   deploy:
+    # A failed or cancelled Validate must not deploy. `skipped` is listed
+    # explicitly because `conclusion` is null while a run is still going.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     needs: build
     environment:
       name: github-pages
@@ -36,6 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - uses: actions/setup-python@v5
         with:
@@ -62,3 +67,17 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify generated output is current
+        run: python3 tools/build.py --check
