@@ -235,5 +235,9 @@ room images in `assets/ctf/` are screenshots of rooms, not marks.
 The eight room PNGs are opaque screenshots of TryHackMe's dark room UI, not
 transparent artwork — flood-filling the background out of them clears only
 1.5–4% of the pixels, so there is no key to cut. They are styled as thumbnails
-(46px in the card, 92px on a write-up's own page, growing to 108px on hover)
-rather than presented as logos they are not.
+rather than presented as logos they are not: 76px in the card and 120px as a
+write-up's own header, growing to 205px on hover. The zoom is anchored on its
+right edge and grows leftwards, and is deliberately allowed to overrun the
+card — the rows are 128–152px with 8px gaps, so it passes over its neighbours
+rather than being clipped by them. `--room-w` is also a grid track on every
+card, so it narrows the summary column rather than growing the row.

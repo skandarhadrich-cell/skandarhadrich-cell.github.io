@@ -576,8 +576,6 @@ body.has-overlay { overflow: hidden; }
   grid-template-columns: auto 1fr var(--room-w) auto;
   align-items: center;
   gap: var(--sp-4);
-  /* Top and bottom are sp-5 rather than sp-4 so the room artwork has room to
-     zoom into without spilling out of the card. */
   padding: var(--sp-5);
   background: var(--bg-2);
   border: 1px solid var(--line);
@@ -590,6 +588,16 @@ body.has-overlay { overflow: hidden; }
   text-decoration: none;
   transform: translateX(3px);
 }
+/* The zoomed artwork is allowed to leave the card. Two other rules already keep
+   it above its neighbours -- .room-icon--card's own z-index, and the stacking
+   context the hover transform creates around the card -- so this states the
+   ordering rather than repairs it. That was checked by painting the
+   neighbouring card magenta and reading back the pixels under the 8px band the
+   zoom overruns into: the artwork wins with this rule and without it. It is
+   here because the ordering is otherwise a side effect of two rules that have
+   no reason to know about each other, and one of them is a hover transform. */
+.writeup-card:hover,
+.writeup-card:focus-visible { z-index: var(--z-raised); }
 .writeup-idx { font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--accent-2-text); }
 .writeup-body { min-width: 0; }
 .writeup-title { font-size: var(--fs-md); font-weight: 600; color: var(--text-hi); }
@@ -641,12 +649,16 @@ body.has-overlay { overflow: hidden; }
 }
 
 /* On the write-up's own page, where there is no card and no hover target worth
-   having: the art is the header image, so it is just large. */
-.room-icon--head { width: calc(var(--room-w) * 2); opacity: .8; }
+   having: the art is the header image, so it is just large. Sized by its own
+   token rather than as a multiple of --room-w -- see the note there. */
+.room-icon--head { width: var(--room-w-head); opacity: .8; }
 
-/* The gesture: 46px becomes 108px, growing leftwards out of the right-hand
+/* The gesture: 76px becomes 205px, growing leftwards out of the right-hand
    slot (transform-origin: right center) so it stays put instead of sliding
-   across the text.
+   across the text. It is meant to overrun the card: anchored at the right and
+   centred vertically, it passes over the card above and the card below rather
+   than being clipped by either, so the z-index note above is what governs what
+   paints on top in that band.
 
    Written as ":hover does it, hover:none takes it away" rather than the other
    way round. Both describe the same rule, but gating on (hover: hover) means
@@ -662,7 +674,7 @@ body.has-overlay { overflow: hidden; }
   box-shadow: var(--sh-2);
 }
 /* A tap on a touch screen can leave :hover stuck on, which would park the
-   image at 108px for good. */
+   image at 205px for good. */
 @media (hover: none) {
   .room-icon--card,
   .writeup-card:hover .room-icon--card { transform: none; }
@@ -678,10 +690,15 @@ body.has-overlay { overflow: hidden; }
 .writeup-card:hover .writeup-arrow { color: var(--accent-text); transform: translateX(3px); }
 .writeup-card.is-hidden { display: none; }
 
-/* Below this the summary has little room to begin with, so the artwork gives
-   some back: 36px -> 85px still reads as a room, and the card is 10px shorter. */
+/* Below this the summary column is the first thing to be squeezed -- it is the
+   1fr track, so every pixel of --room-w comes out of it -- and a two-line
+   clamp turns into a three-line one. The artwork gives some back: 58px, and a
+   lower zoom factor because the overrun has nowhere to go at this width.
+   --room-w-head is not scaled here: the header row wraps rather than clips, so
+   a slightly smaller header image costs nothing. */
 @media (max-width: 560px) {
-  .writeup-card { --room-w: 36px; --room-zoom: 2.35; --arrow-w: 10px; }
+  .writeup-card { --room-w: 58px; --room-zoom: 2.4; --arrow-w: 10px; }
+  .room-icon--head { width: 96px; }
 }
 
 /* filter bar: one labelled group per line */

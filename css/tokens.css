@@ -126,11 +126,24 @@
 
   /* ── room artwork ─────────────────────────────────────────
      The size of the TryHackMe room thumbnail at rest, and the factor it grows
-     by on hover. Shared rather than local to .writeup-card because the same
-     image appears at a different size as the header of a write-up's own page.
-     46px -> 108px. */
-  --room-w: 46px;
-  --room-zoom: 2.35;
+     by on hover.
+     76px -> 205px. The zoom is deliberately allowed past the card's edge: it is
+     anchored on its right edge and grows leftwards, and at 184px tall against
+     rows of 128-152px separated by 8px gaps it overruns a neighbour by about
+     8px at top and bottom -- which reads as one image coming forward rather
+     than as a box too small for its contents.
+
+     --room-w is also a grid track on every writeup card, so raising it narrows
+     the summary column rather than growing the row. */
+  --room-w: 76px;
+  --room-zoom: 2.7;
+
+  /* The same artwork as the header of a write-up's own page. Its own token
+     rather than a multiple of --room-w, because the two are sized against
+     different surroundings: this one sits in a wrapping .wu-meta row beside
+     badges and sets that row's height, so a card-sized multiple of it would
+     push the page header down for no reason. */
+  --room-w-head: 120px;
 
   /* ── elevation ─────────────────────────────────────────── */
   --sh-1: 0 1px 2px rgb(0 0 0 / .4);
