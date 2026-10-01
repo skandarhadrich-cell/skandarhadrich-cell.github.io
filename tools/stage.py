@@ -107,17 +107,21 @@ def check(out_dir: str) -> int:
     # _site/ that expected_files() does not name, so a leaked PDF would be
     # caught there. This names it explicitly, because "a PDF shipped" deserves
     # its own message rather than an "extra file" one.
-    leaked = sorted(
+    # Accumulated across every check below, so this list is created once and
+    # only ever appended to. It used to be assigned the leak findings here and
+    # then reassigned to [] further down, which silently discarded them -- the
+    # check read as present in the source and could never fail.
+    problems: list[str] = []
+    for rel in sorted(
         rel for rel in (
             os.path.relpath(os.path.join(dp, fn), out)
             for dp, _, fns in os.walk(out) for fn in fns
         )
         if is_skipped(rel)
-    )
-    problems = [
-        f"{out_dir}/{rel}  (a skipped file is staged -- it must never be deployed)"
-        for rel in leaked
-    ]
+    ):
+        problems.append(
+            f"{out_dir}/{rel}  (a skipped file is staged -- it must never be deployed)"
+        )
 
     want = set(expected_files()) | {".nojekyll"}
     have = set()
@@ -126,7 +130,6 @@ def check(out_dir: str) -> int:
         for fn in files:
             have.add(os.path.relpath(os.path.join(dirpath, fn), out))
 
-    problems = []
     for missing in sorted(want - have):
         problems.append(f"{out_dir}/{missing}  (staged tree is missing it)")
     for extra in sorted(have - want):

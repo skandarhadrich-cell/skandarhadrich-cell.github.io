@@ -22,8 +22,14 @@ jobs:
       - name: Build is reproducible
         run: python3 tools/build.py --check
 
+      # _site/ is gitignored, so a CI checkout does not have it and this step
+      # has to build it before it can check it. deploy.yml has always done both
+      # halves; validate.yml ran only --check, so it failed on every run with
+      # "_site/ does not exist" and never reached any of the checks below it.
       - name: Staged tree is up to date
-        run: python3 tools/stage.py --check
+        run: |
+          python3 tools/stage.py
+          python3 tools/stage.py --check
 
       # The certificate PDFs are gitignored and stage.py skips them, so they
       # are not in the repository and not in the artifact. This asserts both
