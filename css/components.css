@@ -357,46 +357,151 @@
   margin-left: auto;
 }
 
-/* ══ certifications ══════════════════════════════════════ */
-.cert-card { gap: var(--sp-2); padding: var(--sp-5); }
-.cert-issuer { display: flex; align-items: center; gap: var(--sp-2); }
-.cert-issuer img { width: 20px; height: 20px; border-radius: 3px; }
-.cert-issuer span {
+/* ══ certifications ═════════════════════════════════════════
+   A list of rows, not a grid of cards.
+
+   It was a three-column grid, and seven of the eight certificates had an
+   identical six-line shape with only the text differing -- the eighth, the
+   CCNA, had four lines, so the bottom row was ragged. A grid of near copies buys
+   nothing a list does not, and cost 1190px of page to say what 8 rows say in
+   about 380. The row reads left to right the way the certificate does: who
+   issued it and when, what it is, then the certificate itself at the right,
+   growing on hover exactly as the room artwork does on a write-up card. */
+.cert-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.cert-row {
+  /* 64px -> 112px on hover. The row is padded so the zoomed thumbnail still
+     fits inside its own row rather than reaching into the neighbouring ones:
+     a uniform scale on an aspect-preserving image is always taller than the
+     space it started in, and the only place that height can come from is the
+     row's own padding. */
+  --cert-thumb-w: 64px;
+  --cert-thumb-h: 46px;
+  --cert-thumb-zoom: 1.7;     /* 64px -> 109px, 46px -> 78px: the row is 80px
+                                tall and the zoom has to finish inside it */
+  position: relative;
+  display: grid;
+  /* 13.5rem fits "CISCO NETWORKING ACADEMY" on one line at 11px mono with
+     the letter-spacing; at 11rem it wrapped and made one row 14px taller than
+     the other seven. */
+  grid-template-columns: 13.5rem 1fr 76px;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  /* base.css gives every li margin-block: 8px, which on top of the flex gap
+     would put 24px between rows */
+  margin-block: 0;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.cert-row:hover { border-color: var(--accent-line); background: var(--bg-3); }
+
+/* issuer + date, as the left-hand label column */
+.cert-side { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cert-issuer {
   font-family: var(--font-mono);
   font-size: var(--fs-3xs);
   text-transform: uppercase;
   letter-spacing: .08em;
   color: var(--text-dim);
 }
-.cert-card h3 { font-size: var(--fs-md); font-weight: 600; line-height: 1.4; }
-.cert-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: auto; padding-top: var(--sp-2); }
 .cert-date { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); }
-.cert-verify {
-  margin-left: auto;
-  display: inline-flex; align-items: center; gap: 4px;
-  font-family: var(--font-mono); font-size: var(--fs-3xs);
-  color: var(--ok);
-}
-.cert-id { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); word-break: break-all; }
-.cert-skills { font-size: var(--fs-2xs); color: var(--text-faint); }
 
-/* The trigger reads as an action on the card, not as another metadata line,
-   so it is set apart from the cert-id above it with a hairline. */
-.cert-view {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: var(--sp-3);
-  padding-top: var(--sp-3);
-  border-top: 1px solid var(--line-soft);
+.cert-main { min-width: 0; }
+.cert-name { font-size: var(--fs-md); font-weight: 600; line-height: 1.4; color: var(--text-hi); }
+.cert-foot { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3); margin-top: 2px; }
+.cert-skills { font-size: var(--fs-2xs); color: var(--text-faint); }
+.cert-id {
   font-family: var(--font-mono);
   font-size: var(--fs-3xs);
-  color: var(--text-dim);
-  text-decoration: none;
-  transition: color var(--t) var(--ease);
+  color: var(--text-faint);
+  word-break: break-all;
 }
-.cert-view:hover, .cert-view:focus-visible { color: var(--accent-text); }
-.cert-view-icon { font-size: var(--fs-2xs); line-height: 1; }
+
+/* The thumbnail. 64px at rest is the largest size that still reads as a
+   detail rather than a half-loaded page; 112px on hover is enough of the
+   certificate to recognise it without opening the overlay.
+
+   The column is a fixed 76px and the image is fitted inside a 64x46 box with
+   object-fit rather than sized from its own ratio. Seven of the eight
+   certificates are A4 landscape and one -- the NVIDIA record -- is a portrait
+   page, which at a width-driven 64px would be 90px tall and would make its row
+   44px taller than the other seven. Sizing to the box instead keeps all eight
+   rows the same height and lets the portrait sit letterboxed in the middle of
+   its cell, which is what it is. */
+.cert-thumb { display: flex; align-items: center; justify-content: flex-end; }
+.cert-thumb-img {
+  width: var(--cert-thumb-w);
+  height: var(--cert-thumb-h);
+  object-fit: contain;
+  display: block;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  box-shadow: var(--sh-1);
+  opacity: .62;
+  transform: scale(1);
+  transform-origin: right center;
+  transition: transform var(--t) var(--ease), opacity var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.cert-row:hover .cert-thumb-img,
+.cert-row:focus-within .cert-thumb-img {
+  opacity: 1;
+  transform: scale(var(--cert-thumb-zoom));
+  box-shadow: var(--sh-2);
+}
+
+/* The whole row opens the certificate, so the link is stretched over the row
+   rather than being a one-word target in the corner. It sits above the row
+   content (z-index 1) so a click anywhere on the row registers -- except on the
+   certificate id, which is lifted above the link (z-index 3) so that dragging
+   across it to copy the id does not open the overlay instead. */
+.cert-open {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  text-decoration: none;
+}
+.cert-open:focus-visible { outline: 2px solid var(--accent-text); outline-offset: -2px; }
+.cert-id { position: relative; z-index: 3; }
+
+/* Narrow screens drop the label column first: issuer and date move under the
+   name, where there is width for them, and the thumbnail shrinks rather than
+   pushing the name into a two-word-per-line column. */
+@media (max-width: 720px) {
+  .cert-row { grid-template-columns: 1fr auto; gap: var(--sp-3) var(--sp-4); }
+  .cert-main { grid-row: 1; }
+  .cert-thumb { grid-row: 1 / span 2; }
+  .cert-side {
+    grid-row: 2;
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--sp-2);
+  }
+  .cert-thumb-img { --cert-thumb-w: 44px; --cert-thumb-h: 32px; }
+}
+
+/* Same reasoning as .room-icon--card: the zoom is the default and the pointer
+   type takes it away, so nothing depends on a media query the browser has to
+   volunteer correctly. */
+@media (hover: none) {
+  .cert-thumb-img,
+  .cert-row:hover .cert-thumb-img { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cert-thumb-img,
+  .cert-row:hover .cert-thumb-img { transform: none; }
+}
+
 
 /* ══ certificate viewer ═══════════════════════════════════ */
 .certbox {
@@ -461,12 +566,19 @@ body.has-overlay { overflow: hidden; }
 /* ══ writeup cards ═══════════════════════════════════════ */
 .writeup-list { display: flex; flex-direction: column; gap: var(--sp-2); }
 .writeup-card {
+  --arrow-w: 12px;
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  /* The third track is the room slot. It is reserved on every card, whether or
+     not the card has art in it: only the eight TryHackMe rooms do, so a track
+     sized to its content would give the five picoCTF cards a wider summary and
+     wrap their text differently for no reason a reader could name. */
+  grid-template-columns: auto 1fr var(--room-w) auto;
   align-items: center;
   gap: var(--sp-4);
-  padding: var(--sp-4) var(--sp-5);
+  /* Top and bottom are sp-5 rather than sp-4 so the room artwork has room to
+     zoom into without spilling out of the card. */
+  padding: var(--sp-5);
   background: var(--bg-2);
   border: 1px solid var(--line);
   border-radius: var(--r);
@@ -492,24 +604,85 @@ body.has-overlay { overflow: hidden; }
 }
 .writeup-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 7px; }
 
-/* Room artwork. Sits in the meta row beside the platform badge rather than in
-   a column of its own: only the TryHackMe rooms have an icon, so a dedicated
-   column would leave the picoCTF cards visibly short by one. Scaled by width
-   with the height following from the intrinsic ratio, so the art is never
-   squashed and the row height does not depend on the file. */
+/* Room artwork.
+
+   These files are not logo marks. Each one is a screenshot of TryHackMe's dark
+   room UI: a fully opaque PNG with #212c42/#141b2a baked into it, artwork over
+   ~88%x84% of the canvas, and a gradient in the background that means flood
+   filling the corners out clears only 1.5-4% of the pixels. A dark rectangle
+   cannot be made transparent, so it is framed as what it is -- a thumbnail of
+   a room, with a hairline edge and dimmed until you go looking for it.
+
+   Sized by width with the height following the intrinsic ratio, so the art is
+   never squashed and the row height does not depend on the file. */
 .room-icon {
-  width: 22px;
+  width: var(--room-w);
   height: auto;
   flex: none;
   align-self: center;
-  opacity: .85;
+  opacity: .5;
+  border: 1px solid var(--line-strong);
   border-radius: var(--r-sm);
+  box-shadow: var(--sh-1);
+  transform: scale(1);
+  transform-origin: right center;
+  transition: transform var(--t) var(--ease), opacity var(--t) var(--ease), box-shadow var(--t) var(--ease);
 }
-.room-icon--lg { width: 34px; }
+
+/* On the card: taken out of flow and laid over the slot the grid reserved for
+   it, so growing the image cannot reflow anything. The offset is the same sum
+   the grid is made of -- padding-right, then the gap and the arrow width -- so
+   the reserved track and the image sit in the same place whether or not there
+   is an image to fill it. */
+.room-icon--card {
+  position: absolute;
+  right: calc(var(--sp-5) + var(--sp-4) + var(--arrow-w));
+  z-index: 1;
+}
+
+/* On the write-up's own page, where there is no card and no hover target worth
+   having: the art is the header image, so it is just large. */
+.room-icon--head { width: calc(var(--room-w) * 2); opacity: .8; }
+
+/* The gesture: 46px becomes 108px, growing leftwards out of the right-hand
+   slot (transform-origin: right center) so it stays put instead of sliding
+   across the text.
+
+   Written as ":hover does it, hover:none takes it away" rather than the other
+   way round. Both describe the same rule, but gating on (hover: hover) means
+   any browser that under-reports the pointer -- which headless Chromium does,
+   so the check below would never have exercised it -- silently loses the
+   feature instead of failing loudly. :focus-visible is alongside it so the
+   zoom is reachable from the keyboard, where the card's own focus ring already
+   is. */
+.writeup-card:hover .room-icon--card,
+.writeup-card:focus-visible .room-icon--card {
+  opacity: 1;
+  transform: scale(var(--room-zoom));
+  box-shadow: var(--sh-2);
+}
+/* A tap on a touch screen can leave :hover stuck on, which would park the
+   image at 108px for good. */
+@media (hover: none) {
+  .room-icon--card,
+  .writeup-card:hover .room-icon--card { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-icon--card,
+  .writeup-card:hover .room-icon--card { transform: none; }
+}
 .writeup-time { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); }
-.writeup-arrow { color: var(--text-faint); transition: transform var(--t) var(--ease), color var(--t) var(--ease); }
+/* Fixed width, so .room-icon--card can offset itself from the card's right edge
+   by a known amount instead of guessing at the width of a glyph. */
+.writeup-arrow { width: var(--arrow-w); text-align: right; color: var(--text-faint); transition: transform var(--t) var(--ease), color var(--t) var(--ease); }
 .writeup-card:hover .writeup-arrow { color: var(--accent-text); transform: translateX(3px); }
 .writeup-card.is-hidden { display: none; }
+
+/* Below this the summary has little room to begin with, so the artwork gives
+   some back: 36px -> 85px still reads as a room, and the card is 10px shorter. */
+@media (max-width: 560px) {
+  .writeup-card { --room-w: 36px; --room-zoom: 2.35; --arrow-w: 10px; }
+}
 
 /* filter bar: one labelled group per line */
 .filters {

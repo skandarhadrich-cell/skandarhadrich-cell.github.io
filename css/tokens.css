@@ -110,7 +110,7 @@
 
   /* ── space ─────────────────────────────────────────────── */
   --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
-  --sp-5: 20px;  --sp-6: 24px;  --sp-8: 32px;  --sp-10: 40px;
+  --sp-5: 20px;  --sp-6: 24px;  --sp-7: 28px;  --sp-8: 32px;  --sp-10: 40px;
   --sp-12: 48px; --sp-16: 64px; --sp-20: 80px;
   --section-y: clamp(76px, 8.5vw, 124px);
   --gutter: clamp(20px, 4vw, 40px);
@@ -123,6 +123,14 @@
   --r: 5px;
   --r-lg: 8px;
   --r-pill: 999px;
+
+  /* ── room artwork ─────────────────────────────────────────
+     The size of the TryHackMe room thumbnail at rest, and the factor it grows
+     by on hover. Shared rather than local to .writeup-card because the same
+     image appears at a different size as the header of a write-up's own page.
+     46px -> 108px. */
+  --room-w: 46px;
+  --room-zoom: 2.35;
 
   /* ── elevation ─────────────────────────────────────────── */
   --sh-1: 0 1px 2px rgb(0 0 0 / .4);

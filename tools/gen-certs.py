@@ -13,8 +13,16 @@ of tools/build.py: the build must not depend on poppler being installed.
 
     python3 tools/gen-certs.py
 
-Output lands in assets/certs/preview/<slug>.webp, referenced from
-data/site.json as each certificate's "preview" key.
+Output lands in assets/certs/preview/, referenced from data/site.json as each
+certificate's "preview" key. Two rungs per certificate:
+
+    <slug>.webp        1200px  the certificate overlay
+    <slug>-thumb.webp   640px  the row thumbnail
+
+The thumbnail is a separate file because the row shows it at 64px and grows it
+to 150px on hover: at 2x that is 300px of pixels, so 640 covers it with room
+to spare. Sizing the row off the 1200px file instead would mean 218K of images
+for marks that never render wider than 150 CSS px.
 """
 from __future__ import annotations
 
@@ -34,6 +42,7 @@ OUT = os.path.join(SRC, "preview")
 CERTS = {
     "Certif LLM Fine-Tuning.pdf":    "nvidia-llm",
     "Certif Machine Learning.pdf":   "365ds-ml",
+    "Certif CCNA_ITN.pdf":           "cisco-ccna",
     "Certif THM-JrPentest.pdf":      "thm-jrpentest",
     "Certif THM-SOC1.pdf":           "thm-soc1",
     "Certif DevSecOps.pdf":          "thm-devsecops",
@@ -41,10 +50,17 @@ CERTS = {
     "Certif webFun.pdf":             "thm-web-fundamentals",
 }
 
-# long edge in pixels. A certificate is read in a lightbox up to ~1040px
-# wide on a 1440px screen, so 1200 covers 2x there without wasting bytes on
-# text nobody will zoom into.
-SCALE_TO = 1200
+# Long edge of the overlay rung, in pixels. A certificate is read in the overlay
+# up to ~1040px wide on a 1440px screen, so 1200 covers 2x there without
+# wasting bytes on text nobody zooms into. Everything else is downscaled from
+# this one rasterisation rather than re-rendered, so the two rungs are always
+# the same page of the same document at different sizes.
+OVERLAY_TO = 1200
+
+# Long edge of the row thumbnail. 150 CSS px at 2x is 300px; 640 is the next
+# sensible step up and keeps the eight of them around 90K together.
+THUMB_TO = 640
+
 QUALITY = 80
 
 
@@ -55,21 +71,11 @@ def need(prog: str) -> str:
     return path
 
 
-def render(pdf: str, dest: str, pdftoppm: str, magick: str) -> int:
-    with tempfile.TemporaryDirectory() as tmp:
-        # -singlefile keeps pdftoppm from appending the page number, so the
-        # stem is the output name exactly
-        stem = os.path.join(tmp, "page")
-        subprocess.run(
-            [pdftoppm, "-png", "-f", "1", "-l", "1", "-singlefile",
-             "-scale-to", str(SCALE_TO), pdf, stem],
-            check=True,
-        )
-        subprocess.run(
-            [magick, stem + ".png", "-strip", "-quality", str(QUALITY),
-             "-define", "webp:method=6", dest],
-            check=True,
-        )
+def render(pdf: str, dest: str, source_png: str, width: int,
+           magick: str) -> int:
+    cmd = [magick, source_png, "-resize", f"{width}x{width}",
+           "-strip", "-quality", str(QUALITY), "-define", "webp:method=6", dest]
+    subprocess.run(cmd, check=True)
     return os.path.getsize(dest)
 
 
@@ -85,19 +91,36 @@ def main() -> int:
         return 1
 
     rows = []
-    for src, slug in CERTS.items():
-        pdf = os.path.join(SRC, src)
-        dest = os.path.join(OUT, slug + ".webp")
-        size = render(pdf, dest, pdftoppm, magick)
-        rows.append((src, os.path.getsize(pdf), size))
+    with tempfile.TemporaryDirectory() as tmp:
+        for src, slug in CERTS.items():
+            pdf = os.path.join(SRC, src)
+            # -singlefile keeps pdftoppm from appending the page number, so the
+            # stem is the output name exactly
+            stem = os.path.join(tmp, "page")
+            subprocess.run(
+                [pdftoppm, "-png", "-f", "1", "-l", "1", "-singlefile",
+                 "-scale-to", str(OVERLAY_TO), pdf, stem],
+                check=True,
+            )
+            png = stem + ".png"
+            full = os.path.join(OUT, slug + ".webp")
+            thumb = os.path.join(OUT, slug + "-thumb.webp")
+            full_sz = render(pdf, full, png, OVERLAY_TO, magick)
+            thumb_sz = render(pdf, thumb, png, THUMB_TO, magick)
+            rows.append((src, os.path.getsize(pdf), thumb_sz, full_sz))
 
     pad = max(len(r[0]) for r in rows)
-    print(f"  {'pdf'.ljust(pad)}   {'source':>9}  {'webp':>9}   saved")
-    for name, pdf_sz, out_sz in rows:
-        cut = 100 - round(out_sz * 100 / pdf_sz)
-        print(f"  {name.ljust(pad)}  {pdf_sz / 1024:>7.1f}K  {out_sz / 1024:>7.1f}K   {cut}%")
-    total = sum(r[2] for r in rows)
-    print(f"\n  {len(rows)} previews in assets/certs/preview/, {total / 1024:.0f}K total")
+    print(f"  {'pdf'.ljust(pad)}   {'source':>9}  {'thumb':>9}  {'overlay':>9}")
+    for name, pdf_sz, thumb_sz, full_sz in rows:
+        print(f"  {name.ljust(pad)}  {pdf_sz / 1024:>7.1f}K  {thumb_sz / 1024:>7.1f}K"
+              f"  {full_sz / 1024:>7.1f}K")
+    tsum = sum(r[2] for r in rows)
+    fsum = sum(r[3] for r in rows)
+    print(f"\n  {len(rows)} certificates in assets/certs/preview/")
+    print(f"  {len(rows)} thumbnails  {tsum / 1024:.0f}K  "
+          f"({tsum / len(rows) / 1024:.0f}K each)")
+    print(f"  {len(rows)} overlays    {fsum / 1024:.0f}K  "
+          f"({fsum / len(rows) / 1024:.0f}K each)")
     return 0
 
 

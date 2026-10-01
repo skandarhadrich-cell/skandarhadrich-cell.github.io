@@ -2,10 +2,15 @@
    certs.js — the certificate viewer
    Opens a certificate image in the overlay defined by certlightbox().
 
-   Each card carries its image inside a <template>, which is inert and so never
-   fetched. Cloning it in on click is what keeps seven images off the initial
-   load; the trigger is a plain <a> to the image, so if this file never runs
-   the link still shows the certificate, just on its own page.
+   Each row carries its full-size image inside a <template>, which is inert and
+   so never fetched. Cloning it in on click is what keeps the eight 1200px
+   renders off the initial load -- the rows themselves only load the 640px
+   thumbnails. The trigger is a plain <a> stretched over the row, so if this
+   file never runs the link still shows the certificate, just on its own page.
+
+   The <template> is looked up on the link's parent rather than carried in a
+   data attribute: both live in the same <li>, and a src attribute would have
+   to be escaped into the markup only to be parsed back out of it here.
 
    Scoped to this file for the same reason main.js is: see the note there.
    ============================================================ */
@@ -32,6 +37,8 @@ function label(link) {
 }
 
 function open(link) {
+  // The link is a child of the row and the template is its next sibling, so
+  // one query on the row finds it without a second selector in the markup.
   const tpl = link.parentNode.querySelector('template[data-cert]');
   if (!tpl) return; // nothing to show: let the link navigate
 

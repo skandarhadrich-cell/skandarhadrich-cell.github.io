@@ -375,7 +375,6 @@
   "certs": [
     {
       "issuer": "NVIDIA",
-      "issuer_slug": "nvidia",
       "name": "Efficient Large Language Model Customization",
       "date": "Jan 2025",
       "id": "OwtTbLiTRzW_BJNRHUzfWw",
@@ -385,7 +384,6 @@
     },
     {
       "issuer": "TryHackMe",
-      "issuer_slug": "tryhackme",
       "name": "Jr Penetration Tester",
       "date": "Mar 2026",
       "id": "THM-AFHELZMNLN",
@@ -395,7 +393,6 @@
     },
     {
       "issuer": "TryHackMe",
-      "issuer_slug": "tryhackme",
       "name": "SOC Level 1",
       "date": "Sep 2026",
       "id": "THM-GY2V8QPJGX",
@@ -405,7 +402,6 @@
     },
     {
       "issuer": "TryHackMe",
-      "issuer_slug": "tryhackme",
       "name": "DevSecOps",
       "date": "Jun 2026",
       "id": "THM-BUSIPKRA7X",
@@ -415,7 +411,6 @@
     },
     {
       "issuer": "TryHackMe",
-      "issuer_slug": "tryhackme",
       "name": "Security Engineer",
       "date": "Jun 2026",
       "id": "THM-TAJSVJ6CJG",
@@ -425,7 +420,6 @@
     },
     {
       "issuer": "TryHackMe",
-      "issuer_slug": "tryhackme",
       "name": "Web Fundamentals",
       "date": "Mar 2026",
       "id": "THM-CTUG1AAPGR",
@@ -435,15 +429,14 @@
     },
     {
       "issuer": "Cisco Networking Academy",
-      "issuer_slug": "cisco",
       "name": "CCNA: Introduction to Networks",
       "date": "Jun 2025",
       "skills": "TCP/IP · VLANs · OSPF",
-      "published": true
+      "published": true,
+      "preview": "cisco-ccna"
     },
     {
       "issuer": "365 Data Science",
-      "issuer_slug": "365ds",
       "name": "Machine Learning",
       "date": "Nov 2024",
       "id": "CC-C39D4E2822",
@@ -453,7 +446,6 @@
     },
     {
       "issuer": "Cyber Sec 101",
-      "issuer_slug": "pending",
       "name": "Cyber Sec 101",
       "date": "—",
       "skills": "Security fundamentals",

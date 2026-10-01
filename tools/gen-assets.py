@@ -8,12 +8,9 @@ Produces everything that cannot reasonably live in a text file:
     assets/icon-512.png         PWA / manifest (maskable)
     assets/apple-touch-icon.png 180x180 apple touch icon
     favicon.ico                 multi-resolution favicon
-    assets/certs/*.svg          typographic issuer marks
 
 The icons and the OG card are drawn with Pillow so there is no external
-design tool in the loop.  The issuer marks are hand-written typographic
-stand-ins, not the vendors' official logos — deliberately, so the repo
-carries no third-party trademark assets.
+design tool in the loop.
 
 Run it after changing site.json identity or site colours:
 
@@ -258,41 +255,12 @@ def wrap(text: str, font, max_w: int) -> list[str]:
     return lines
 
 
-# ── certification issuer marks ─────────────────────────────────────────────
-
-CERT_MARKS = {
-    "nvidia": ("NVIDIA", "#76b900"),
-    "tryhackme": ("THM", "#ff7a45"),
-    "cisco": ("CISCO", "#049fd9"),
-    "365ds": ("365DS", "#0f9d58"),
-}
-
-
-def build_cert_marks() -> None:
-    out_dir = os.path.join(ASSETS, "certs")
-    os.makedirs(out_dir, exist_ok=True)
-    for slug, (label, colour) in CERT_MARKS.items():
-        size = 20
-        img = Image.new("RGBA", (size * 8, size * 8), (0, 0, 0, 0))
-        d = ImageDraw.Draw(img)
-        s = size * 8
-        d.rounded_rectangle([0, 0, s - 1, s - 1], radius=int(s * 0.2), fill=BG2 + (255,),
-                            outline=LINE_STRONG + (255,), width=int(s * 0.03))
-        font = find_font("mono", "semibold", int(s * (0.30 if len(label) > 4 else 0.42)))
-        r, g, b = (int(colour[i:i + 2], 16) for i in (1, 3, 5))
-        d.text((s / 2, s / 2 + s * 0.015), label, font=font, fill=(r, g, b, 255), anchor="mm")
-        # downsample hard: the small mark is read at 20px, so crisp beats detailed
-        img.resize((size, size), Image.LANCZOS).save(os.path.join(out_dir, f"{slug}.png"), "PNG")
-        print(f"  assets/certs/{slug + '.png':<24} {size}x{size}")
-
-
 def main() -> int:
     os.makedirs(ASSETS, exist_ok=True)
     site = load_site()
     print("generating assets")
     build_icons()
     build_og(site)
-    build_cert_marks()
     print("done")
     return 0
 

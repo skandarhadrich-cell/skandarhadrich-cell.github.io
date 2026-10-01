@@ -35,7 +35,7 @@ html, body {
 .writeup-filters, .filters, .wu-nav, .wu-back, .hero-cta,
 .hero::before, .site-footer, .footer-base, .card:hover,
 .code-copy, .cursor-block, .chip-available .dot,
-.certbox, .cert-view {
+.certbox, .room-icon {
   display: none !important;
 }
 
@@ -70,7 +70,8 @@ p, li, dd, .cert-skills, .stage small { color: #18181b !important; font-size: 10
 .wu-nav a[href]::after, .writeup-card[href]::after,
 .project-card a::after, .footer-col a::after { content: "" !important; }
 
-.card, .term, .stat, .about-field, .edu-item, .writeup-card, .stage, .badge-diff, .badge-platform, .tag {
+.card, .term, .stat, .about-field, .edu-item, .writeup-card, .stage,
+.cert-row, .badge-diff, .badge-platform, .tag {
   background: #fff !important;
   border: 1px solid var(--line) !important;
   box-shadow: none !important;
@@ -80,14 +81,28 @@ p, li, dd, .cert-skills, .stage small { color: #18181b !important; font-size: 10
 .card { padding: 3mm !important; }
 .card:hover { transform: none !important; }
 
-.grid--2, .grid--3, .grid--skills, .grid--projects, .grid--certs,
+/* A certificate is a list of facts on paper, not a row of interactive parts:
+   the stretched link has no target, the thumbnail would print as a grey
+   smudge, and the grid would wrap the name into whatever column it landed in. */
+.cert-open, .cert-thumb { display: none !important; }
+.cert-row {
+  display: block !important;
+  padding: 0 0 2.5mm !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line-soft) !important;
+}
+.cert-row:last-child { border-bottom: 0 !important; }
+.cert-side { flex-direction: row !important; gap: 3mm !important; margin-bottom: 1mm; }
+.cert-name { font-size: 11pt; }
+
+.grid--2, .grid--3, .grid--skills, .grid--projects,
 .about-grid, .stat-strip, .edu-list, .writeup-list {
   display: block !important;
   background: none !important;
   border: 0 !important;
   gap: 0 !important;
 }
-.grid--projects .card, .grid--certs .card, .grid--skills .card { margin-bottom: 3mm; }
+.grid--projects .card, .grid--skills .card { margin-bottom: 3mm; }
 .about-field, .stat { border: 0 !important; border-bottom: 1px solid var(--line-soft) !important; }
 .pipeline { display: block !important; }
 .stage { display: block !important; break-inside: avoid; margin-bottom: 2mm; }

@@ -48,11 +48,50 @@ jobs:
             echo "::error::_site/assets/CV_Eng.pdf is missing"; exit 1; }
           n=$(ls _site/assets/certs/preview/*.webp 2>/dev/null | wc -l)
           echo "ok - $n certificate previews staged, no certificate PDFs"
+          # every preview needs its 640px row thumbnail: gen-certs.py writes the
+          # two rungs from one rasterisation, so one without the other means a
+          # half-finished run and a row that renders at the wrong size
+          for w in _site/assets/certs/preview/*.webp; do
+            case "$w" in *-thumb.webp) continue ;; esac
+            test -f "${w%.webp}-thumb.webp" || {
+              echo "::error::missing row thumbnail for $(basename "$w")"
+              exit 1; }
+          done
+          echo "ok - every preview has a row thumbnail"
 
       # The certificate PDFs in assets/certs/ are the source the inline
       # previews are rendered from and are meant never to ship: the whole point
       # of the preview is that a visitor can read a certificate without there
       # being a file to download.
+
+      # An undefined custom property does not fail a stylesheet: the one
+      # declaration that uses it is dropped at computed-value time and
+      # everything else renders normally. `--sp-7` was used by the pipeline's
+      # gap and its arrow offset and never defined, so `gap: var(--sp-5)
+      # var(--sp-7)` silently became `gap: normal` and all sixteen boxes sat
+      # shoulder to shoulder with the arrows painted on top of them. Nothing
+      # else in the suite can see that.
+      - name: Every custom property that is used is defined
+        run: |
+          python3 - <<'PY'
+          import glob, re, sys
+          css = ""
+          for f in sorted(glob.glob("css/*.css")):
+              css += open(f, encoding="utf-8").read()
+          # drop comments so a token named in prose does not count as defined
+          css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+          defined = set(re.findall(r"(--[\w-]+)\s*:", css))
+          used = set(re.findall(r"var\(\s*(--[\w-]+)", css))
+          # a var() with a fallback is self-sufficient
+          fallbacks = set(re.findall(r"var\(\s*(--[\w-]+)\s*,", css))
+          missing = sorted(used - defined - fallbacks)
+          if missing:
+              print("::error::custom properties used but never defined:")
+              for m in missing:
+                  print("  " + m)
+              sys.exit(1)
+          print(f"ok - {len(used)} custom properties used, all defined")
+          PY
 
       - name: No unfilled template tokens
         run: |
@@ -223,9 +262,10 @@ jobs:
               // self-contained components, so they get the same rendered
               // check the rest of the classes get
               '.stage .n','.stage b','.stage .tool','.filter-label',
-              // the certificate card's own text: the ID and the viewer
-              // trigger are set smaller and dimmer than the rest of the card
-              '.cert-view','.certbox-cap','.cert-id','.cert-date','.cert-skills',
+              // the certificate row's own text: the issuer label, the id, the
+              // date and the skills are all set smaller and dimmer than the
+              // certificate name, so they get the same rendered check
+              '.certbox-cap','.cert-id','.cert-date','.cert-skills','.cert-issuer',
               // structural, not styled text: the audit walks up for the real
               // background, so plain <li>/<a>/<small> inside a panel have to be
               // measured too or a genuinely unreadable list slips through
