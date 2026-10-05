@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JITFP — Reading a Flag That Only Exists in Live Memory</title>
+  <meta name="description" content="A checker whose function-pointer table is empty on disk and filled at runtime by a ptrace service — read RDX at the call and never touch the table.">
+  <link rel="canonical" href="https://0xmrerror.me/writeups/jitfp/">
+  <meta name="author" content="Skandar Hadrich">
+  <meta name="theme-color" content="#080b10">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="0xmrerror.me">
+  <meta property="og:title" content="JITFP — Reading a Flag That Only Exists in Live Memory">
+  <meta property="og:description" content="A checker whose function-pointer table is empty on disk and filled at runtime by a ptrace service — read RDX at the call and never touch the table.">
+  <meta property="og:url" content="https://0xmrerror.me/writeups/jitfp/">
+  <meta property="og:image" content="https://0xmrerror.me/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="JITFP — Reading a Flag That Only Exists in Live Memory">
+  <meta name="twitter:description" content="A checker whose function-pointer table is empty on disk and filled at runtime by a ptrace service — read RDX at the call and never touch the table.">
+  <meta name="twitter:image" content="https://0xmrerror.me/assets/og.png">
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <link rel="preload" href="/fonts/inter-400-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fira-code-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/writeups.css" media="all">
+  <link rel="stylesheet" href="/css/print.css" media="print">
+  <script>
+(function(){var d=document.documentElement;d.classList.add('js');
+try{var t=localStorage.getItem('0xmrerror:theme')||'dark';
+if(t==='auto'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}
+d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset.accent=a;}}catch(e){}})();
+</script>
+    <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "JITFP \u2014 Reading a Flag That Only Exists in Live Memory",
+    "description": "A checker whose function-pointer table is empty on disk and filled at runtime by a ptrace service \u2014 read RDX at the call and never touch the table.",
+    "url": "https://0xmrerror.me/writeups/jitfp/",
+    "author": {
+      "@type": "Person",
+      "name": "Skandar Hadrich",
+      "url": "https://0xmrerror.me"
+    },
+    "keywords": "Reverse engineering, Hard, picoctf, ptrace, procfs, gdb, reverse-engineering, indirect-call, function-pointers, picoctf",
+    "proficiencyLevel": "hard"
+  }</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="read-progress" data-read-progress aria-hidden="true"><i></i></div>
+
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail-logo">0xmrerror<small>@hadrich</small></div>
+  <ul class="rail-nav" data-rail-nav>
+    <li><a class="rail-link" data-nav-link href="/#whoami">whoami</a></li><li><a class="rail-link" data-nav-link href="/#skills">skills</a></li><li><a class="rail-link" data-nav-link href="/#experience">experience</a></li><li><a class="rail-link" data-nav-link href="/#projects">projects</a></li><li><a class="rail-link" data-nav-link href="/#writeups">writeups</a></li><li><a class="rail-link" data-nav-link href="/#credentials">certs</a></li><li><a class="rail-link" data-nav-link href="/#contact">contact</a></li>
+  </ul>
+  <div class="rail-progress" aria-hidden="true"><i></i></div>
+  <div class="rail-meta">
+    Tunis, Tunisia<br>
+    <span class="accent">available</span> — Feb 2027<br>
+    <a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a> ·
+    <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a><br>
+    <button class="btn btn--sm btn--ghost btn--micro" type="button" data-accent-toggle
+      >accent</button>
+    <button class="btn btn--sm btn--ghost btn--micro" type="button" data-theme-toggle
+      data-theme-pref="dark" aria-label="Theme: dark">theme</button>
+  </div>
+</aside>
+<!-- palette entries (hidden, read by js/main.js) -->
+<ul class="sr-only" aria-hidden="true"><li class="palette-item" data-palette-item="whoami" data-palette-hint="section" data-palette-kind="section" href="/#whoami"></li><li class="palette-item" data-palette-item="skills" data-palette-hint="section" data-palette-kind="section" href="/#skills"></li><li class="palette-item" data-palette-item="experience" data-palette-hint="section" data-palette-kind="section" href="/#experience"></li><li class="palette-item" data-palette-item="projects" data-palette-hint="section" data-palette-kind="section" href="/#projects"></li><li class="palette-item" data-palette-item="writeups" data-palette-hint="section" data-palette-kind="section" href="/#writeups"></li><li class="palette-item" data-palette-item="certs" data-palette-hint="section" data-palette-kind="section" href="/#credentials"></li><li class="palette-item" data-palette-item="contact" data-palette-hint="section" data-palette-kind="section" href="/#contact"></li><li class="palette-item" data-palette-item="Easy as GDB — Scripted Character-by-Character Brute Force" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/easy-as-gdb/"></li><li class="palette-item" data-palette-item="Keygenme — MD5 Hex Spliced Into a License Key" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/keygenme/"></li><li class="palette-item" data-palette-item="Mr Robot CTF — WordPress to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/mr-robot/"></li><li class="palette-item" data-palette-item="WWBuddy — SQLi to Env-Var Privesc" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/ww-buddy/"></li><li class="palette-item" data-palette-item="Broker — MQTT Eavesdrop to Webshell" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/broker/"></li><li class="palette-item" data-palette-item="Watcher — LFI to Root in 7 Flags" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/watcher/"></li><li class="palette-item" data-palette-item="Fortress — SHA-1 Collision to Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/fortress/"></li><li class="palette-item" data-palette-item="Umbrella — Registry Loot to SUID Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/umbrella/"></li><li class="palette-item" data-palette-item="Super Secret Tip — Jinja SSTI to curl -K Root" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/super-secret-tip/"></li><li class="palette-item" data-palette-item="Smol — WP Plugin SSRF to sudo Bash" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/smol/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x200 — Three Anti-Debug Checks" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x200/"></li><li class="palette-item" data-palette-item="WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/winantidbg0x300/"></li><li class="palette-item" data-palette-item="Binary Instrumentation 2 — Intercepting File Writes With Frida" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/binary-instrumentation-2/"></li><li class="palette-item" data-palette-item="JITFP — Reading a Flag That Only Exists in Live Memory" data-palette-hint="writeup" data-palette-kind="writeup" data-palette-url="/writeups/jitfp/"></li></ul>
+<nav id="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">0xmrerror<span>@terminal</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a data-nav-link href="/#whoami">whoami</a></li><li><a data-nav-link href="/#skills">skills</a></li><li><a data-nav-link href="/#experience">experience</a></li><li><a data-nav-link href="/#projects">projects</a></li><li><a data-nav-link href="/#writeups">writeups</a></li><li><a data-nav-link href="/#credentials">certs</a></li><li><a data-nav-link href="/#contact">contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn--sm nav-cv" href="/cv.html">cv</a>
+      <button class="btn btn--icon btn--ghost" type="button" data-theme-toggle
+        data-theme-pref="dark" aria-label="Theme: dark" title="Toggle theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main id="main" class="wu">
+  <div class="container">
+    <a class="wu-back" href="/"><span aria-hidden="true">←</span> 0xmrerror@terminal:~/writeups</a>
+
+    <div class="wu-head">
+      <h1>JITFP — Reading a Flag That Only Exists in Live Memory</h1>
+      <p class="wu-summary">A checker whose function-pointer table is empty on disk and filled at runtime by a ptrace service — read RDX at the call and never touch the table.</p>
+      <div class="wu-meta">
+        <span class="badge-diff" data-diff="hard">Hard</span><span class="badge-platform" data-platform="picoctf">picoCTF</span><span class="writeup-time">Reverse engineering · 25 min read</span><a class="tag" href="/?type=re#writeups">ptrace</a><a class="tag" href="/?type=re#writeups">procfs</a><a class="tag" href="/?type=re#writeups">gdb</a><a class="tag" href="/?type=re#writeups">reverse-engineering</a><a class="tag" href="/?type=re#writeups">indirect-call</a><a class="tag" href="/?type=re#writeups">function-pointers</a><a class="tag" href="/?type=re#writeups">picoctf</a>
+        <button class="flag-toggle" type="button" data-flag-toggle aria-pressed="false">🚩 hide flags</button>
+      </div>
+      <div class="series"><span>more reverse engineering</span><a href="/writeups/easy-as-gdb/">Easy as GDB</a><a href="/writeups/keygenme/">Keygenme</a><a href="/writeups/winantidbg0x200/">WinAntiDbg0x200</a><a href="/writeups/winantidbg0x300/">WinAntiDbg0x300</a><a href="/writeups/binary-instrumentation-2/">Binary Instrumentation 2</a><a href="/writeups/jitfp/" class="is-current">JITFP</a></div>
+    </div>
+
+    <div class="wu-layout">
+      <article class="prose" data-article>
+<p>The name is the hint: <em>Just In Time Function Pointers</em>. The description says the binary "only functions properly on the host on which we found it." A stripped, statically linked musl binary called <code>ad7e550b</code> takes a 33-character candidate as <code>argv[1]</code> and validates it one character at a time — and the table of function pointers that decides which character each position expects is <strong>empty in the file</strong>. Not obfuscated, not encrypted: zero bytes, filled in at runtime by a separate service on the remote host. There is no static answer to extract, so the solve has to happen inside a live process.</p>
+
+<h3>1 · Recon</h3>
+<pre><code>$ <span class="tok-func">file</span> ad7e550b
+ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), statically linked,
+stripped, for GNU/Linux 3.2.0
+$ <span class="tok-func">strings</span> ad7e550b | <span class="tok-func">grep</span> -E <span class="tok-string">'Usage|Incorrect|Correct|sleep'</span>
+Usage: %s &lt;flag&gt;
+Incorrect
+Correct
+sleep</code></pre>
+<p>Two details worth pausing on. <code>Incorrect</code> appears twice — a success and a failure path, each with its own message. And <code>sleep</code> is imported, which means the loop is paced rather than free-running. Both matter later.</p>
+<p>The obvious first move is a timing attack: if the checker bails out at the first wrong character, correct guesses should take marginally longer. They do not. A run takes <strong>exactly 34 seconds</strong> no matter what you feed it, because <code>sleep</code> dominates and the compare is a couple of nanoseconds either way. Shorter inputs segfault — the length gate wants all 33. This red herring costs an afternoon if you let it.</p>
+
+<h3>2 · The Decompiled main</h3>
+<p>Ghidra recovers the checker loop cleanly. The permissiveness of the call into <code>rdx</code> is the first thing that should bother you:</p>
+<pre><code><span class="tok-comment">// FUN_00101982 — the checker</span>
+i = <span class="tok-num">0</span>;
+<span class="tok-keyword">while</span> (i &lt;= <span class="tok-num">32</span>) {                 <span class="tok-comment">// 33 positions</span>
+  <span class="tok-keyword">if</span> (!fn_table[idx_table[i]](argv[<span class="tok-num">1</span>][i])) {  <span class="tok-comment">// indirect call through .bss</span>
+    <span class="tok-keyword">return</span> puts(<span class="tok-string">"Incorrect"</span>);
+  }
+  i++;
+}</code></pre>
+<p>So <code>argv[1][i]</code> is validated by whichever function <code>fn_table</code> happens to point at. Two tables drive this: a static permutation in <code>.data</code> at vaddr <code>0x4020</code> mapping position → slot, and the pointer table itself at vaddr <code>0x4120</code>.</p>
+<figure><img src="/assets/ctf/jitfp/ghidra-main-decompile.png" alt="Ghidra decompilation of the checker loop, showing the indirect call through the .bss function-pointer table" loading="lazy" decoding="async" width="749" height="752"></figure>
+
+<h3>3 · 65 Comparators, and the Table That Holds Nothing</h3>
+<p>Walking <code>.text</code> reveals 65 stub functions, each 29 bytes, laid out end to end and all the same shape:</p>
+<pre><code><span class="tok-num">001011d5</span>  <span class="tok-keyword">bool</span> FUN_001011d5(<span class="tok-keyword">char</span> p) { <span class="tok-keyword">return</span> p == <span class="tok-symbol">'a'</span>; }
+<span class="tok-num">001011f2</span>  <span class="tok-keyword">bool</span> FUN_001011f2(<span class="tok-keyword">char</span> p) { <span class="tok-keyword">return</span> p == <span class="tok-symbol">'b'</span>; }
+<span class="tok-num">0010120f</span>  <span class="tok-keyword">bool</span> FUN_0010120f(<span class="tok-keyword">char</span> p) { <span class="tok-keyword">return</span> p == <span class="tok-symbol">'c'</span>; }</code></pre>
+<p>In assembly each is <code>cmpb $imm8, -0x4(%rbp)</code> — encoded <code>80 7d fc</code> plus the character — followed by <code>ret</code>. All 65 are distinct and cover exactly the printable set:</p>
+<pre><code>abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_{}</code></pre>
+<p>So the flag is not encrypted or hashed anywhere: it exists as 33 choices among 65 stubs. The only thing missing is the wiring. Which is exactly what the table at <code>0x4120</code> is for — and it is <strong>zero on disk</strong>.</p>
+<pre><code>$ <span class="tok-func">readelf</span> -SW ad7e550b | <span class="tok-func">grep</span> -A1 <span class="tok-string">'.bss'</span>
+<span class="tok-symbol">.bss</span>  NOBITS  <span class="tok-num">000004120</span>  ...</code></pre>
+<p><code>NOBITS</code> means those bytes do not exist in the file at all. Neither the nine <code>.rela.dyn</code> relocations nor the seven <code>.rela.plt</code> JUMP_SLOTs touch that range, and <code>.init_array</code> holds a single entry that tail-jumps to an empty destructor boilerplate. No constructor fills the table. Nothing in the binary can fill the table. GDB confirms it at runtime — the whole <code>.bss</code> range dumps as zeros and <code>RDX</code> is <code>0x0</code> at the call, so the dispatch jumps to address zero and the process dies on the first comparison.</p>
+<figure><img src="/assets/ctf/jitfp/memory-map-bss.png" alt="Ghidra memory map showing the function-pointer table sitting in the NOBITS .bss segment at vaddr 0x4120" loading="lazy" decoding="async" width="1877" height="297"></figure>
+<p>This is where the naive solve dies, and where it is worth being honest about a mistake that cost real time. It is very tempting to assume slot <em>k</em> points at the <em>k</em>-th comparator in address order, then apply the permutation at <code>0x4020</code> and be done — a complete, static, plausible-looking answer in about two minutes. I did exactly that, then wrote those guessed pointers into <code>.bss</code> with GDB, re-ran the checker, and it printed <code>Correct</code>.</p>
+<p>That <code>Correct</code> was manufactured by me. I supplied the table, the checker compared my table against my flag, and the two agreed by construction. It proved nothing except that my guessed wiring was self-consistent. The tell was available: the recovered string ended in <code>a</code>, while slot 0 must serve position 32, and a real <code>picoCTF{…}</code> flag ends in <code>}</code> — which is the <em>65th</em> comparator, not the first. The mapping is not the identity, and nothing in the binary says what it is.</p>
+
+<h3>4 · The Hint in prctl</h3>
+<p>The one instruction in the binary that is not part of the check:</p>
+<pre><code>prctl(<span class="tok-num">0x59616d61</span>, <span class="tok-num">-1</span>, <span class="tok-num">0</span>, <span class="tok-num">0</span>, <span class="tok-num">0</span>);</code></pre>
+<p><code>0x59616d61</code> is <code>PR_SET_PTRACER</code>, and the second argument is <code>PR_SET_PTRACER_ANY</code>. The binary is explicitly asking to be ptraced by <em>anybody</em>. A flag checker has no reason to do that. It exists so something else on the host can attach and write the table into its address space — and <code>ptrace</code> is also how you read a process's memory through <code>/proc/&lt;pid&gt;/mem</code>, which is what the flag's name turns out to be nodding at.</p>
+<p>So the table is not a bug and the file is not broken. Zero in <code>.bss</code> <em>is</em> the mechanism: a static analysis of this binary shows you the comparators and no wiring, because the wiring only exists in a live process.</p>
+
+<h3>5 · Reading RDX at the Call</h3>
+<p>The permutation and the rotation policy are details you can be handed and still be stuck, so the robust move is to skip the table entirely. The checker dispatches through <code>call rdx</code> at <code>base+0x1a7d</code>:</p>
+<pre><code><span class="tok-num">00101a78</span>  <span class="tok-keyword">movsx</span> eax, <span class="tok-keyword">byte</span> <span class="tok-keyword">ptr</span> [rax]      <span class="tok-comment">// argv[1][i]</span>
+<span class="tok-num">00101a7b</span>  <span class="tok-keyword">mov</span>   edi, eax
+<span class="tok-num">00101a7d</span>  <span class="tok-keyword">call</span>  rdx                 <span class="tok-comment">// ← the comparator for position i</span>
+<span class="tok-num">00101a7f</span>  <span class="tok-keyword">test</span>  eax, eax
+<span class="tok-num">00101a81</span>  <span class="tok-keyword">jnz</span>   +<span class="tok-num">0x25</span>              <span class="tok-comment">// success</span></code></pre>
+<p>Whatever pointer is in <code>RDX</code> at the instant of that call <em>is</em> the answer for that position. Break there, read <code>RDX</code>, map the address to its stub, take the immediate. That is correct whether the table is written once, rewritten every second, or full of noise in thirty-two of its thirty-three slots — which makes the whole question of how often the service rewrites it irrelevant.</p>
+<figure><img src="/assets/ctf/jitfp/rdx-table-lookup.png" alt="Assembly of the loop body: the permutation table read at 0x4020 indexing into the function-pointer table at 0x4120 to produce the pointer loaded into RDX" loading="lazy" decoding="async" width="610" height="214"></figure>
+<p>The load that matters, isolated:</p>
+<figure><img src="/assets/ctf/jitfp/call-rdx.png" alt="The three instructions at the dispatch point: load argv[1][i], move it into EDI, then call rdx" loading="lazy" decoding="async" width="457" height="80"></figure>
+<p>Mapping address → character is a byte scan, no offsets hardcoded:</p>
+<pre><code>code = read_mem(pid, text_start, text_len)
+<span class="tok-keyword">for</span> i <span class="tok-keyword">in</span> range(len(code) - <span class="tok-num">3</span>):
+  <span class="tok-keyword">if</span> code[i:i+<span class="tok-num">3</span>] == <span class="tok-symbol">b"\x80\x7d\xfc"</span>:
+      imm = code[i + <span class="tok-num">3</span>]
+      j = i - <span class="tok-num">1</span>                                   <span class="tok-comment"># walk back to push rbp</span>
+      <span class="tok-keyword">while</span> j &gt;= <span class="tok-num">0</span> <span class="tok-keyword">and</span> (i - j) &lt;= <span class="tok-num">32</span> <span class="tok-keyword">and</span> code[j] != <span class="tok-num">0x55</span>:
+          j -= <span class="tok-num">1</span>
+      <span class="tok-keyword">if</span> j &gt;= <span class="tok-num">0</span> <span class="tok-keyword">and</span> code[j] == <span class="tok-num">0x55</span>:
+          table[j] = chr(imm)                  <span class="tok-comment"># stub start → expected char</span></code></pre>
+<p>That finds all 65 stubs in the live process.</p>
+
+<h3>6 · Neutralising the Failure Branch</h3>
+<p>One byte makes the difference between collecting 33 characters and collecting none. The byte at <code>base+0x1a81</code> is <code>0x75</code> — a <em>short</em> <code>jnz</code> with displacement <code>+0x25</code>. Overwriting it with <code>0xEB</code> turns <code>75 25</code> into <code>EB 25</code>: an unconditional <code>jmp</code> to the identical target, which is the success path.</p>
+<pre><code>write_mem(pid, base + <span class="tok-num">0x1a81</span>, <span class="tok-symbol">b"\xEB"</span>)     <span class="tok-comment"># jnz short +0x25  →  jmp short +0x25</span></code></pre>
+<p>Now every comparison "passes" and the loop is guaranteed to reach all 33 positions, even if a slot holds noise at the moment it is read. You are not weakening the check — you are removing its ability to abort early, which is what lets you observe all 33 answers instead of the first one.</p>
+
+<h3>7 · The Loop</h3>
+<p>Attach, plant <code>0xCC</code> on the <code>call rdx</code>, then per position: wait for the trap, <code>PTRACE_GETREGS</code>, read <code>RDX</code>, restore the original byte, rewind <code>RIP</code> to the call, single-step so the call actually executes, re-plant <code>0xCC</code>, continue.</p>
+<pre><code>ptrace(PTRACE_ATTACH, pid, <span class="tok-num">0</span>, <span class="tok-num">0</span>); waitpid(pid)
+write_mem(pid, bp, <span class="tok-symbol">b"\xCC"</span>); ptrace(PTRACE_CONT, pid, <span class="tok-num">0</span>, <span class="tok-num">0</span>)
+
+<span class="tok-keyword">for</span> position <span class="tok-keyword">in</span> range(<span class="tok-num">33</span>):
+    waitpid(pid)
+    regs = UserRegs(); ptrace(PTRACE_GETREGS, pid, <span class="tok-num">0</span>, ctypes.addressof(regs))
+    flag.append(char_map.get(regs.rdx - text_start, <span class="tok-string">"?"</span>))
+
+    write_mem(pid, bp, original)          <span class="tok-comment"># undo the trap</span>
+    regs.rip = bp
+    ptrace(PTRACE_SETREGS, pid, <span class="tok-num">0</span>, ctypes.addressof(regs))
+    ptrace(PTRACE_SINGLESTEP, pid, <span class="tok-num">0</span>, <span class="tok-num">0</span>); waitpid(pid)
+    write_mem(pid, bp, <span class="tok-symbol">b"\xCC"</span>)                <span class="tok-comment"># re-arm</span>
+    ptrace(PTRACE_CONT, pid, <span class="tok-num">0</span>, <span class="tok-num">0</span>)</code></pre>
+<p>Two portability notes, both of which cost a run each. On Alpine there is no <code>libc.so.6</code>, so bind to the interpreter's own libc with <code>ctypes.CDLL(None)</code> rather than naming the file. And only one process may ptrace a target at a time — the JIT service is itself a ptrace client — so the attach retries on <code>EBUSY</code> instead of giving up.</p>
+
+<h3>8 · The Flag</h3>
+<pre><code>[*] comparators    : <span class="tok-num">65</span> found
+[*] patched <span class="tok-num">0x587847722a81</span>: jnz -&gt; jmp (always take success)
+  pos  <span class="tok-num">0</span>  rdx=<span class="tok-num">0x5878477221d5</span>  -&gt;  <span class="tok-symbol">'a'</span>   (table <span class="tok-num">33</span>/<span class="tok-num">33</span> non-zero)
+  pos  <span class="tok-num">1</span>  rdx=<span class="tok-num">0x58784772220f</span>  -&gt;  <span class="tok-symbol">'c'</span>   (table <span class="tok-num">33</span>/<span class="tok-num">33</span> non-zero)
+  pos  <span class="tok-num">2</span>  rdx=<span class="tok-num">0x5878477221d5</span>  -&gt;  <span class="tok-symbol">'a'</span>   (table <span class="tok-num">33</span>/<span class="tok-num">33</span> non-zero)
+  ...
+  pos <span class="tok-num">32</span>  rdx=<span class="tok-num">0x587847722915</span>  -&gt;  <span class="tok-symbol">'}'</span>   (table <span class="tok-num">33</span>/<span class="tok-num">33</span> non-zero)
+
+flag (<span class="tok-num">33</span> chars) : <span class="flag">academy{pr0cf5_d36ugg3r_86cd7eae}</span>
+could not write flag.txt: [Errno <span class="tok-num">30</span>] Read-only file system
+[*] verifying: /home/ctf-player/ad7e550b <span class="flag">academy{pr0cf5_d36ugg3r_86cd7eae}</span>
+[*] checker output: <span class="tok-num">32</span> <span class="tok-string">'='</span>, <span class="tok-string">'v'</span>, <span class="tok-num">33</span> <span class="tok-string">'*'</span>
+[*] verdict       : Correct</code></pre>
+<p>Worth stopping on that verdict, because it is the one piece of evidence in the whole write-up that is not mine. The recovered flag is fed back to a second, unpatched run of the binary and the binary itself says <code>Correct</code>. Nothing I did to make that happen — no assumed table, no supplied wiring. That is the difference between a guess and a result.</p>
+<p>The flag prefix is <code>academy{</code> rather than <code>picoCTF{</code>: this instance is served by CyLab Academy, which mints its own flags around the same challenge binary. <code>pr0cf5_d36ugg3r</code> — procfs debugger — is the author pointing at the <code>/proc/&lt;pid&gt;/mem</code> side of the same primitive. The trailing hex is per-deployment, so it differs between instances.</p>
+<p>One measurement worth recording, because it looks like a bug and is not. The checker prints exactly 33 asterisks whether the run succeeds or fails, and the reason is the patched branch from step 6: successes print one, and the failure path's compensating loop no longer runs because every comparison now takes the success path. The asterisk count carries <strong>no</strong> information about progress — don't build an oracle on it.</p>
+
+<h3>9 · Retrospective</h3>
+<p>Two lessons, one technical and one about method.</p>
+<p>Technically: when a checker dispatches through a function pointer, the answer is in the register at the call, not in the table. Breaking at the indirect call and reading <code>RDX</code> sidesteps the entire question of how the table is populated — once per run, once per second, or a rotating diagonal with noise in thirty-two of thirty-three slots. All the write-ups I found disagreed about that policy and it did not matter. Read at the moment of use, the state you need is by definition correct.</p>
+<p>Methodologically: I treated my own static analysis as authoritative over a statement the challenge author had made directly, and so "proved" the local binary could not work and dismissed the remote host as the explanation. In a CTF handed to you over SSH, a checker that only runs on the host it was found on is not a puzzle — it is the setup, and the interesting part is what the remote host is doing to the process. I burned hours proving something that was never in question, then manufactured a green checkmark by supplying the answer myself. A verification that depends on input you provided is not a verification.</p>
+      </article>
+
+      <div class="toc" data-toc-wrap>
+        <nav data-toc aria-label="On this page">
+          <h2>on this page</h2>
+        </nav>
+      </div>
+    </div>
+
+    <nav class="wu-nav" aria-label="More writeups">
+      <a class="prev" href="/writeups/binary-instrumentation-2/"><small>← previous</small><span>Binary Instrumentation 2 — Intercepting File Writes With Frida</span></a>
+
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-prompt">
+        <b>0xmrerror</b>@terminal:~$ <span aria-hidden="true">█</span>
+        <p class="footer-note">Hosted on GitHub Pages. Built with no framework, no build server, no trackers.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>site</h4>
+          <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/cv.html">cv</a></li>
+            <li><a href="/feed.xml">rss</a></li>
+            <li><a href="/sitemap.xml">sitemap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>elsewhere</h4>
+          <ul>
+            <li><a href="https://github.com/skandarhadrich-cell" rel="noopener">github</a></li>
+            <li><a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">linkedin</a></li>
+            <li><a href="mailto:skandar.hadrich@etudiant-enit.utm.tn">email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>© 2026 Skandar Hadrich · MIT licensed</span>
+      <span>since <span data-since="2026-02-09" data-since-prefix="">—</span> on GitHub</span>
+    </div>
+  </div>
+</footer>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input class="palette-input" id="paletteInput" type="text" placeholder="jump to a section or search writeups…"
+      autocomplete="off" spellcheck="false" aria-label="Search sections and writeups">
+    <!-- [html-validate-disable-next prefer-native-element -- a command palette needs grouped results, an active option and arrow-key navigation; <select> can do none of those] -->
+    <ul class="palette-list" id="paletteList" role="listbox" aria-label="Results"></ul>
+    <div class="palette-foot">
+      <span><b>↑↓</b> navigate</span><span><b>↵</b> open</span><span><b>esc</b> close</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js" defer></script>
+<script src="/js/writeups.js" defer></script>
+<script src="/js/certs.js" defer></script>
+</body>
+</html>

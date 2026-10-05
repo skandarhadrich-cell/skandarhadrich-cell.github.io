@@ -97,5 +97,12 @@
       <description>picoCTF 2025 · 300 pts. Hook the file-write API with Frida and rewrite the payload before it ever touches disk.</description>
       <category>Reverse engineering</category>
     </item>
+    <item>
+      <title>JITFP — Reading a Flag That Only Exists in Live Memory</title>
+      <link>https://0xmrerror.me/writeups/jitfp/</link>
+      <guid isPermaLink="true">https://0xmrerror.me/writeups/jitfp/</guid>
+      <description>A checker whose function-pointer table is empty on disk and filled at runtime by a ptrace service — read RDX at the call and never touch the table.</description>
+      <category>Reverse engineering</category>
+    </item>
   </channel>
 </rss>

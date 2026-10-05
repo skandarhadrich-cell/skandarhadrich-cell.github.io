@@ -307,11 +307,14 @@ netcat nikto nmap openssl php python python3 rdesktop ruby searchsploit smbclien
 sqlmap ssh ssh2john steghide strings sudo su systemctl tar tcpdump unzip vim wfuzz wget
 whatweb whoami wireshark wordlists wpscan xxd xfreerdp zip2john 7z""".split())
 
-FLAG_RE = re.compile(r"\b((?:picoCTF|THM|HTB|CTF)\{[^{}]{3,80}\})")
+# `academy{...}` is CyLab Academy's prefix: they rehost picoCTF binaries over
+# SSH and mint their own flags around the same challenge, so the wrapper has to
+# recognise it or the JITFP flag prints in the clear.
+FLAG_RE = re.compile(r"\b((?:picoCTF|THM|HTB|CTF|academy)\{[^{}]{3,80}\})")
 
 # `THM{...}` in a *starter template* is a placeholder to be replaced, not a
 # real flag, and wrapping it would leave a pointless click-to-reveal chip.
-PLACEHOLDER_FLAGS = {"THM{...}", "HTB{...}", "CTF{...}", "picoCTF{...}"}
+PLACEHOLDER_FLAGS = {"THM{...}", "HTB{...}", "CTF{...}", "picoCTF{...}", "academy{...}"}
 
 
 def wrap_flags(html_text: str) -> str:
