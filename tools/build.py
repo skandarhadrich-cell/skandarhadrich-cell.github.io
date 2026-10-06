@@ -1420,13 +1420,21 @@ def main() -> int:
                 got = read(built) if os.path.exists(built) else None
                 want = read(committed) if os.path.exists(committed) else None
                 if got != want:
-                    stale.append(rel)
-        if stale:
+                    stale.append((rel, "differs from the committed copy"
+                                  if want is not None else "not committed yet"))
+            # A renamed or deleted writeup leaves an orphan folder behind. The
+            # rebuild prunes it, so --check has to notice it too or the check
+            # would pass on a tree that still serves a page nothing points at.
+            orphans = [n for n in sorted(os.listdir(WUDIR))
+                       if os.path.isdir(os.path.join(WUDIR, n))
+                       and n not in {w["slug"] for w in writeups}
+                       and os.path.isfile(os.path.join(WUDIR, n, "index.html"))]
+        if stale or orphans:
             print(f"{RED}[!]{OFF} generated output is stale — run: python3 tools/build.py")
-            for rel in stale:
-                state = "missing from the build" if not os.path.exists(
-                    os.path.join(ROOT, rel)) else "not committed"
+            for rel, state in stale:
                 print(f"    {rel}  ({state})")
+            for name in orphans:
+                print(f"    writeups/{name}/  (no matching writeup in data/writeups)")
             return 1
         print(f"{GREEN}✓{OFF} generated output is up to date "
               f"({len(generated)} files)")
