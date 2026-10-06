@@ -21,6 +21,13 @@
       <category>Reverse engineering</category>
     </item>
     <item>
+      <title>JITFP — Reading a Flag That Only Exists in Live Memory</title>
+      <link>https://0xmrerror.me/writeups/jitfp/</link>
+      <guid isPermaLink="true">https://0xmrerror.me/writeups/jitfp/</guid>
+      <description>The function-pointer table is empty on disk and filled at runtime by a ptrace service, so read RDX at the call instead of the table.</description>
+      <category>Reverse engineering</category>
+    </item>
+    <item>
       <title>Mr Robot CTF — WordPress to Root</title>
       <link>https://0xmrerror.me/writeups/mr-robot/</link>
       <guid isPermaLink="true">https://0xmrerror.me/writeups/mr-robot/</guid>
@@ -95,13 +102,6 @@
       <link>https://0xmrerror.me/writeups/binary-instrumentation-2/</link>
       <guid isPermaLink="true">https://0xmrerror.me/writeups/binary-instrumentation-2/</guid>
       <description>picoCTF 2025 · 300 pts. Hook the file-write API with Frida and rewrite the payload before it ever touches disk.</description>
-      <category>Reverse engineering</category>
-    </item>
-    <item>
-      <title>JITFP — Reading a Flag That Only Exists in Live Memory</title>
-      <link>https://0xmrerror.me/writeups/jitfp/</link>
-      <guid isPermaLink="true">https://0xmrerror.me/writeups/jitfp/</guid>
-      <description>The function-pointer table is empty on disk and filled at runtime by a ptrace service, so read RDX at the call instead of the table.</description>
       <category>Reverse engineering</category>
     </item>
   </channel>

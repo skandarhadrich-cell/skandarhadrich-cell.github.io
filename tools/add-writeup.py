@@ -91,25 +91,52 @@ def slugify(s: str) -> str:
     return re.sub(r"-{2,}", "-", s) or "writeup"
 
 
-def existing() -> list[tuple[int, str, str]]:
+def existing() -> list[tuple[int, str, str, str]]:
     rows = []
     for fn in sorted(os.listdir(WUDATA)):
         if not fn.endswith(".md"):
             continue
         m = re.match(r"(\d+)-(.*)\.md$", fn)
         if m:
-            title = ""
+            title = diff = ""
             for line in open(os.path.join(WUDATA, fn), encoding="utf-8"):
                 if line.startswith("title:"):
                     title = line[7:].strip().strip('"')
+                elif line.startswith("diff:"):
+                    diff = line[5:].strip()
+                    if diff not in DIFFS:
+                        diff = ""
+                if title and diff:
                     break
-            rows.append((int(m.group(1)), m.group(2), title))
+            rows.append((int(m.group(1)), m.group(2), title, diff))
     return rows
 
 
-def next_order() -> int:
+def next_order(diff: str = "") -> tuple[int, str]:
+    """Sort position for a new write-up, inside its own difficulty's band.
+
+    The NN- prefix is the only order the build knows, and README says the list
+    reads hard first. Appending at max+10 buried every new write-up under all
+    fourteen boxes regardless of difficulty -- which is how jitfp ended up at
+    140 as the last entry while being a hard one.
+
+    So a new write-up lands just after the last write-up of the same difficulty.
+    If that slot is occupied by a different difficulty there is no number left
+    in the band and the caller has to renumber; say so rather than silently
+    producing a file that sorts into the wrong section.
+    """
     rows = existing()
-    return (max((r[0] for r in rows), default=0) // 10 + 1) * 10
+    if not rows:
+        return 10, ""
+    taken = {r[0] for r in rows}
+    band = [r[0] for r in rows if diff and r[3] == diff]
+    order = (max(band) // 10 + 1) * 10 if band else (max(taken) // 10 + 1) * 10
+    clash = next((r for r in rows if r[0] == order), None)
+    note = ""
+    if clash:
+        note = (f"position {order} is taken by {clash[1]!r} ({clash[3] or 'no diff'}); "
+                f"renumber to keep {diff} write-ups above the rest")
+    return max(order, 10), note
 
 
 def ask(prompt: str, default: str = "") -> str:
@@ -174,9 +201,11 @@ def main() -> int:
     if args.list:
         rows = existing()
         print(f"\n{BOLD}{len(rows)} writeups in data/writeups/{OFF}\n")
-        for num, slug, title in rows:
-            print(f"  {DIM}{num:>4}{OFF}  {GREEN}{slug}{OFF}  {DIM}{title}{OFF}")
-        print(f"\n  next free order: {DIM}{next_order()}{OFF}\n")
+        for num, slug, title, diff in rows:
+            tag = {c: c for c in DIFFS}.get(diff, "")
+            print(f"  {DIM}{num:>4}{OFF}  {GREEN}{slug}{OFF}  {DIM}{tag:>6}{OFF}  {DIM}{title}{OFF}")
+        print("\n  next free order by difficulty: "
+              + "  ".join(f"{d} {next_order(d)[0]}" for d in DIFFS) + "\n")
         return 0
 
     src = os.path.abspath(os.path.expanduser(args.src)) if args.src else None
@@ -196,7 +225,12 @@ def main() -> int:
               f"description, so anything past ~180 gets truncated by search engines.")
         summary = summary[:177].rsplit(" ", 1)[0] + "…"
 
-    order = args.order if args.order is not None else next_order()
+    if args.order is not None:
+        order, note = args.order, ""
+    else:
+        order, note = next_order(diff)
+        if note:
+            print(f"{YEL}[!]{OFF} {note}")
     fname = os.path.join(WUDATA, f"{order}-{slug}.md")
     if os.path.exists(fname) and not args.force:
         print(f"{RED}[!]{OFF} {os.path.relpath(fname, ROOT)} already exists — "
