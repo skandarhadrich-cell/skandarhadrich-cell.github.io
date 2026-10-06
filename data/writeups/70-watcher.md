@@ -85,5 +85,5 @@ key.b64
 <span class="tok-func">ssh</span> -i key root@localhost
 <span class="tok-comment"># &gt; root — final flag</span></code></pre>
 
-<h3>8 · Retrospective</h3>
-<p>Attack chain: LFI → FTP creds → uploaded PHP shell → sudo/cron pivots (www-data→toby→mat→will) → base64 root key. Lessons: raw <code>include</code> is a shell factory, cron scripts must not be world-writable, and running python <code>while</code> importing a file your users can edit is a root factory.</p>
+<h3>8 · What Made It Work</h3>
+<p>Three of the four pivots are the same bug in different clothes: something runs as a more privileged user out of a directory that user can write. The cron script, <code>cmd.py</code>, and <code>subscribe.py</code>-style files are all writable by the account that gets to run them. The fourth is the LFI handing out credentials that were never meant to leave a text file.</p>

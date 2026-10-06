@@ -75,5 +75,5 @@ groups=<span class="tok-num">1001</span>(j4x0n),<span class="tok-num">4</span>(a
 <span class="tok-func">cat</span> /root/root.txt</code></pre>
 <p><strong>Shortcut:</strong> <code>/data/setup.sh</code> — the box's own bootstrap script — writes the root flag as the root password, leaking it directly.</p>
 
-<h3>7 · Retrospective</h3>
-<p>Attack chain: anonymous FTP bytecode → long/bytes credential decode → telnet info leak → SHA-1 collision login → rbash escape → sudo-cat key theft → adm log read. Lessons: never stash compiled secrets in anonymous FTP, SHA-1 is broken for collisions, and restricted shells are an obfuscation — not a boundary.</p>
+<h3>7 · What Made It Work</h3>
+<p>Step 4 is the one worth remembering. SHA-1 collisions are a real attack against exactly one thing, which is code that compares two hashes for equality, and that is what the login gate does. The two files also have to clear 600 and 500 bytes, which is why the published PDFs don't fit and you need the pre-built pairs instead.</p>

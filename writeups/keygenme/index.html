@@ -258,8 +258,9 @@ gef➤ x/s <span class="tok-num">0x7fffffffde60</span>
 <pre><code><span class="flag">picoCTF{br1ng_y0ur_0wn_k3y_247d8a57}</span>
 <span class="tok-comment"># baked into the binary → static across all instances</span></code></pre>
 
-<h3>8 · Retrospective</h3>
-<p>Three techniques carried this solve: (1) locating code in a stripped binary through <code>__libc_start_main</code>'s hidden <code>main</code> argument or a <code>printf</code> breakpoint + <code>finish</code>; (2) recognizing that a runtime "keygen" synthesizes its own answer, so the key is guaranteed to exist in memory right before the check — making <code>search-pattern</code> on the stack a legitimate extraction primitive; and (3) disciplined use of GEF/GDB (<code>display/120i $pc</code>, targeted breakpoints on <code>strlen</code>-result compares, <code>x/s</code>) to dump what the function built without reconstructing the MD5 splicing by hand. The MD5s themselves never had to be computed — the program did that for us.</p>
+<h3>8 · What Made It Work</h3>
+<p>The premise is what does the work. This binary doesn't verify a key, it builds one and then checks it, so the answer is on the stack a moment before the compare. Recognizing that turns <code>search-pattern</code> into a legitimate extraction primitive rather than a hack, and the two MD5s never had to be computed by hand because the program computed them for us.</p>
+<p>Finding the code in a stripped binary comes down to <code>__libc_start_main</code>'s hidden <code>main</code> argument, or a <code>printf</code> breakpoint plus <code>finish</code> to walk the caller.</p>
 
       </article>
 

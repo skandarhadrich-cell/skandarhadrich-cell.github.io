@@ -49,5 +49,6 @@ ComputeHash...
 picoCTF{Wind0ws_antid3bg_0x300_&lt;HASH&gt;}
 <span class="tok-comment"># the trailing hex varies per build</span></code></pre>
 
-<h3>6 · Retrospective</h3>
-<p>Attack chain: UPX unpack → PDB symbols → locate the watchdog loop → NOP the loop JMP → export the patched PE → passive capture via DebugView. Lessons: packers hide code, PDBs give symbols for free, and when a binary fights your debugger, stop attaching — patch the binary instead.</p>
+<h3>6 · What Made It Work</h3>
+<p>Step 2 saves most of the work. The challenge ships its own <code>.pdb</code>, so <code>ManageChildProcess</code> and <code>ChallengeThreadFunction</code> arrive named instead of as <code>FUN_00403xxx</code>, and locating the loop stops being guesswork.</p>
+<p>The rest is that a binary which kills attached debuggers stops being a problem the moment you stop attaching. The watchdog targets the debugger, not the process, so patching the loop and watching <code>OutputDebugStringW</code> from outside wins without a fight.</p>

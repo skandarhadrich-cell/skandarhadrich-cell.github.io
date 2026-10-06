@@ -199,8 +199,8 @@ uid=<span class="tok-num">33</span>(www-data) gid=<span class="tok-num">33</span
 root@wwbuddy:~# <span class="tok-func">cat</span> /root/root.txt
 <span class="tok-comment"># THM{...}</span></code></pre>
 
-<h3>7 · Retrospective</h3>
-<p>Attack chain: second-order SQLi password reset → log-poisoned PHP shell → MySQL log credential leak → birthday bruteforce → SUID env-var injection. Lessons: sanitize every place a username is reused, keep MySQL's general log off, and never trust environment variables in SUID binaries.</p>
+<h3>7 · What Made It Work</h3>
+<p>The SQL injection in step 2 is second-order, which is why it isn't visible while registering: nothing happens until you later change your own password, at which point the stored username gets dropped into a different query and breaks it. The stored XSS in step 3 needs the same patience. You plant a username as one user, then wait for a different, more privileged user to log in and render it.</p>
 
       </article>
 

@@ -178,8 +178,8 @@ http://broker.thm:8161/admin/cmd.jsp?cmd=<span class="tok-func">id</span></code>
 root@broker:~# <span class="tok-func">cat</span> /root/root.txt
 <span class="tok-comment"># THM{...}</span></code></pre>
 
-<h3>7 · Retrospective</h3>
-<p>Attack chain: default ActiveMQ creds → MQTT eavesdrop → PUT/MOVE webshell (CVE-2016-3088) → writable sudo script. Lessons: never run a broker with null auth, lock down <code>/fileserver</code>, and audit what your own user-scripted sudo targets.</p>
+<h3>7 · What Made It Work</h3>
+<p>Step 4 is the one to remember. <code>PUT</code> gives you a write primitive into a directory that won't execute, and <code>MOVE</code> gives you the rename into a directory that will. Neither half does anything useful, and CVE-2016-3088 is what you get when both are reachable without authentication.</p>
 
       </article>
 

@@ -32,7 +32,7 @@ iVar1 = check_flag(user_input,encoded_flag_len);
 if (iVar1 == <span class="tok-num">1</span>) puts("Correct!"); else puts("Incorrect.");</code></pre>
 <p><code>g_encoded_flag</code> is a blob of bytes at <code>0x12008</code> that makes no sense as text (<code>7a 2e 6e 68 1d 65 16 7c 6d 43 6f 36 63 62 14 47 ...</code>). You are meant to recover the input value that encodes into it, not read it off.</p>
 
-<h3>3 · The Deeper Insight — check_flag Is Strictly Sequential</h3>
+<h3>3 · check_flag Aborts at the First Mismatch</h3>
 <pre><code>undefined4 check_flag(char *user_input, uint encoded_flag_len)
 {
   __dest   = calloc(encoded_flag_len + 1, 1);
@@ -50,7 +50,7 @@ if (iVar1 == <span class="tok-num">1</span>) puts("Correct!"); else puts("Incorr
   }
   return <span class="tok-num">0xffffffff</span>;                              <span class="tok-comment"># i.e. -1</span>
 }</code></pre>
-<p>Three consequences make this trivially brute-forceable:</p>
+<p>Three things follow, and all of them come back to the same property: the loop stops the moment it finds a wrong byte.</p>
 <ul>
 <li>The check returns only once the <em>entire</em> prefix is correct — a wrong byte anywhere stops the loop, so a run with prefix <code>flag + c</code> either completes a compare for position <code>len(flag)</code> or dies earlier.</li>
 <li>Both buffers get the same post-transform before comparison, so you never need to invert the encoding — the byte that must equal yours is computed <em>inside</em> the loop, sitting in a register at the compare.</li>
@@ -76,8 +76,8 @@ if (iVar1 == <span class="tok-num">1</span>) puts("Correct!"); else puts("Incorr
 565559a5  JC   LAB_56555978</code></pre>
 <p>Note the <code>MOVZX</code> loads: at <code>5655598e</code> both the expected byte and our byte are live in <code>DL</code> and <code>AL</code>. One register read leaks the answer for the current position. The compare at <code>565559a2</code> doubles as a length oracle — breaking there shows the flag is <strong>30 bytes</strong>.</p>
 
-<h3>5 · A Side Note on the Encoding</h3>
-<p>Out of curiosity, why isn't the flag in the binary? The stored <code>g_encoded_flag</code> is the flag mutated through a byte-lane XOR with a rolling constant (starting <code>0xabcf00d</code>, striding <code>0x1fab4d</code> up to <code>0xdeadbeef</code>, each constant's four bytes xored into positions <code>i&amp;3</code>) plus an interleaving swap pass, and the whole thing is re-encoded with the same function before the compare. Inverting that transform in Python is a valid alternative solve; the challenge's namesake trick — GDB — skips it entirely.</p>
+<h3>5 · The Encoding, for Reference</h3>
+<p>The flag isn't in the binary because <code>g_encoded_flag</code> is the flag put through a transform: a byte-lane XOR against a rolling constant starting at <code>0xabcf00d</code> and striding by <code>0x1fab4d</code> to <code>0xdeadbeef</code>, each constant's four bytes xored into positions <code>i&amp;3</code>, followed by an interleaving swap. Both buffers get the same transform before the compare, so inverting it in Python is a valid alternative solve. The GDB route skips all of it.</p>
 
 <h3>6 · The GDB Script</h3>
 <p>A custom <code>gdb.Breakpoint</code> subclass with a hit counter acts as a <em>conditional breakpoint</em>: for a candidate at position <code>i</code> we want the <code>(i+1)</code>-th hit of the compare (positions <code>0..i-1</code> each produce one hit first). A second breakpoint on the <code>puts("Correct!")</code> marks full success.</p>
@@ -167,5 +167,6 @@ Found flag: picoCTF{I_5D3_A11DA7_0db137a9}</code></pre>
 <span class="tok-comment"># prefix is constant; the trailing hex differs per instance build.</span>
 <span class="tok-comment"># public instances end e.g. _0db137a9 or _6aa8dd3b</span></code></pre>
 
-<h3>10 · Retrospective</h3>
-<p>Takeaways: (1) a one-byte-at-a-time, fail-fast compare is a side-channel not in the sense of timing but of <em>hit counting</em> — the check routine literally tells you how many leading characters are right, one run at a time; (2) GDB's Python API (<code>gdb.Breakpoint</code> subclass, <code>parse_and_eval</code>, silent breaks) turns "conditional breakpoint" into "arbitrary logic at a hit count", which is exactly the brute-force driver this challenge wants; and (3) live registers at a compare instruction leak expected bytes for free — no encoding inversion required. The name is the hint: when a check is per-character, GDB (or a script driving GDB) is the tool, not math.</p>
+<h3>10 · What Made It Work</h3>
+<p>The side channel here isn't timing, it's hit counting. A fail-fast compare tells you how many leading characters were right by how far it got before returning, which is a slower oracle than reading memory but doesn't require knowing the encoding at all. That's the point: the encoding in step 5 is a distraction you can skip entirely because the compare is sitting in a register either way.</p>
+<p>GDB's Python API is what makes the brute force practical. A <code>gdb.Breakpoint</code> subclass with a hit counter turns "conditional breakpoint" into arbitrary logic evaluated at a given hit, so the loop over candidates stays inside one session instead of relaunching per guess.</p>

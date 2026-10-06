@@ -46,5 +46,5 @@ tags: anti-debug, peb, gdb, timing-check, windows, reveng
 ### ~~~ picoCTF{0x200_debug_f0r_Win_&lt;HASH&gt;}
 <span class="tok-comment"># the trailing hex varies per build — debug a copy and read yours</span></code></pre>
 
-<h3>5 · Retrospective</h3>
-<p>Attack chain: Ghidra map → three TEST/Jcc sites → register tampering in x32dbg → OutputDebugString log. Lessons: real software layers anti-debug exactly like this — a privilege check, a custom detector, and a standard API — and last-4-hex addressing keeps you sane under ASLR.</p>
+<h3>5 · What Made It Work</h3>
+<p>All three checks are the same shape, and that is what makes this one tractable. Each is a <code>TEST</code> immediately followed by a jump, and each only cares about one register at one instruction. Finding the three sites is the whole job, and matching on the last four hex digits is enough to survive ASLR without needing to re-derive absolute addresses.</p>

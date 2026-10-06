@@ -71,5 +71,5 @@ Key = <span class="tok-num">110920001386</span>
 THM<span class="tok-string">{cronjobs_F1Le_iNPu7_cURL_4re_5c4ry_Wh3N_C0mb1n3d_t0g3THeR}</span></code></pre>
 <p>The last two digits of the key were unknown — <code>1109200013XX</code> — so test 00–99 to fully decrypt flag2.</p>
 
-<h3>7 · Retrospective</h3>
-<p>Attack chain: extension-filter null-byte → XOR password recovery → Jinja SSTI → <code>.profile</code> side-load → <code>curl -K</code> file read → XOR flag decode. Lessons: web filters hide nothing, never feed user input to <code>render_template_string</code>, and root cron running curl with a user-writable config file is root file-read.</p>
+<h3>7 · What Made It Work</h3>
+<p>Step 6 is the one I'd take away. <code>curl -K</code> reads a config file that can carry <code>url</code> and <code>output</code>, so a cron job that runs curl on a file a normal user can write is a root file reader, and <code>url = file:///root/flag2.txt</code> is all it takes. Step 5 is the same idea one level down: you can't write the script, but a login shell reads <code>~/.profile</code> on the way in.</p>

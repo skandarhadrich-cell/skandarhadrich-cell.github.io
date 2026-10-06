@@ -64,5 +64,5 @@ uid=<span class="tok-num">1001</span>(claire-r) euid=<span class="tok-num">0</sp
 bash-<span class="tok-num">5.1</span># <span class="tok-func">cat</span> /root/root.txt</code></pre>
 <p>Because the app runs as root, <code>chown/chmod</code> succeed; <code>bash -p</code> keeps the elevated euid. Alternatively the same <code>eval()</code> can spawn a reverse shell inside the container.</p>
 
-<h3>6 · Retrospective</h3>
-<p>Attack chain: open Registry → ENV secret leak → MySQL dump → hash crack → <code>eval()</code> RCE → bind-mount SUID pivot. Lessons: never bake secrets into image ENV, gate your registry, ban <code>eval()</code> on user input, and bind mounts hand root from container to host.</p>
+<h3>6 · What Made It Work</h3>
+<p>Step 2 needs no downloads at all. The <code>history</code> array in a v2 manifest keeps the <code>ENV</code> each build layer set, so an unauthenticated registry hands over the database password with a single <code>curl</code>. Step 5 is the other half: <code>eval()</code> gets you root in the container, and the bind mount in step 4 is what makes that root worth anything to the host.</p>
