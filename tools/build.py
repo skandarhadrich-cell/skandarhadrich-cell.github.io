@@ -32,14 +32,27 @@ import json
 import os
 import re
 import shutil
-import subprocess
 import sys
+import tempfile
 import unicodedata
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 TPL = os.path.join(ROOT, "templates")
 WUDIR = os.path.join(ROOT, "writeups")
+
+# Where generated pages are written.  A normal build writes them over the
+# repository.  `--check` points this at a temporary directory instead, so the
+# check renders a full candidate tree and then compares it against what is
+# committed -- rather than writing over the committed files and asking whether
+# anything moved, which made a failing check leave the tree dirty and made a
+# second run pass against the dirtied tree.
+OUT = ROOT
+
+
+def out_path(*parts: str) -> str:
+    """A generated file's path, under the current output root."""
+    return os.path.join(OUT, *parts)
 
 SITE_URL = "https://0xmrerror.me"
 DIFFS = {"easy": "Easy", "medium": "Medium", "hard": "Hard"}
@@ -1062,7 +1075,7 @@ def build_index(site: dict, writeups: list[dict]) -> bool:
         "CERT_BOX": certlightbox(),
         "SCRIPTS": scripts(),
     })
-    return write(os.path.join(ROOT, "index.html"), page)
+    return write(out_path("index.html"), page)
 
 
 
@@ -1135,7 +1148,7 @@ def build_writeup(site: dict, w: dict, writeups: list[dict], index: int) -> bool
         "PALETTE": palette(),
         "SCRIPTS": scripts(),
     })
-    return write(os.path.join(ROOT, "writeups", w["slug"], "index.html"), page)
+    return write(out_path("writeups", w["slug"], "index.html"), page)
 
 
 # ── cv page ────────────────────────────────────────────────────────────────
@@ -1217,7 +1230,7 @@ def build_cv(site: dict) -> bool:
         "BACK_URL": "/",
         "FOOTER": "", "PALETTE": "", "SCRIPTS": scripts(),
     })
-    return write(os.path.join(ROOT, "cv.html"), page)
+    return write(out_path("cv.html"), page)
 
 
 def build_404(site: dict) -> bool:
@@ -1227,31 +1240,38 @@ def build_404(site: dict) -> bool:
     # served from any path depth and a relative href would break with it.
     page = read(os.path.join(TPL, "404.html"))
     page = page.replace("{{HANDLE}}", esc(site["site"]["handle"]))
-    return write(os.path.join(ROOT, "404.html"), page)
+    return write(out_path("404.html"), page)
 
 
 # ── feeds, sitemap, search index ───────────────────────────────────────────
 
-def source_date() -> str:
-    """Newest commit that touched the content sources, as YYYY-MM-DD.
+def source_date(site: dict) -> str:
+    """Newest content revision, as YYYY-MM-DD, from data/site.json.
 
-    Using the wall clock here would make `build.py --check` fail every time
-    the site is rebuilt, and using file mtimes would make it fail after a
-    fresh checkout.  Git is the only source of truth that is stable in both
-    places.  Falls back to an empty string (no <lastmod>) outside a repo.
+    This was `git log -1 --format=%cs -- data templates`, which could not work.
+    The newest commit touching data/ is by definition the commit that contains
+    the rendered sitemap, so that commit's own output could never contain its
+    own date -- every commit that edited data/ or templates/ shipped a stale
+    sitemap and failed the check that was supposed to confirm it.  The failure
+    looked unrelated to the change that caused it.
+
+    It was also invisible locally and certain to fire in CI.  actions/checkout
+    defaults to fetch-depth 1, so the query returns HEAD's date when HEAD
+    touches data/ and an empty string when it does not: the same repository
+    yields two different sitemaps depending on what the tip commit happened to
+    be, and only CI ever saw the second one.
+
+    So the date is declared, not derived.  Bump `site.last_updated` in
+    data/site.json when the content changes.  Falls back to an empty string
+    (no <lastmod> at all) if the field is missing or malformed, which is
+    valid in the sitemaps protocol.
     """
-    try:
-        out = subprocess.run(
-            ["git", "log", "-1", "--format=%cs", "--", "data", "templates"],
-            cwd=ROOT, capture_output=True, text=True, timeout=10, check=True,
-        ).stdout.strip()
-        return out if re.fullmatch(r"\d{4}-\d{2}-\d{2}", out) else ""
-    except (OSError, subprocess.SubprocessError):
-        return ""
+    out = str(site.get("site", {}).get("last_updated", "")).strip()
+    return out if re.fullmatch(r"\d{4}-\d{2}-\d{2}", out) else ""
 
 
 def build_sitemap(site: dict, writeups: list[dict]) -> bool:
-    lastmod = source_date()
+    lastmod = source_date(site)
     lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
     rows = [
         f'  <url><loc>{SITE_URL}/</loc>{lm}'
@@ -1266,7 +1286,7 @@ def build_sitemap(site: dict, writeups: list[dict]) -> bool:
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
            + "\n".join(rows) + "\n</urlset>\n")
-    return write(os.path.join(ROOT, "sitemap.xml"), xml)
+    return write(out_path("sitemap.xml"), xml)
 
 
 def strip_html(s: str) -> str:
@@ -1300,7 +1320,7 @@ def build_feed(site: dict, writeups: list[dict]) -> bool:
   </channel>
 </rss>
 """
-    return write(os.path.join(ROOT, "feed.xml"), xml)
+    return write(out_path("feed.xml"), xml)
 
 
 def rss_date(w: dict) -> str:
@@ -1323,7 +1343,7 @@ def build_search_index(writeups: list[dict]) -> bool:
         "b": strip_html(w["body"])[:600],
     } for w in writeups]
     payload = json.dumps({"writeups": rows}, ensure_ascii=False, separators=(",", ":"))
-    return write(os.path.join(ROOT, "search-index.json"), payload + "\n")
+    return write(out_path("search-index.json"), payload + "\n")
 
 
 # ── main ───────────────────────────────────────────────────────────────────
@@ -1364,16 +1384,9 @@ def main() -> int:
     site = load_site()
     writeups = load_writeups()
 
-    if args.check:
-        tmp = os.path.join(ROOT, ".build-check")
-        os.makedirs(tmp, exist_ok=True)
-        before = {}
-        for fn in ("index.html", "cv.html", "404.html", "sitemap.xml", "feed.xml", "search-index.json"):
-            p = os.path.join(ROOT, fn)
-            before[fn] = read(p) if os.path.exists(p) else None
-        stale = []
-        changed = 0
-        changed += build_index(site, writeups)
+    def render() -> int:
+        """Write every page and return how many files were created or changed."""
+        changed = build_index(site, writeups)
         changed += build_cv(site)
         changed += build_404(site)
         changed += build_sitemap(site, writeups)
@@ -1381,23 +1394,46 @@ def main() -> int:
         changed += build_search_index(writeups)
         for i, w in enumerate(writeups):
             changed += build_writeup(site, w, writeups, i)
-        shutil.rmtree(tmp, ignore_errors=True)
-        if changed:
-            print(f"{RED}[!]{OFF} generated output is stale ({changed} file(s) differ) — run: python3 tools/build.py")
+        return changed
+
+    generated = ["index.html", "cv.html", "404.html",
+                 "sitemap.xml", "feed.xml", "search-index.json"]
+    generated += [f"writeups/{w['slug']}/index.html" for w in writeups]
+
+    if args.check:
+        # Render into a temporary tree inside the repository, so relative reads
+        # and os.makedirs behave as they do in a real build, then diff that
+        # against what is committed.  Nothing is written over the working tree,
+        # so a failing check leaves it untouched and a re-run cannot pass
+        # against a tree the previous run dirtied.
+        global OUT
+        with tempfile.TemporaryDirectory(dir=ROOT, prefix=".build-check-") as tmp:
+            OUT = tmp
+            try:
+                render()
+            finally:
+                OUT = ROOT
+            stale = []
+            for rel in generated:
+                built = os.path.join(tmp, rel)
+                committed = os.path.join(ROOT, rel)
+                got = read(built) if os.path.exists(built) else None
+                want = read(committed) if os.path.exists(committed) else None
+                if got != want:
+                    stale.append(rel)
+        if stale:
+            print(f"{RED}[!]{OFF} generated output is stale — run: python3 tools/build.py")
+            for rel in stale:
+                state = "missing from the build" if not os.path.exists(
+                    os.path.join(ROOT, rel)) else "not committed"
+                print(f"    {rel}  ({state})")
             return 1
-        print(f"{GREEN}✓{OFF} generated output is up to date")
+        print(f"{GREEN}✓{OFF} generated output is up to date "
+              f"({len(generated)} files)")
         return 0
 
     removed = prune(writeups)
-    changed = 0
-    changed += build_index(site, writeups)
-    changed += build_cv(site)
-    changed += build_404(site)
-    changed += build_sitemap(site, writeups)
-    changed += build_feed(site, writeups)
-    changed += build_search_index(writeups)
-    for i, w in enumerate(writeups):
-        changed += build_writeup(site, w, writeups, i)
+    changed = render()
 
     print(f"{GREEN}✓{OFF} built {1 + len(writeups) + 4} pages from "
           f"{len(site['projects'])} projects, {len(site['certs'])} certs, {len(writeups)} writeups"

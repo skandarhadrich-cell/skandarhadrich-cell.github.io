@@ -14,6 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history on purpose. sitemap.xml's <lastmod> used to come from
+          # `git log -1 --format=%cs -- data templates`, and that could not
+          # work here: the newest commit touching data/ is the commit holding
+          # the rendered sitemap, so it could never contain its own date and
+          # every commit that edited data/ failed this check. Under the default
+          # depth-1 checkout it was worse -- the query returns HEAD's date when
+          # HEAD touches data/ and an empty string when it does not, so the
+          # same commit rendered differently locally and here. It reads
+          # site.last_updated in data/site.json now. This is here so that a
+          # future git-dependent check cannot silently get a truncated answer.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:

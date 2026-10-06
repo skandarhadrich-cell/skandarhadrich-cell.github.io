@@ -38,6 +38,14 @@ That regenerates `index.html`, `cv.html`, `writeups/*/index.html`,
 HTML along with your data change** — CI fails the deploy if you forget, which
 is the point of `build.py --check`.
 
+When the content changes, bump `site.last_updated` in `data/site.json`
+(`YYYY-MM-DD`). That is what `<lastmod>` in `sitemap.xml` reads. It used to be
+derived from `git log -1 -- data templates`, which could not work: the newest
+commit touching `data/` is the commit holding the rendered sitemap, so that
+commit could never contain its own date, and CI's depth-1 checkout made the
+answer depend on whether the tip commit happened to touch `data/`. Every commit
+that edited `data/` shipped a sitemap that failed its own check.
+
 ### Writing a write-up
 
 ```bash

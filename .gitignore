@@ -1,5 +1,8 @@
 # build artefacts that should never be committed
+# build.py --check renders into a .build-check-* temp dir inside the repo and
+# removes it; the pattern covers a run that was interrupted before cleanup.
 .build-check/
+.build-check-*/
 _site/
 
 # Certificate source documents. These are held locally and rendered to the

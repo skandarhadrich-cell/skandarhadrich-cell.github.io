@@ -1,5 +1,5 @@
 {
-  "_readme": "Single source of truth for the whole site. tools/build.py renders index.html, cv.html, sitemap.xml and feed.xml from this file plus data/writeups/*.md. Edit here, never in the generated HTML.",
+  "_readme": "Single source of truth for the whole site. tools/build.py renders index.html, cv.html, sitemap.xml and feed.xml from this file plus data/writeups/*.md. Edit here, never in the generated HTML. Bump site.last_updated (YYYY-MM-DD) whenever the content changes: it is what <lastmod> in sitemap.xml reads, and build.py --check fails if the committed sitemap disagrees with it.",
   "site": {
     "url": "https://0xmrerror.me",
     "handle": "0xmrerror",
@@ -8,7 +8,8 @@
     "short_title": "0xmrerror — Skandar Hadrich",
     "description": "Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships.",
     "locale": "en",
-    "lang": "en"
+    "lang": "en",
+    "last_updated": "2026-10-06"
   },
   "identity": {
     "role": "ICT Engineering Student",
