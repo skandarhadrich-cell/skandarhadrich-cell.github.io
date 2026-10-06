@@ -101,7 +101,7 @@
       <title>JITFP — Reading a Flag That Only Exists in Live Memory</title>
       <link>https://0xmrerror.me/writeups/jitfp/</link>
       <guid isPermaLink="true">https://0xmrerror.me/writeups/jitfp/</guid>
-      <description>A checker whose function-pointer table is empty on disk and filled at runtime by a ptrace service — read RDX at the call and never touch the table.</description>
+      <description>The function-pointer table is empty on disk and filled at runtime by a ptrace service, so read RDX at the call instead of the table.</description>
       <category>Reverse engineering</category>
     </item>
   </channel>

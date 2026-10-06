@@ -701,7 +701,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <span class="writeup-idx">14.</span>
         <span class="writeup-body">
           <span class="writeup-title">JITFP — Reading a Flag That Only Exists in Live Memory</span>
-          <span class="writeup-sum">A checker whose function-pointer table is empty on disk and filled at runtime by a ptrace service — read RDX at the call and never touch the table.</span>
+          <span class="writeup-sum">The function-pointer table is empty on disk and filled at runtime by a ptrace service, so read RDX at the call instead of the table.</span>
           <span class="writeup-meta">
             <span class="badge-diff" data-diff="hard">Hard</span>
             <span class="badge-platform" data-platform="picoctf">picoCTF</span>
