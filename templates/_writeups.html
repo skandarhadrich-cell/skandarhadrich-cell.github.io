@@ -1,48 +1,21 @@
 <section class="section" id="writeups">
   <div class="container">
     <p class="cmd-line">
-      <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">ls -lt ./writeups | head -20</span>
+      <span class="p-pre"><span class="p-user">{{HANDLE}}</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">ls -lt ./writeups | head -{{WU_SHOWN}}</span>
       <span class="p-out">{{WU_COUNT}} entries</span>
     </p>
 
     <div class="section-head">
       <h2>writeups<span class="cursor-block" aria-hidden="true"></span></h2>
-      <p>Every box I solved, written the way I actually solved it — the dead ends included.</p>
-    </div>
-
-    <div class="filters" data-filters>
-      <div class="filter-set">
-        <span class="filter-label" aria-hidden="true">Type</span>
-        <div class="filter-group" role="group" aria-label="Filter by type">
-          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="all" aria-pressed="true">All</button>
-          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="web" aria-pressed="false">Web Exploitation</button>
-          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="re" aria-pressed="false">Reverse Engineering</button>
-          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="pwn" aria-pressed="false">Binary Exploitation</button>
-        </div>
-      </div>
-      <div class="filter-set">
-        <span class="filter-label" aria-hidden="true">Difficulty</span>
-        <div class="filter-group" role="group" aria-label="Filter by difficulty">
-          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="all" aria-pressed="true">All</button>
-          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="easy" aria-pressed="false">Easy</button>
-          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="medium" aria-pressed="false">Medium</button>
-          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="hard" aria-pressed="false">Hard</button>
-        </div>
-      </div>
-      <div class="filter-set">
-        <span class="filter-label" aria-hidden="true">Platform</span>
-        <div class="filter-group" role="group" aria-label="Filter by platform">
-          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="all" aria-pressed="true">All</button>
-          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="htb" aria-pressed="false">HackTheBox</button>
-          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="thm" aria-pressed="false">TryHackMe</button>
-          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="picoctf" aria-pressed="false">PicoCTF</button>
-        </div>
-      </div>
-      <span class="filter-count" data-filter-count aria-live="polite"></span>
+      <p>The five hardest boxes I have written up, solved the way I actually solved them — the dead ends included. The rest are in the archive.</p>
     </div>
 
     <div class="writeup-list">
 {{WRITEUPS}}
     </div>
+
+    <p class="archive-cta">
+      <a class="btn" href="/writeups/">all {{WU_COUNT}} write-ups <span aria-hidden="true">→</span></a>
+    </p>
   </div>
 </section>

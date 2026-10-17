@@ -690,6 +690,9 @@ body.has-overlay { overflow: hidden; }
 .writeup-card:hover .writeup-arrow { color: var(--accent-text); transform: translateX(3px); }
 .writeup-card.is-hidden { display: none; }
 
+/* the "all N write-ups →" button under the homepage's featured five */
+.archive-cta { margin-top: var(--sp-6); }
+
 /* Below this the summary column is the first thing to be squeezed -- it is the
    1fr track, so every pixel of --room-w comes out of it -- and a two-line
    clamp turns into a three-line one. The artwork gives some back: 58px, and a
@@ -742,16 +745,42 @@ body.has-overlay { overflow: hidden; }
 .filter-count { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); margin-top: var(--sp-1); }
 
 /* ══ pipeline diagram ════════════════════════════════════ */
-/* The pipeline is one long chain, so it reads as a single line of boxes
-   with arrows between them, wrapping onto new rows as it runs out of
-   room. The arrow is painted on the step's ::after rather than sitting
-   in the flow, so a row that wraps never starts with a stray arrow. */
+/* One labelled row per phase, each row a chain of boxes with arrows between
+   them. The chain used to be a single wrapping flex list of all sixteen boxes,
+   which wrapped into rows that had nothing to do with the five phases the
+   surrounding copy referred to. The phase label is what orders them now, and
+   each row wraps on its own.
+
+   The arrow is painted on the step's ::after rather than sitting in the flow,
+   so a row never opens with a stray arrow. `overflow: clip` is load-bearing:
+   a row that wraps puts an arrow 28px past its last box, and in the old
+   single-chain version that arrow pushed the whole document sideways on a
+   phone -- 382px of content in a 375px viewport. Clipping the row drops the
+   straggler without introducing a scrollbar, and leaves the arrows that sit in
+   the gaps between boxes alone, because those are inside the row. */
+.phases { margin-top: var(--sp-6); }
+.phase + .phase { margin-top: var(--sp-6); }
+.phase-label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--text-dim);
+  margin-bottom: var(--sp-3);
+}
+.phase-label span {
+  font-size: var(--fs-3xs);
+  color: var(--accent-text);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
 .pipeline {
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
   gap: var(--sp-5) var(--sp-7);
-  margin-top: var(--sp-6);
+  overflow: clip;
 }
 .stage {
   position: relative;
@@ -791,7 +820,11 @@ body.has-overlay { overflow: hidden; }
   font-family: var(--font-mono);
   font-size: var(--fs-3xs);
   color: var(--accent-2-text);
-  overflow-wrap: anywhere;
+  /* build.py inserts a <wbr> at every underscore, so the only places this can
+     break are the ones a reader would pick. The break-word is a floor under
+     that rather than the mechanism: if a future module name has no separator at
+     all it still cannot overflow its box. */
+  overflow-wrap: break-word;
 }
 /* the live window: this step runs the sample instead of reasoning about it */
 .stage.is-live { border-color: var(--accent-line); background: var(--accent-soft); }

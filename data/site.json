@@ -9,7 +9,7 @@
     "description": "Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships.",
     "locale": "en",
     "lang": "en",
-    "last_updated": "2026-10-06"
+    "last_updated": "2026-10-17"
   },
   "identity": {
     "role": "ICT Engineering Student",
@@ -43,7 +43,7 @@
       "label": "HTB University CTF 2025"
     },
     {
-      "value": "6",
+      "value": "8",
       "label": "certifications"
     },
     {
@@ -82,7 +82,7 @@
     }
   ],
   "about": {
-    "bio": "I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF. Most notably, I architected an 8-stage nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation. I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly. I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.",
+    "bio": "I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF. Most notably, I architected a 9-stage, 5-phase nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation. I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly. I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.",
     "fields": [
       {
         "key": "handle",
@@ -444,13 +444,6 @@
       "preview": "365ds-ml",
       "skills": "Data Science · Machine Learning",
       "published": true
-    },
-    {
-      "issuer": "Cyber Sec 101",
-      "name": "Cyber Sec 101",
-      "date": "—",
-      "skills": "Security fundamentals",
-      "published": false
     }
   ],
   "facts": {
@@ -471,6 +464,13 @@
   },
   "pipeline": {
     "title": "9-stage, 5-phase nested-VM malware analysis pipeline",
+    "phases": [
+      { "n": 1, "name": "Static analysis" },
+      { "n": 2, "name": "Live detonation" },
+      { "n": 3, "name": "Extraction & scoring" },
+      { "n": 4, "name": "Clustering & attribution" },
+      { "n": 5, "name": "Reporting & retention" }
+    ],
     "flow": [
       {
         "n": "1",

@@ -195,7 +195,12 @@ function update() {
     current = sections[sections.length - 1].id;
   }
   links.forEach(a => {
-    if (a.getAttribute('href') === '#' + current) a.setAttribute('aria-current', 'true');
+    // The links are root-absolute (`/#experience`) so they still work from a
+    // write-up page, but this compared them against a bare `#experience` and
+    // so never matched anything: the rail marker and the nav's current-item
+    // colour were dead on every page. Strip the leading slash and compare.
+    const href = (a.getAttribute('href') || '').replace(/^\//, '');
+    if (href === '#' + current) a.setAttribute('aria-current', 'true');
     else a.removeAttribute('aria-current');
   });
 

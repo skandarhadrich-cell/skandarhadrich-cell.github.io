@@ -204,7 +204,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <dl class="about-grid">
           <div class="about-field"><dt>handle</dt><dd>0xmrerror</dd></div><div class="about-field"><dt>location</dt><dd>Tunis, Tunisia 🇹🇳</dd></div><div class="about-field"><dt>affiliation</dt><dd>ENIT — ICT Engineering</dd></div><div class="about-field"><dt>focus</dt><dd>Malware Analysis · Reverse Engineering · Penetration Testing</dd></div>
         </dl>
-        <p class="about-bio">I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF. Most notably, I architected an 8-stage nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation. I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly. I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.</p>
+        <p class="about-bio">I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF. Most notably, I architected a 9-stage, 5-phase nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation. I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly. I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.</p>
         <div class="about-badges">
           <div class="rank-badge"><span aria-hidden="true">🏆</span><span>TryHackMe</span><b>Top 1%</b><small>ranked globally</small></div><div class="rank-badge"><span aria-hidden="true">🥇</span><span>HTB University CTF 2025</span><b>77th</b><small>ENIT team, worldwide</small></div>
         </div>
@@ -377,11 +377,14 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       <h2 class="col-head">the pipeline, end to end</h2>
       <p>Nine stages across five phases, and the module that runs each one. Hover a box for what it does.</p>
     </div>
-    <div class="pipeline reveal">
-            <div class="stage">
+    <div class="phases reveal">
+        <div class="phase">
+    <p class="phase-label"><span>phase 1</span>Static analysis</p>
+    <div class="pipeline">
+      <div class="stage">
         <span class="n">Stage 1</span>
         <b>Static triage</b>
-        <span class="tool" title="Hashes, entropy, headers, signatures">static_triage.py</span>
+        <span class="tool" title="Hashes, entropy, headers, signatures">static_<wbr>triage.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 2</span>
@@ -391,47 +394,62 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       <div class="stage">
         <span class="n">Stage 2b</span>
         <b>.NET unpacking</b>
-        <span class="tool" title="de4dot, timing patch, C2 strings">stage2b_dotnet.py</span>
+        <span class="tool" title="de4dot, timing patch, C2 strings">stage2b_<wbr>dotnet.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 3</span>
         <b>CFG extraction</b>
-        <span class="tool" title="angr, complexity, obfuscation score">cfg_extractor.py</span>
+        <span class="tool" title="angr, complexity, obfuscation score">cfg_<wbr>extractor.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 4</span>
         <b>Emulation</b>
-        <span class="tool" title="API emulation, payload extraction">speakeasy_emulator.py</span>
+        <span class="tool" title="API emulation, payload extraction">speakeasy_<wbr>emulator.py</span>
       </div>
+    </div>
+  </div>
+  <div class="phase">
+    <p class="phase-label"><span>phase 2</span>Live detonation</p>
+    <div class="pipeline">
       <div class="stage is-live">
         <span class="n">Live window</span>
         <b>Live detonation</b>
         <span class="tool" title="eBPF + Volatility 3 + network tap, concurrent">QEMU / KVM</span>
       </div>
+    </div>
+  </div>
+  <div class="phase">
+    <p class="phase-label"><span>phase 3</span>Extraction &amp; scoring</p>
+    <div class="pipeline">
       <div class="stage">
         <span class="n">Stage 5.1</span>
         <b>Config decryption</b>
-        <span class="tool" title="njRAT, AsyncRAT, AgentTesla">config_decryptor.py</span>
+        <span class="tool" title="njRAT, AsyncRAT, AgentTesla">config_<wbr>decryptor.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 5.2</span>
         <b>IOC extraction</b>
-        <span class="tool" title="normalised, OS noise filtered">ioc_extractor.py</span>
+        <span class="tool" title="normalised, OS noise filtered">ioc_<wbr>extractor.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 5.3</span>
         <b>Intel pivot</b>
-        <span class="tool" title="VirusTotal, OTX, MalwareBazaar">threat_intel_pivot.py</span>
+        <span class="tool" title="VirusTotal, OTX, MalwareBazaar">threat_<wbr>intel_<wbr>pivot.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 5.4</span>
         <b>Scoring</b>
         <span class="tool" title="weighted risk score, verdict">scorer.py</span>
       </div>
+    </div>
+  </div>
+  <div class="phase">
+    <p class="phase-label"><span>phase 4</span>Clustering &amp; attribution</p>
+    <div class="pipeline">
       <div class="stage">
         <span class="n">Stage 6</span>
         <b>Clustering</b>
-        <span class="tool" title="MinHash / LSH, family consensus">lsh_cluster.py</span>
+        <span class="tool" title="MinHash / LSH, family consensus">lsh_<wbr>cluster.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 7</span>
@@ -441,17 +459,22 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       <div class="stage">
         <span class="n">Stage 7.1</span>
         <b>ATT&amp;CK map</b>
-        <span class="tool" title="tactics, Navigator layer">attck_mapper.py</span>
+        <span class="tool" title="tactics, Navigator layer">attck_<wbr>mapper.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 7.2</span>
         <b>Campaign link</b>
-        <span class="tool" title="registry match, auto-register">campaign_correlator.py</span>
+        <span class="tool" title="registry match, auto-register">campaign_<wbr>correlator.py</span>
       </div>
+    </div>
+  </div>
+  <div class="phase">
+    <p class="phase-label"><span>phase 5</span>Reporting &amp; retention</p>
+    <div class="pipeline">
       <div class="stage">
         <span class="n">Stage 8</span>
         <b>PDF report</b>
-        <span class="tool" title="structured executive summary">report_generator.py</span>
+        <span class="tool" title="structured executive summary">report_<wbr>generator.py</span>
       </div>
       <div class="stage">
         <span class="n">Stage 9</span>
@@ -460,49 +483,20 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
       </div>
     </div>
   </div>
+    </div>
+  </div>
 </section>
 
 <section class="section" id="writeups">
   <div class="container">
     <p class="cmd-line">
-      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">ls -lt ./writeups | head -20</span>
+      <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">ls -lt ./writeups | head -5</span>
       <span class="p-out">14 entries</span>
     </p>
 
     <div class="section-head">
       <h2>writeups<span class="cursor-block" aria-hidden="true"></span></h2>
-      <p>Every box I solved, written the way I actually solved it — the dead ends included.</p>
-    </div>
-
-    <div class="filters" data-filters>
-      <div class="filter-set">
-        <span class="filter-label" aria-hidden="true">Type</span>
-        <div class="filter-group" role="group" aria-label="Filter by type">
-          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="all" aria-pressed="true">All</button>
-          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="web" aria-pressed="false">Web Exploitation</button>
-          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="re" aria-pressed="false">Reverse Engineering</button>
-          <button class="filter-btn" type="button" data-filter-group="type" data-filter-value="pwn" aria-pressed="false">Binary Exploitation</button>
-        </div>
-      </div>
-      <div class="filter-set">
-        <span class="filter-label" aria-hidden="true">Difficulty</span>
-        <div class="filter-group" role="group" aria-label="Filter by difficulty">
-          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="all" aria-pressed="true">All</button>
-          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="easy" aria-pressed="false">Easy</button>
-          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="medium" aria-pressed="false">Medium</button>
-          <button class="filter-btn" type="button" data-filter-group="diff" data-filter-value="hard" aria-pressed="false">Hard</button>
-        </div>
-      </div>
-      <div class="filter-set">
-        <span class="filter-label" aria-hidden="true">Platform</span>
-        <div class="filter-group" role="group" aria-label="Filter by platform">
-          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="all" aria-pressed="true">All</button>
-          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="htb" aria-pressed="false">HackTheBox</button>
-          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="thm" aria-pressed="false">TryHackMe</button>
-          <button class="filter-btn" type="button" data-filter-group="platform" data-filter-value="picoctf" aria-pressed="false">PicoCTF</button>
-        </div>
-      </div>
-      <span class="filter-count" data-filter-count aria-live="polite"></span>
+      <p>The five hardest boxes I have written up, solved the way I actually solved them — the dead ends included. The rest are in the archive.</p>
     </div>
 
     <div class="writeup-list">
@@ -578,139 +572,11 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <img class="room-icon room-icon--card" src="/assets/ctf/ww-buddy.png" alt="" width="279" height="255" loading="lazy" decoding="async">
         <span class="writeup-arrow" aria-hidden="true">→</span>
       </a>
-      <a class="writeup-card" href="/writeups/broker/" data-writeup-card
-       data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">06.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Broker — MQTT Eavesdrop to Webshell</span>
-          <span class="writeup-sum">An exposed ActiveMQ/MQTT broker lets anyone subscribe to every sensor on the network — then a webshell upgrade path to root.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="thm">TryHackMe</span>
-            <span class="writeup-time">Web · 15 min</span>
-          </span>
-        </span>
-        <img class="room-icon room-icon--card" src="/assets/ctf/broker.png" alt="" width="278" height="250" loading="lazy" decoding="async">
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/watcher/" data-writeup-card
-       data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">07.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Watcher — LFI to Root in 7 Flags</span>
-          <span class="writeup-sum">A boot2root with a long linear chain: LFI becomes a webshell, a writable service binary becomes root. Seven flags along the way.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="thm">TryHackMe</span>
-            <span class="writeup-time">Web · 30 min</span>
-          </span>
-        </span>
-        <img class="room-icon room-icon--card" src="/assets/ctf/watcher.png" alt="" width="273" height="239" loading="lazy" decoding="async">
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/fortress/" data-writeup-card
-       data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">08.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Fortress — SHA-1 Collision to Root</span>
-          <span class="writeup-sum">Story-driven decompilation: Python bytecode leaks credentials, a telnet service hands over a client binary, a hash chain ends at root.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="thm">TryHackMe</span>
-            <span class="writeup-time">Web · 30 min</span>
-          </span>
-        </span>
-        <img class="room-icon room-icon--card" src="/assets/ctf/fortress.png" alt="" width="276" height="248" loading="lazy" decoding="async">
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/umbrella/" data-writeup-card
-       data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">09.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Umbrella — Registry Loot to SUID Bash</span>
-          <span class="writeup-sum">An open Docker registry leaks database secrets, MySQL credentials unlock the source, and a writable PATH entry hands over SUID bash.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="thm">TryHackMe</span>
-            <span class="writeup-time">Web · 25 min</span>
-          </span>
-        </span>
-        <img class="room-icon room-icon--card" src="/assets/ctf/umbrella.png" alt="" width="278" height="252" loading="lazy" decoding="async">
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/super-secret-tip/" data-writeup-card
-       data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">10.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Super Secret Tip — Jinja SSTI to curl -K Root</span>
-          <span class="writeup-sum">Jinja SSTI in a password-protected Werkzeug debugger chains into a planted curl config file — and curl -K becomes root.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="thm">TryHackMe</span>
-            <span class="writeup-time">Web · 35 min</span>
-          </span>
-        </span>
-        <img class="room-icon room-icon--card" src="/assets/ctf/super-secret-tip.png" alt="" width="283" height="253" loading="lazy" decoding="async">
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/smol/" data-writeup-card
-       data-type="web" data-diff="medium" data-platform="thm">
-        <span class="writeup-idx">11.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Smol — WP Plugin SSRF to sudo Bash</span>
-          <span class="writeup-sum">A legacy WordPress plugin with a pile of CVEs, a poisoned Hello-Dolly backdoor, and an SSRF that reaches straight into the sudoers file.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="thm">TryHackMe</span>
-            <span class="writeup-time">Web · 20 min</span>
-          </span>
-        </span>
-        <img class="room-icon room-icon--card" src="/assets/ctf/smol.png" alt="" width="280" height="253" loading="lazy" decoding="async">
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/winantidbg0x200/" data-writeup-card
-       data-type="re" data-diff="medium" data-platform="picoctf">
-        <span class="writeup-idx">12.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">WinAntiDbg0x200 — Three Anti-Debug Checks</span>
-          <span class="writeup-sum">Three stacked anti-debug checks — PEB flag, timing and NtQueryInformationProcess — reversed live in GDB to recover the flag.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="picoctf">picoCTF</span>
-            <span class="writeup-time">Reverse engineering · 12 min</span>
-          </span>
-        </span>
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/winantidbg0x300/" data-writeup-card
-       data-type="re" data-diff="medium" data-platform="picoctf">
-        <span class="writeup-idx">13.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">WinAntiDbg0x300 — UPX, a Watchdog, and an Infinite Loop</span>
-          <span class="writeup-sum">UPX unpacking, a child-process watchdog and an infinite loop that never actually exits. A full GDB walkthrough.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="picoctf">picoCTF</span>
-            <span class="writeup-time">Reverse engineering · 15 min</span>
-          </span>
-        </span>
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="writeup-card" href="/writeups/binary-instrumentation-2/" data-writeup-card
-       data-type="re" data-diff="medium" data-platform="picoctf">
-        <span class="writeup-idx">14.</span>
-        <span class="writeup-body">
-          <span class="writeup-title">Binary Instrumentation 2 — Intercepting File Writes With Frida</span>
-          <span class="writeup-sum">picoCTF 2025 · 300 pts. Hook the file-write API with Frida and rewrite the payload before it ever touches disk.</span>
-          <span class="writeup-meta">
-            <span class="badge-diff" data-diff="medium">Medium</span>
-            <span class="badge-platform" data-platform="picoctf">picoCTF</span>
-            <span class="writeup-time">Reverse engineering · 13 min</span>
-          </span>
-        </span>
-        <span class="writeup-arrow" aria-hidden="true">→</span>
-      </a>
     </div>
+
+    <p class="archive-cta">
+      <a class="btn" href="/writeups/">all 14 write-ups <span aria-hidden="true">→</span></a>
+    </p>
   </div>
 </section>
 
@@ -896,7 +762,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
 
       <div class="reveal">
         <h3 class="col-head">elsewhere</h3>
-                <p class="dim elsewhere-line"><span class="faint elsewhere-key">writeups </span> <a href="/#writeups">all writeups →</a></p>
+                <p class="dim elsewhere-line"><span class="faint elsewhere-key">writeups </span> <a href="/writeups/">all writeups →</a></p>
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">cv       </span> <a href="/cv.html">CV →</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)</p>
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">github   </span> <a href="https://github.com/skandarhadrich-cell" rel="noopener">skandarhadrich-cell</a></p>
         <p class="dim elsewhere-line"><span class="faint elsewhere-key">linkedin </span> <a href="https://linkedin.com/in/skandar-hadrich-128221369" rel="noopener">skandar-hadrich</a></p>
@@ -919,7 +785,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
           <h4>site</h4>
           <ul>
             <li><a href="/">home</a></li>
-            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/writeups/">writeups</a></li>
             <li><a href="/cv.html">cv</a></li>
             <li><a href="/feed.xml">rss</a></li>
             <li><a href="/sitemap.xml">sitemap</a></li>

@@ -145,7 +145,7 @@ jobs:
 
       - name: HTML is well formed
         run: |
-          npx --yes html-validate@8 "index.html" "cv.html" "404.html" "writeups/*/index.html"
+          npx --yes html-validate@8 "index.html" "cv.html" "404.html" "writeups/index.html" "writeups/*/index.html"
 
       - name: Internal links resolve
         run: |
@@ -374,7 +374,7 @@ jobs:
               args: ['--no-sandbox', '--disable-dev-shm-usage'],
             });
             const page = await browser.newPage();
-            const pages = ['/', '/cv.html', '/writeups/keygenme/'];
+            const pages = ['/', '/cv.html', '/writeups/', '/writeups/keygenme/'];
             const accents = [null, 'phosphor', 'nord', 'crimson'];
             const themes = ['dark', 'light'];
             let failures = 0, checked = 0;
@@ -448,7 +448,11 @@ jobs:
               if (r.right <= vw + 1 && r.left >= -1) continue;
               let n = el, scrollable = false;
               while (n && n !== document.body) {
-                if (['auto', 'scroll', 'hidden'].includes(getComputedStyle(n).overflowX)) {
+                // `clip` belongs here with the scrollable three: a clipped
+                // ancestor cannot widen the document either, and the pipeline
+                // rows use it to cut off a connector arrow that would otherwise
+                // hang into the gutter.
+                if (['auto', 'scroll', 'hidden', 'clip'].includes(getComputedStyle(n).overflowX)) {
                   scrollable = true; break;
                 }
                 n = n.parentElement;
@@ -462,16 +466,42 @@ jobs:
             return { pageOverflow: de.scrollWidth - de.clientWidth, bad };
           };
 
+          // The scan above walks `body *`, and a pseudo-element is not one: an
+          // absolutely positioned ::after can push documentElement.scrollWidth
+          // past the viewport with no real element sticking out, so
+          // pageOverflow fires and `bad` comes back empty. That is exactly how
+          // the pipeline's connector arrows pushed the page 7px sideways at
+          // every phone width, on the live site, without this step naming a
+          // culprit. When the coarse signal fires and the scan finds nothing,
+          // hide subtrees until the width drops and name the deepest node --
+          // which is the one that owns the ::after.
+          const culprit = () => {
+            const sw = () => document.documentElement.scrollWidth;
+            const base = sw();
+            const drill = (root) => {
+              for (const el of root.querySelectorAll(':scope > *')) {
+                const prev = el.style.display;
+                el.style.display = 'none';
+                const now = sw();
+                el.style.display = prev;
+                if (now < base) return drill(el) || el;
+              }
+              return null;
+            };
+            const el = drill(document.body);
+            return el ? `${el.tagName}.${String(el.className || '').slice(0, 40)}` : '(none found)';
+          };
+
           (async () => {
             const browser = await puppeteer.launch({
               args: ['--no-sandbox', '--disable-dev-shm-usage'],
             });
             const page = await browser.newPage();
-            const pages = ['/', '/cv.html', '/404.html',
+            const pages = ['/', '/cv.html', '/404.html', '/writeups/',
                            '/writeups/mr-robot/', '/writeups/keygenme/'];
             let failed = 0;
 
-            for (const w of [320, 375, 768, 1024, 1440]) {
+            for (const w of [320, 360, 375, 390, 414, 768, 1024, 1440]) {
               await page.setViewport({ width: w, height: 900 });
               for (const p of pages) {
                 await page.goto('http://127.0.0.1:8000' + p, { waitUntil: 'networkidle0' });
@@ -481,6 +511,10 @@ jobs:
                   console.log(`  XX ${w}px ${p} overflow=${pageOverflow}`);
                   for (const b of bad.slice(0, 3)) {
                     console.log(`       ${b.tag}.${b.cls} ${b.left}..${b.right} "${b.text}"`);
+                  }
+                  if (!bad.length && pageOverflow > 1) {
+                    console.log(`       no element overflows — culprit: `
+                                + await page.evaluate(culprit));
                   }
                 } else {
                   console.log(`  ok ${w}px ${p}`);

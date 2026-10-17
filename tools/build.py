@@ -40,6 +40,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 TPL = os.path.join(ROOT, "templates")
 WUDIR = os.path.join(ROOT, "writeups")
+# The archive page sits beside the per-slug folders, so prune() has to know it
+# is generated output rather than a stray file -- otherwise it would delete the
+# page it had just rendered on the next build.
+ARCHIVE = "index.html"
 
 # Where generated pages are written.  A normal build writes them over the
 # repository.  `--check` points this at a temporary directory instead, so the
@@ -637,7 +641,7 @@ def footer(site: dict) -> str:
           <h4>site</h4>
           <ul>
             <li><a href="/">home</a></li>
-            <li><a href="/#writeups">writeups</a></li>
+            <li><a href="/writeups/">writeups</a></li>
             <li><a href="/cv.html">cv</a></li>
             <li><a href="/feed.xml">rss</a></li>
             <li><a href="/sitemap.xml">sitemap</a></li>
@@ -815,25 +819,64 @@ def block_experience(site: dict) -> str:
     })
 
 
-def render_pipeline(flow: list[dict]) -> str:
-    """The pipeline as one line of boxes.
+def breakable_module(name: str) -> str:
+    """A module name that may wrap at its separators, never mid-token.
 
-    Each box carries its stage number, a short name and the module that
-    runs it; the arrow to the next box is a CSS ::after, so a row that
-    wraps never opens with a dangling arrow. The one unnumbered box is the
-    live detonation window — the orchestrator has no stage number for it,
-    so it shows the phase instead of inventing a stage.
+    `threat_intel_pivot.py` is one unbroken 21-character run inside a ~128px
+    box with nowhere legitimate to break, which is why the CSS carried
+    `overflow-wrap: anywhere`: the browser split it between two arbitrary
+    letters and printed `threat_intel_pi / vot.py`. A <wbr> after each
+    underscore hands the line-break algorithm the places a reader would break
+    at anyway, so the token can only ever split cleanly.
+
+    Deliberately no break before the extension: offering one turns
+    `campaign_correlator.py` into `campaign_correlator.` / `py`, and an
+    orphaned `py` is worse than breaking on the last underscore, which keeps
+    the extension attached to the name it belongs to.
     """
+    return esc(name).replace("_", "_<wbr>")
+
+
+def render_pipeline(pipeline: dict) -> str:
+    """The pipeline as one labelled row of boxes per phase.
+
+    It used to be a single wrapping flex chain of all sixteen boxes. Sixteen
+    boxes wrap into whatever rows the box width happens to produce, which has
+    nothing to do with the five phases, so the structure the copy kept referring
+    to was invisible in it. Grouping by phase makes the shape the reader is told
+    about the shape they see — and it fixes a genuine overflow: the connector is
+    an absolutely positioned ::after sitting in the row gap, so in a wrapped
+    chain the last box of every row but the final one pushed an arrow 28px past
+    the container and dragged the whole document sideways on a phone. One row per
+    phase means only a phase that still wraps can do that; `overflow: clip` on
+    the row removes those stragglers entirely.
+
+    The one unnumbered box is the live detonation window — the orchestrator has
+    no stage number for it, so it shows that instead of inventing one.
+    """
+    phases = {p["n"]: p["name"] for p in pipeline.get("phases", [])}
+    by_phase: dict[int, list[dict]] = {}
+    for s in pipeline["flow"]:
+        by_phase.setdefault(s["phase"], []).append(s)
+
     out = []
-    for s in flow:
-        label = f"Stage {s['n']}" if s["n"] else "Live window"
-        out.append(
-            f'      <div class="stage{" is-live" if s.get("live") else ""}">\n'
-            f'        <span class="n">{esc(label)}</span>\n'
-            f'        <b>{esc(s["name"])}</b>\n'
-            f'        <span class="tool" title="{esc(s["note"])}">{esc(s["module"])}</span>\n'
-            f'      </div>'
-        )
+    for n in sorted(by_phase):
+        out.append('  <div class="phase">')
+        out.append(f'    <p class="phase-label"><span>phase {n}</span>'
+                   f'{esc(phases.get(n, ""))}</p>')
+        out.append('    <div class="pipeline">')
+        for s in by_phase[n]:
+            label = f"Stage {s['n']}" if s["n"] else "Live window"
+            out.append(
+                f'      <div class="stage{" is-live" if s.get("live") else ""}">\n'
+                f'        <span class="n">{esc(label)}</span>\n'
+                f'        <b>{esc(s["name"])}</b>\n'
+                f'        <span class="tool" title="{esc(s["note"])}">'
+                f'{breakable_module(s["module"])}</span>\n'
+                f'      </div>'
+            )
+        out.append('    </div>')
+        out.append('  </div>')
     return "\n".join(out)
 
 
@@ -862,7 +905,7 @@ def block_work(site: dict) -> str:
         <div class="skill-list">{stack}</div>
         <div class="project-foot">{cta}<span class="project-state">{esc(state_note)}</span></div>
       </article>""")
-    stages = render_pipeline(site["pipeline"]["flow"])
+    stages = render_pipeline(site["pipeline"])
     return render("_work.html", {
         "HANDLE": esc(site["site"]["handle"]),
         "PROJ_COUNT": len(site["projects"]),
@@ -905,14 +948,36 @@ def writeup_card(i: int, w: dict) -> str:
     return "\n".join(lines)
 
 
+# How many write-ups the homepage shows before pointing at the archive.
+# The list is ordered hardest-first, so this is the strongest five.
+FEATURED_WRITEUPS = 5
+
+
+def writeup_cards(writeups: list[dict]) -> str:
+    """The write-up cards, indented to sit inside a template's list."""
+    return "\n".join("      " + card.replace("\n", "\n      ")
+                     for card in (writeup_card(i, w)
+                                  for i, w in enumerate(writeups, 1)))
+
+
+def block_filters() -> str:
+    """The write-up filter bar.
+
+    This used to live inside the homepage's write-up section. The homepage now
+    shows five cards, where filtering by type or difficulty has almost nothing
+    to act on, so the bar moved to /writeups/ alongside the full list it exists
+    to filter. js/main.js binds it wherever it finds [data-filters].
+    """
+    return render("_filters.html", {})
+
+
 def block_writeups(site: dict, writeups: list[dict]) -> str:
-    cards = "\n".join("      " + card.replace("\n", "\n      ")
-                       for card in (writeup_card(i, w)
-                                    for i, w in enumerate(writeups, 1)))
+    featured = writeups[:FEATURED_WRITEUPS]
     return render("_writeups.html", {
         "HANDLE": esc(site["site"]["handle"]),
         "WU_COUNT": len(writeups),
-        "WRITEUPS": cards,
+        "WU_SHOWN": len(featured),
+        "WRITEUPS": writeup_cards(featured),
     })
 
 
@@ -1020,7 +1085,7 @@ def block_contact(site: dict) -> str:
         f'        <p class="dim elsewhere-line">'
         f'<span class="faint elsewhere-key">{esc(k).ljust(9)}</span> {v}</p>'
         for k, v in (
-            ("writeups", '<a href="/#writeups">all writeups \u2192</a>'),
+            ("writeups", '<a href="/writeups/">all writeups \u2192</a>'),
             ("cv", '<a href="/cv.html">CV \u2192</a> (also as <a href="/assets/CV_Eng.pdf" rel="noopener">PDF</a>)'),
             ("github", f'<a href="{esc(ident["links"]["github"])}" rel="noopener">{esc(ident["github"])}</a>'),
             ("linkedin", f'<a href="{esc(ident["links"]["linkedin"])}" rel="noopener">{esc(ident["linkedin"])}</a>'),
@@ -1126,7 +1191,7 @@ def build_writeup(site: dict, w: dict, writeups: list[dict], index: int) -> bool
         + f'<span class="badge-diff" data-diff="{esc(w["diff"])}">{esc(DIFFS.get(w["diff"], w["diff"]))}</span>'
         f'<span class="badge-platform" data-platform="{esc(w["platform"])}">{esc(PLATFORMS.get(w["platform"], w["platform"]))}</span>'
         f'<span class="writeup-time">{esc(TYPES.get(w["type"], w["type"]))} · {esc(w["read_time"])} min read</span>'
-        + "".join(f'<a class="tag" href="/?type={esc(w["type"])}#writeups">{esc(t)}</a>' for t in w["tags"])
+        + "".join(f'<a class="tag" href="/writeups/?type={esc(w["type"])}">{esc(t)}</a>' for t in w["tags"])
     )
 
     body = wrap_flags(markdown_to_html(w["body"]))
@@ -1135,7 +1200,7 @@ def build_writeup(site: dict, w: dict, writeups: list[dict], index: int) -> bool
         "HEAD": head(site, title=title, desc=desc, url=url, og_type="article", extra=extra),
         "RAIL": rail(site, writeups),
         "NAVBAR": navbar(site),
-        "BACK_URL": "/",
+        "BACK_URL": "/writeups/",
         "HANDLE": esc(s["handle"]),
         "WU_TITLE": esc(w["title"]),
         "WU_SUMMARY": esc(w["summary"]),
@@ -1149,6 +1214,35 @@ def build_writeup(site: dict, w: dict, writeups: list[dict], index: int) -> bool
         "SCRIPTS": scripts(),
     })
     return write(out_path("writeups", w["slug"], "index.html"), page)
+
+
+def build_writeups_index(site: dict, writeups: list[dict]) -> bool:
+    """The /writeups/ archive: every write-up, with the filter bar.
+
+    The homepage carries five cards and a link here. Keeping the full list here
+    rather than on the homepage is what lets the homepage stay a summary — the
+    fourteen cards ran the landing page to 12,000px on a desktop and 19,100px on
+    a phone, which buried the certifications and the contact panel at the bottom
+    of both. With five cards it is 11,000px and 17,200px.
+    """
+    s = site["site"]
+    desc = ("Every CTF and lab write-up by Skandar Hadrich — reverse engineering, "
+            "web exploitation and binary exploitation, solved step by step.")
+    page = render("writeups-index.html", {
+        "SITE_LANG": s["lang"],
+        "HEAD": head(site, title=f"Writeups — {s['short_title']}",
+                     desc=desc, url=SITE_URL + "/writeups/"),
+        "RAIL": rail(site, writeups),
+        "NAVBAR": navbar(site),
+        "HANDLE": esc(s["handle"]),
+        "WU_COUNT": len(writeups),
+        "FILTERS": block_filters(),
+        "WRITEUPS": writeup_cards(writeups),
+        "FOOTER": footer(site),
+        "PALETTE": palette(),
+        "SCRIPTS": scripts(),
+    })
+    return write(out_path("writeups", "index.html"), page)
 
 
 # ── cv page ────────────────────────────────────────────────────────────────
@@ -1276,6 +1370,8 @@ def build_sitemap(site: dict, writeups: list[dict]) -> bool:
     rows = [
         f'  <url><loc>{SITE_URL}/</loc>{lm}'
         f'<changefreq>monthly</changefreq><priority>1.0</priority></url>',
+        f'  <url><loc>{SITE_URL}/writeups/</loc>{lm}'
+        f'<changefreq>weekly</changefreq><priority>0.9</priority></url>',
         f'  <url><loc>{SITE_URL}/cv.html</loc>{lm}'
         f'<changefreq>yearly</changefreq><priority>0.6</priority></url>',
     ]
@@ -1369,7 +1465,7 @@ def prune(writeups: list[dict]) -> int:
             if os.path.isfile(os.path.join(path, "index.html")):
                 shutil.rmtree(path)
                 removed += 1
-        elif name != ".gitkeep" and not name.startswith("."):
+        elif name not in (".gitkeep", ARCHIVE) and not name.startswith("."):
             os.remove(path)
             removed += 1
     return removed
@@ -1389,6 +1485,7 @@ def main() -> int:
         changed = build_index(site, writeups)
         changed += build_cv(site)
         changed += build_404(site)
+        changed += build_writeups_index(site, writeups)
         changed += build_sitemap(site, writeups)
         changed += build_feed(site, writeups)
         changed += build_search_index(writeups)
@@ -1397,7 +1494,8 @@ def main() -> int:
         return changed
 
     generated = ["index.html", "cv.html", "404.html",
-                 "sitemap.xml", "feed.xml", "search-index.json"]
+                 "sitemap.xml", "feed.xml", "search-index.json",
+                 os.path.join("writeups", ARCHIVE)]
     generated += [f"writeups/{w['slug']}/index.html" for w in writeups]
 
     if args.check:
@@ -1443,7 +1541,7 @@ def main() -> int:
     removed = prune(writeups)
     changed = render()
 
-    print(f"{GREEN}✓{OFF} built {1 + len(writeups) + 4} pages from "
+    print(f"{GREEN}✓{OFF} built {2 + len(writeups) + 4} pages from "
           f"{len(site['projects'])} projects, {len(site['certs'])} certs, {len(writeups)} writeups"
           + (f" · pruned {removed} stale writeup folder(s)" if removed else ""))
     print(f"  {changed} file(s) changed.")
