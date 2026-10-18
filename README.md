@@ -264,7 +264,8 @@ experience and education lists, are decorative (`alt=""`, `aria-hidden`), and
 are presented in a small white chip because both source JPEGs are photographed
 on white and the SVG is transparent. Project artwork in `assets/projects/` is
 architecture diagrams and screenshots of the projects themselves, in two rungs
-(1200w banner, 400w thumbnail) converted once from source PNGs that are not
+(1200w full, 400w thumbnail) offered as a `srcset` on one centred figure,
+converted once from source PNGs that are not
 committed — the same one-shot, output-committed pattern as the certificate
 previews, so the build never needs Pillow.
 

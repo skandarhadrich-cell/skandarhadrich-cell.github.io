@@ -70,8 +70,11 @@ TYPES = {
 }
 PLATFORMS = {"thm": "TryHackMe", "htb": "Hack The Box", "picoctf": "picoCTF"}
 PROJECT_STATE = {
-    "code": ("view code", "Source on GitHub"),
-    "writeup": ("read the write-up", "Repository holds a technical write-up, not source"),
+    # Every project that links anywhere links to a GitHub repository, so the
+    # button says so. What is *in* that repository is the small note under the
+    # card's footer, which is where the write-up/source distinction belongs.
+    "code": ("GitHub", "Source on GitHub"),
+    "writeup": ("GitHub", "Repository holds a technical write-up, not source"),
     "lab": (None, "Lab research — nothing published"),
 }
 
@@ -971,42 +974,47 @@ def render_pipeline(pipeline: dict) -> str:
 
 
 def project_image(p: dict) -> str:
-    """A project's banner or thumbnail, or "" when it has none.
+    """A project's artwork as one centred figure, or "" when it has none.
 
-    Two rungs per project: <slug>.webp at 1200w for the featured banner,
-    <slug>-thumb.webp at 400w for the card thumbnail. Converted once from the
-    source PNGs (which are not committed) and kept as assets, the same way the
-    room screenshots are -- the build must not need Pillow. Dimensions are
-    read off the file, so both stay honest if the artwork is ever replaced.
-    Unlike the room thumbnails these carry real alt text: the diagram shows
-    structure the title does not name.
+    Every card carries the same figure now: the two-rung split (a banner on the
+    featured card, a 150px track on the rest) read as two different sections
+    rather than one list. Both rungs still exist -- <slug>-thumb.webp at 400w
+    and <slug>.webp at 1200w -- and are offered as a srcset, so a phone still
+    fetches the 15KB thumbnail while a desktop gets the sharp 1200w render
+    scaled into the card's 640px column. Converted once from the source PNGs
+    (which are not committed) and kept as assets, the same way the room
+    screenshots are -- the build must not need Pillow. Dimensions are read off
+    the file, so they stay honest if the artwork is ever replaced. Unlike the
+    room thumbnails these carry real alt text: the diagram shows structure the
+    title does not name.
     """
     im = p.get("image")
     if not im:
         return ""
-    mode = im.get("mode", "thumb")
-    slug = im["src"] if mode == "banner" else im["src"] + "-thumb"
+    slug = im["src"]
     w, h = webp_size(os.path.join(ROOT, "assets", "projects", slug + ".webp"))
-    return (f'<img class="project-img project-img--{esc(mode)}"'
-            f' src="/assets/projects/{esc(slug)}.webp" alt="{esc(im["alt"])}"'
-            f' width="{w}" height="{h}" loading="lazy" decoding="async">')
+    return (f'<img class="project-img"'
+            f' src="/assets/projects/{esc(slug)}-thumb.webp"'
+            f' srcset="/assets/projects/{esc(slug)}-thumb.webp 400w,'
+            f' /assets/projects/{esc(slug)}.webp 1200w"'
+            f' sizes="(max-width: 720px) 100vw, 640px"'
+            f' alt="{esc(im["alt"])}" width="{w}" height="{h}"'
+            f' loading="lazy" decoding="async">')
 
 
 def block_work(site: dict) -> str:
     cards = []
     for p in site["projects"]:
-        cls = "card project-card project-card--featured reveal span-all" if p.get("featured") else "card project-card reveal"
+        # One card shape for every project: a centred figure, then the copy, in
+        # a column of equal-height rectangles. The flagship keeps its accent
+        # border and badge but is otherwise sized like the rest.
+        cls = "card project-card project-card--featured reveal" if p.get("featured") else "card project-card reveal"
         flag = f'<span class="project-flag">{esc(p["badge"])}</span>' if p.get("badge") else ""
         metrics = "".join(f'<span>{esc(m)}</span>' for m in p.get("metrics", []))
         stack = "".join(f'<span class="tag">{esc(t)}</span>' for t in p.get("stack", []))
         img = project_image(p)
-        if img:
-            # banner mode is a figure above the copy and spans the card; thumb
-            # mode joins the grid as a left track. Either way the copy moves
-            # into .project-body so the two modes share one content wrapper.
-            cls += " project-card--has-img project-card--" + p["image"].get("mode", "thumb")
         if p.get("repo"):
-            label, title_attr = PROJECT_STATE.get(p.get("state", "code"), ("view code", "Source on GitHub"))
+            label, title_attr = PROJECT_STATE.get(p.get("state", "code"), ("GitHub", "Source on GitHub"))
             cta = (f'<a class="btn btn--sm" href="{esc(p["repo"])}" rel="noopener" title="{esc(title_attr)}">'
                    f'{esc(label)} <span aria-hidden="true">↗</span></a>')
         else:

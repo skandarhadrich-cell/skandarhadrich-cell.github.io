@@ -237,6 +237,7 @@
   "education": [
     {
       "org": "ENIT — National School of Engineers of Tunis",
+      "logo": "enit",
       "degree": "ICT Engineering — Telecommunications & Cybersecurity",
       "period": "2024 – Present",
       "note": "Cybersecurity specialization: malware analysis, network security, cryptography, secure systems design."
@@ -258,8 +259,7 @@
       "repo": "https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring",
       "image": {
         "src": "nested-vm",
-        "alt": "Architecture diagram of the 9-stage nested-VM malware analysis pipeline: static triage, live QEMU/KVM detonation with eBPF tracing, IOC extraction and scoring, clustering and ATT&CK attribution, PDF reporting.",
-        "mode": "banner"
+        "alt": "Architecture diagram of the 9-stage nested-VM malware analysis pipeline: static triage, live QEMU/KVM detonation with eBPF tracing, IOC extraction and scoring, clustering and ATT&CK attribution, PDF reporting."
       },
       "desc": "An end-to-end 9-stage automated malware analysis pipeline in five phases. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.",
       "metrics": [
@@ -285,8 +285,7 @@
       "repo": "https://github.com/skandarhadrich-cell/CFG-Function-Localization-via-Graph-Neural-Networks",
       "image": {
         "src": "cfg-gnn",
-        "alt": "Diagram of the CFG function-localisation pipeline: binaries disassembled with Ghidra and angr into control-flow graphs, classified by GCN and GAT models.",
-        "mode": "thumb"
+        "alt": "Diagram of the CFG function-localisation pipeline: binaries disassembled with Ghidra and angr into control-flow graphs, classified by GCN and GAT models."
       },
       "desc": "Stripped ELF/PE binaries disassembled with headless Ghidra and angr, then mapped into directed control-flow graphs whose node features are x86/ARM opcode distributions and API call references. GCNs and GATs (PyTorch Geometric) are trained for node-level classification of malicious functions — anti-debug loops, keyloggers and process-injection routines.",
       "metrics": [
@@ -309,8 +308,7 @@
       "repo": "https://github.com/skandarhadrich-cell/RL-Based-Intrusion-Detection-Project",
       "image": {
         "src": "rl-ids",
-        "alt": "Banner diagram of the RL-based intrusion detection system: a Double DQN agent choosing among six response actions in a Gymnasium environment.",
-        "mode": "thumb"
+        "alt": "Banner diagram of the RL-based intrusion detection system: a Double DQN agent choosing among six response actions in a Gymnasium environment."
       },
       "desc": "Network defense formulated as an MDP with six response actions (DPI, throttle, honeypot, block, isolate, quarantine) inside a custom Gymnasium environment. A Double DQN agent with prioritized experience replay is trained on CSE-CIC-IDS2018 telemetry to choose response actions instead of only raising alerts.",
       "metrics": [
@@ -332,8 +330,7 @@
       "repo": "https://github.com/skandarhadrich-cell/Automation-of-Deployment-and-Detection-Engineering-in-an-Open-Source-SOC-Environment",
       "image": {
         "src": "soc-automation",
-        "alt": "Architecture diagram of the open-source SOC: Wazuh SIEM and Shuffle SOAR deployed with Ansible and Docker, with a Python suppression microservice filtering alert noise.",
-        "mode": "thumb"
+        "alt": "Architecture diagram of the open-source SOC: Wazuh SIEM and Shuffle SOAR deployed with Ansible and Docker, with a Python suppression microservice filtering alert noise."
       },
       "desc": "A Wazuh SIEM + Shuffle SOAR lab deployed automatically with Ansible and Docker. A Python suppression microservice filters 33,022 noisy events down to a single actionable incident — over 95% noise reduction — with a human-in-the-loop VirusTotal enrichment pipeline and custom detection rules validated against simulated brute force, lateral movement and privilege escalation.",
       "metrics": [
@@ -351,6 +348,27 @@
       ]
     },
     {
+      "name": "Village Under Attack — C++ Strategy Game",
+      "state": "code",
+      "repo": "https://github.com/skandarhadrich-cell/Village-under-attack",
+      "image": {
+        "src": "village",
+        "alt": "Screenshot of Village Under Attack, a real-time terminal strategy game in C++ with NPC pathfinding and collision detection."
+      },
+      "desc": "A real-time terminal strategy game in C++ built on OOP principles, non-blocking I/O, NPC pathfinding and collision detection. Systems programming and algorithmic design outside a security context — the discipline that makes the reversing work easier.",
+      "metrics": [
+        "Real-time",
+        "Non-blocking I/O",
+        "Pathfinding"
+      ],
+      "stack": [
+        "C++",
+        "OOP",
+        "Non-blocking I/O",
+        "Pathfinding"
+      ]
+    },
+    {
       "name": "Wi-Fi Security Research",
       "state": "lab",
       "repo": null,
@@ -364,28 +382,6 @@
         "Bettercap",
         "Kali Linux",
         "WPA2"
-      ]
-    },
-    {
-      "name": "Village Under Attack — C++ Strategy Game",
-      "state": "code",
-      "repo": "https://github.com/skandarhadrich-cell/Village-under-attack",
-      "image": {
-        "src": "village",
-        "alt": "Screenshot of Village Under Attack, a real-time terminal strategy game in C++ with NPC pathfinding and collision detection.",
-        "mode": "thumb"
-      },
-      "desc": "A real-time terminal strategy game in C++ built on OOP principles, non-blocking I/O, NPC pathfinding and collision detection. Systems programming and algorithmic design outside a security context — the discipline that makes the reversing work easier.",
-      "metrics": [
-        "Real-time",
-        "Non-blocking I/O",
-        "Pathfinding"
-      ],
-      "stack": [
-        "C++",
-        "OOP",
-        "Non-blocking I/O",
-        "Pathfinding"
       ]
     },
     {
@@ -473,7 +469,7 @@
     },
     {
       "issuer": "SECURINETS ENIT",
-      "name": "CTF Battleground — Certificate of Merit",
+      "name": "Cat The Flag V2",
       "date": "2026",
       "id": "rank 13 · 2300 pts",
       "preview": "securinets-ctf",

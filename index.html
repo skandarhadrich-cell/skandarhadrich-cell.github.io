@@ -305,7 +305,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <h3 class="col-head">education</h3>
         <div class="edu-list nudge-top-0">
                     <div class="edu-item">
-            <b>ENIT — National School of Engineers of Tunis</b>
+            <b><img class="org-logo" src="/assets/orgs/enit.webp" alt="" aria-hidden="true" width="189" height="128" loading="lazy" decoding="async">ENIT — National School of Engineers of Tunis</b>
             <span class="deg">ICT Engineering — Telecommunications &amp; Cybersecurity</span>
             <span class="tl-when">2024 – Present</span>
             <span class="note">Cybersecurity specialization: malware analysis, network security, cryptography, secure systems design.</span>
@@ -338,40 +338,49 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
     </div>
 
     <div class="grid grid--projects">
-            <article class="card project-card project-card--featured reveal span-all project-card--has-img project-card--banner">
-        <img class="project-img project-img--banner" src="/assets/projects/nested-vm.webp" alt="Architecture diagram of the 9-stage nested-VM malware analysis pipeline: static triage, live QEMU/KVM detonation with eBPF tracing, IOC extraction and scoring, clustering and ATT&amp;CK attribution, PDF reporting." width="1200" height="675" loading="lazy" decoding="async"><div class="project-body">
+            <article class="card project-card project-card--featured reveal">
+        <img class="project-img" src="/assets/projects/nested-vm-thumb.webp" srcset="/assets/projects/nested-vm-thumb.webp 400w, /assets/projects/nested-vm.webp 1200w" sizes="(max-width: 720px) 100vw, 640px" alt="Architecture diagram of the 9-stage nested-VM malware analysis pipeline: static triage, live QEMU/KVM detonation with eBPF tracing, IOC extraction and scoring, clustering and ATT&amp;CK attribution, PDF reporting." width="1200" height="675" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>Nested-VM Malware Analysis Pipeline</h3><span class="project-flag">flagship</span></div>
         <p>An end-to-end 9-stage automated malware analysis pipeline in five phases. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&amp;CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.</p>
         <div class="project-metrics"><span>9 stages</span><span>5 phases</span><span>eBPF + VMI</span><span>3 malware families</span></div>
         <div class="skill-list"><span class="tag">Python</span><span class="tag">QEMU-KVM</span><span class="tag">eBPF</span><span class="tag">Volatility3</span><span class="tag">Speakeasy</span><span class="tag">de4dot</span><span class="tag">INetSim</span><span class="tag">DNSChef</span></div>
-        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring" rel="noopener" title="Source on GitHub">GitHub <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
         </div>
       </article>
-      <article class="card project-card reveal project-card--has-img project-card--thumb">
-        <img class="project-img project-img--thumb" src="/assets/projects/cfg-gnn-thumb.webp" alt="Diagram of the CFG function-localisation pipeline: binaries disassembled with Ghidra and angr into control-flow graphs, classified by GCN and GAT models." width="400" height="225" loading="lazy" decoding="async"><div class="project-body">
+      <article class="card project-card reveal">
+        <img class="project-img" src="/assets/projects/cfg-gnn-thumb.webp" srcset="/assets/projects/cfg-gnn-thumb.webp 400w, /assets/projects/cfg-gnn.webp 1200w" sizes="(max-width: 720px) 100vw, 640px" alt="Diagram of the CFG function-localisation pipeline: binaries disassembled with Ghidra and angr into control-flow graphs, classified by GCN and GAT models." width="1200" height="675" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>CFG Function Localization via Graph Neural Networks</h3></div>
         <p>Stripped ELF/PE binaries disassembled with headless Ghidra and angr, then mapped into directed control-flow graphs whose node features are x86/ARM opcode distributions and API call references. GCNs and GATs (PyTorch Geometric) are trained for node-level classification of malicious functions — anti-debug loops, keyloggers and process-injection routines.</p>
         <div class="project-metrics"><span>GCN / GAT</span><span>angr + Ghidra</span><span>node classification</span></div>
         <div class="skill-list"><span class="tag">Python</span><span class="tag">PyTorch Geometric</span><span class="tag">Ghidra</span><span class="tag">angr</span><span class="tag">GCN</span><span class="tag">GAT</span></div>
-        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/CFG-Function-Localization-via-Graph-Neural-Networks" rel="noopener" title="Repository holds a technical write-up, not source">read the write-up <span aria-hidden="true">↗</span></a><span class="project-state">write-up only — no source in the repo</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/CFG-Function-Localization-via-Graph-Neural-Networks" rel="noopener" title="Repository holds a technical write-up, not source">GitHub <span aria-hidden="true">↗</span></a><span class="project-state">write-up only — no source in the repo</span></div>
         </div>
       </article>
-      <article class="card project-card reveal project-card--has-img project-card--thumb">
-        <img class="project-img project-img--thumb" src="/assets/projects/rl-ids-thumb.webp" alt="Banner diagram of the RL-based intrusion detection system: a Double DQN agent choosing among six response actions in a Gymnasium environment." width="400" height="225" loading="lazy" decoding="async"><div class="project-body">
+      <article class="card project-card reveal">
+        <img class="project-img" src="/assets/projects/rl-ids-thumb.webp" srcset="/assets/projects/rl-ids-thumb.webp 400w, /assets/projects/rl-ids.webp 1200w" sizes="(max-width: 720px) 100vw, 640px" alt="Banner diagram of the RL-based intrusion detection system: a Double DQN agent choosing among six response actions in a Gymnasium environment." width="1200" height="675" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>RL-Based Intrusion Detection &amp; Response</h3></div>
         <p>Network defense formulated as an MDP with six response actions (DPI, throttle, honeypot, block, isolate, quarantine) inside a custom Gymnasium environment. A Double DQN agent with prioritized experience replay is trained on CSE-CIC-IDS2018 telemetry to choose response actions instead of only raising alerts.</p>
         <div class="project-metrics"><span>Double DQN + PER</span><span>6 actions</span><span>CSE-CIC-IDS2018</span></div>
         <div class="skill-list"><span class="tag">Python</span><span class="tag">Gymnasium</span><span class="tag">PyTorch</span><span class="tag">CSE-CIC-IDS2018</span><span class="tag">Double DQN</span></div>
-        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/RL-Based-Intrusion-Detection-Project" rel="noopener" title="Repository holds a technical write-up, not source">read the write-up <span aria-hidden="true">↗</span></a><span class="project-state">write-up only — no source in the repo</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/RL-Based-Intrusion-Detection-Project" rel="noopener" title="Repository holds a technical write-up, not source">GitHub <span aria-hidden="true">↗</span></a><span class="project-state">write-up only — no source in the repo</span></div>
         </div>
       </article>
-      <article class="card project-card reveal project-card--has-img project-card--thumb">
-        <img class="project-img project-img--thumb" src="/assets/projects/soc-automation-thumb.webp" alt="Architecture diagram of the open-source SOC: Wazuh SIEM and Shuffle SOAR deployed with Ansible and Docker, with a Python suppression microservice filtering alert noise." width="400" height="225" loading="lazy" decoding="async"><div class="project-body">
+      <article class="card project-card reveal">
+        <img class="project-img" src="/assets/projects/soc-automation-thumb.webp" srcset="/assets/projects/soc-automation-thumb.webp 400w, /assets/projects/soc-automation.webp 1200w" sizes="(max-width: 720px) 100vw, 640px" alt="Architecture diagram of the open-source SOC: Wazuh SIEM and Shuffle SOAR deployed with Ansible and Docker, with a Python suppression microservice filtering alert noise." width="1200" height="675" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>Open-Source SOC Automation</h3></div>
         <p>A Wazuh SIEM + Shuffle SOAR lab deployed automatically with Ansible and Docker. A Python suppression microservice filters 33,022 noisy events down to a single actionable incident — over 95% noise reduction — with a human-in-the-loop VirusTotal enrichment pipeline and custom detection rules validated against simulated brute force, lateral movement and privilege escalation.</p>
         <div class="project-metrics"><span>33,022 → 1 incident</span><span>&gt;95% noise reduction</span><span>Ansible + Docker</span></div>
         <div class="skill-list"><span class="tag">Wazuh</span><span class="tag">Shuffle SOAR</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Ansible</span></div>
-        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/Automation-of-Deployment-and-Detection-Engineering-in-an-Open-Source-SOC-Environment" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/Automation-of-Deployment-and-Detection-Engineering-in-an-Open-Source-SOC-Environment" rel="noopener" title="Source on GitHub">GitHub <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+        </div>
+      </article>
+      <article class="card project-card reveal">
+        <img class="project-img" src="/assets/projects/village-thumb.webp" srcset="/assets/projects/village-thumb.webp 400w, /assets/projects/village.webp 1200w" sizes="(max-width: 720px) 100vw, 640px" alt="Screenshot of Village Under Attack, a real-time terminal strategy game in C++ with NPC pathfinding and collision detection." width="1200" height="675" loading="lazy" decoding="async"><div class="project-body">
+        <div class="project-head"><h3>Village Under Attack — C++ Strategy Game</h3></div>
+        <p>A real-time terminal strategy game in C++ built on OOP principles, non-blocking I/O, NPC pathfinding and collision detection. Systems programming and algorithmic design outside a security context — the discipline that makes the reversing work easier.</p>
+        <div class="project-metrics"><span>Real-time</span><span>Non-blocking I/O</span><span>Pathfinding</span></div>
+        <div class="skill-list"><span class="tag">C++</span><span class="tag">OOP</span><span class="tag">Non-blocking I/O</span><span class="tag">Pathfinding</span></div>
+        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/Village-under-attack" rel="noopener" title="Source on GitHub">GitHub <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
         </div>
       </article>
       <article class="card project-card reveal">
@@ -381,15 +390,6 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <div class="project-metrics"><span>MITM chain</span><span>802.1X / HSTS</span></div>
         <div class="skill-list"><span class="tag">Wireshark</span><span class="tag">Bettercap</span><span class="tag">Kali Linux</span><span class="tag">WPA2</span></div>
         <div class="project-foot"><span class="project-state">lab work — nothing published</span></div>
-        </div>
-      </article>
-      <article class="card project-card reveal project-card--has-img project-card--thumb">
-        <img class="project-img project-img--thumb" src="/assets/projects/village-thumb.webp" alt="Screenshot of Village Under Attack, a real-time terminal strategy game in C++ with NPC pathfinding and collision detection." width="400" height="225" loading="lazy" decoding="async"><div class="project-body">
-        <div class="project-head"><h3>Village Under Attack — C++ Strategy Game</h3></div>
-        <p>A real-time terminal strategy game in C++ built on OOP principles, non-blocking I/O, NPC pathfinding and collision detection. Systems programming and algorithmic design outside a security context — the discipline that makes the reversing work easier.</p>
-        <div class="project-metrics"><span>Real-time</span><span>Non-blocking I/O</span><span>Pathfinding</span></div>
-        <div class="skill-list"><span class="tag">C++</span><span class="tag">OOP</span><span class="tag">Non-blocking I/O</span><span class="tag">Pathfinding</span></div>
-        <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/Village-under-attack" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
         </div>
       </article>
       <article class="card project-card reveal">
@@ -741,15 +741,15 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
           <span class="cert-date">2026</span>
         </div>
         <div class="cert-main">
-          <h3 class="cert-name">CTF Battleground — Certificate of Merit</h3>
+          <h3 class="cert-name">Cat The Flag V2</h3>
           <div class="cert-foot">
             <span class="cert-skills">CTF · Reverse engineering · Team ranking</span>
             <span class="cert-id">rank 13 · 2300 pts</span>
           </div>
         </div>
         <div class="cert-thumb"><img class="cert-thumb-img" src="/assets/certs/preview/securinets-ctf-thumb.webp" alt="" width="640" height="402" loading="lazy" decoding="async"></div>
-        <a class="cert-open" href="/assets/certs/preview/securinets-ctf.webp" data-cert-open data-issuer="SECURINETS ENIT" data-name="CTF Battleground — Certificate of Merit" data-date="2026" data-cert-id="rank 13 · 2300 pts"><span class="sr-only">View the CTF Battleground — Certificate of Merit certificate</span></a>
-        <template data-cert><img src="/assets/certs/preview/securinets-ctf.webp" width="1200" height="753" alt="SECURINETS ENIT certificate — CTF Battleground — Certificate of Merit, 2026, certificate rank 13 · 2300 pts" decoding="async"></template>
+        <a class="cert-open" href="/assets/certs/preview/securinets-ctf.webp" data-cert-open data-issuer="SECURINETS ENIT" data-name="Cat The Flag V2" data-date="2026" data-cert-id="rank 13 · 2300 pts"><span class="sr-only">View the Cat The Flag V2 certificate</span></a>
+        <template data-cert><img src="/assets/certs/preview/securinets-ctf.webp" width="1200" height="753" alt="SECURINETS ENIT certificate — Cat The Flag V2, 2026, certificate rank 13 · 2300 pts" decoding="async"></template>
       </li>
       <li class="cert-row reveal">
         <div class="cert-side">
