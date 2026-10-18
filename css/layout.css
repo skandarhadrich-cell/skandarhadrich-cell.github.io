@@ -213,8 +213,13 @@
   display: flex;
   align-items: baseline;
   gap: var(--sp-2);
-  font-size: var(--fs-2xl);
+  /* 22px sat barely 1.4x above the 16px body, so a section heading read as
+     one more line of text rather than the landmark for everything under it.
+     The hero headline runs 38-62px; this is the step between that and the
+     body, and it is what separates one band of the page from the next. */
+  font-size: clamp(1.5rem, 2.4vw, 1.875rem);
   font-weight: 600;
+  letter-spacing: -.02em;
 }
 .section-head h2::before { content: '>'; color: var(--accent-text); }
 .section-head p { margin-top: var(--sp-3); color: var(--text-dim); font-size: var(--fs-md); }
