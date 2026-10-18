@@ -783,6 +783,10 @@ def block_whoami(site: dict) -> str:
         return f'<div class="about-field"><dt>{esc(f["key"])}</dt><dd>{val}</dd></div>'
 
     fields = "".join(field(f) for f in a["fields"])
+    # A single 1,000-character paragraph is a 16-line wall on a phone. The
+    # sentences are unchanged; they are just given paragraph breaks, which is
+    # also what makes the standfirst rule below possible.
+    bio = "\n".join(f"          <p>{esc(par)}</p>" for par in a["bio"])
     badges = "".join(
         f'<div class="rank-badge"><span aria-hidden="true">{esc(b["icon"])}</span>'
         f'<span>{esc(b["text"])}</span><b>{esc(b["strong"])}</b><small>{esc(b["sub"])}</small></div>'
@@ -791,7 +795,7 @@ def block_whoami(site: dict) -> str:
     return render("_whoami.html", {
         "HANDLE": esc(site["site"]["handle"]),
         "ABOUT_FIELDS": fields,
-        "BIO": esc(a["bio"]),
+        "BIO": bio,
         "ABOUT_BADGES": badges,
     })
 

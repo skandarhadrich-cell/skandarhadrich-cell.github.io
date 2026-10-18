@@ -246,6 +246,18 @@
   margin-bottom: 3px;
 }
 .about-field dd { font-size: var(--fs-sm); color: var(--text-hi); }
+/* ── the bio ────────────────────────────────────────────
+   Four short paragraphs instead of one 1,000-character block, which ran to
+   sixteen lines on a phone with no landmark anywhere in it. The sentences are
+   the same ones. The lead is a standfirst -- one step up in size, at
+   --text-hi -- so the summary is findable on the way past; the rest stays at
+   body colour rather than being dimmed, which reads as disabled text. */
+.about-bio > p + p { margin-top: var(--sp-5); }
+.about-bio > p:first-child {
+  font-size: var(--fs-xl);
+  line-height: 1.6;
+  color: var(--text-hi);
+}
 .about-badges { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
 .rank-badge {
   display: inline-flex;

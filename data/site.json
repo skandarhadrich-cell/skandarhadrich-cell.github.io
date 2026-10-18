@@ -82,7 +82,12 @@
     }
   ],
   "about": {
-    "bio": "I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF. Most notably, I architected a 9-stage, 5-phase nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation. I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly. I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.",
+    "bio": [
+      "I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF.",
+      "Most notably, I architected a 9-stage, 5-phase nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation.",
+      "I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly.",
+      "I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security."
+    ],
     "fields": [
       {
         "key": "handle",
