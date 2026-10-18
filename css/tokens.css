@@ -145,6 +145,16 @@
      push the page header down for no reason. */
   --room-w-head: 120px;
 
+  /* ── ambient decoration ─────────────────────────────────────
+     Effect *strengths*, not colours: each is a token so a theme
+     can turn its own decoration down instead of inheriting a
+     value solved for the opposite page. The light theme sets
+     scanlines and grain to 0 -- CRT lines and film grain on
+     white are dirt, not texture.                             */
+  --aurora-alpha: 1;       /* hero bloom strength                */
+  --scanline-alpha: .07;   /* CRT lines behind .term content     */
+  --grain-alpha: .055;     /* fixed film-grain overlay opacity   */
+
   /* ── elevation ─────────────────────────────────────────── */
   --sh-1: 0 1px 2px rgb(0 0 0 / .4);
   --sh-2: 0 4px 16px -6px rgb(0 0 0 / .55);
@@ -156,6 +166,7 @@
   --t-fast: .12s;
   --t: .2s;
   --t-slow: .45s;
+  --t-vt: .26s;             /* theme-switch crossfade (View Transitions) */
 
   --z-base: 1;
   --z-raised: 20;
@@ -210,6 +221,15 @@
   --sh-2: 0 4px 14px -6px rgb(16 24 32 / .16);
   --sh-3: 0 18px 44px -20px rgb(16 24 32 / .24);
   --ring: 0 0 0 2px var(--bg-0), 0 0 0 4px var(--accent-text);
+
+  /* the dark page's ambient decoration does not survive white:
+     grain and scanlines read as dirt on a light surface, and the
+     aurora has to be turned down rather than removed, because
+     --accent-soft is only 10% alpha and is a bloom on black but
+     a tint on white */
+  --aurora-alpha: .4;
+  --scanline-alpha: 0;
+  --grain-alpha: 0;
 }
 
 /* ── accent themes ──────────────────────────────────────────

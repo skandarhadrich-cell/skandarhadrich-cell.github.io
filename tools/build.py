@@ -753,6 +753,30 @@ def block_hero(site: dict, writeups: list[dict]) -> str:
     })
 
 
+_COUNT_RE = re.compile(r"^(\D*)(\d+)(\D*)$")
+
+
+def count_attrs(value: str) -> str:
+    """Markup hooks for the stat count-up in js/main.js.
+
+    The finished value stays in the text -- these attributes only tell the
+    script which digits to roll through on the way to it, so no-JS and
+    reduced-motion visitors read exactly what they always did. A value the
+    pattern cannot split into prefix / number / suffix gets no attributes
+    and the script leaves it alone.
+    """
+    m = _COUNT_RE.match(value)
+    if not m:
+        return ""
+    pre, num, post = m.groups()
+
+    def attr(name: str, text: str) -> str:
+        return f' {name}="{text.replace(chr(34), "&quot;")}"' if text else ""
+
+    return (f' data-count="{int(num)}"'
+            + attr("data-prefix", pre) + attr("data-suffix", post))
+
+
 def block_stats(site: dict) -> str:
     """The stat strip.
 
@@ -768,7 +792,7 @@ def block_stats(site: dict) -> str:
     for s in site["stats"]:
         value = str(published) if s["label"] == "certifications" else s["value"]
         out.append(
-            f'      <div class="stat"><b>{esc(value)}</b>'
+            f'      <div class="stat"><b{count_attrs(value)}>{esc(value)}</b>'
             f'<span>{esc(s["label"])}</span></div>'
         )
     return "\n".join(out)

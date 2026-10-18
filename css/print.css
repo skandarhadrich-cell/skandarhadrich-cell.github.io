@@ -35,7 +35,13 @@ html, body {
 .writeup-filters, .filters, .wu-nav, .wu-back, .hero-cta,
 .hero::before, .site-footer, .footer-base, .card:hover,
 .code-copy, .cursor-block, .hero-avail .dot,
-.certbox, .room-icon {
+.certbox, .room-icon,
+/* the ambient decoration: grain, aurora, scanlines, the card
+   spotlight, the featured card's walking border and the button
+   gleam are all screen texture with nothing to say on paper */
+.hero-aurora, body::after, .term::before, .btn::after,
+.card::before, .writeup-card::before, .cert-row::before,
+.project-card--featured::after {
   display: none !important;
 }
 

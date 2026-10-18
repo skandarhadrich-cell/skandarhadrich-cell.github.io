@@ -67,16 +67,39 @@ function systemTheme() {
 return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
+/* View Transitions where they exist, wrapped around the attribute
+   change so the whole page crossfades instead of snapping. Guarded on
+   two things the API cannot know about: the motion preference, and
+   whether the page has painted yet -- a crossfade against the initial
+   render is a flash, not a transition, and initTheme runs before first
+   paint. */
+let painted = false;
+if (document.readyState === 'complete') painted = true;
+else window.addEventListener('load', () => { painted = true; });
+
+function transition(mutate) {
+  if (document.startViewTransition && painted
+      && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.startViewTransition(mutate);
+  } else {
+    mutate();
+  }
+}
+
 function applyTheme(pref) {
 const resolved = !pref || pref === 'auto' ? systemTheme() : pref;
-document.documentElement.dataset.theme = resolved;
-const meta = $('meta[name="theme-color"]');
-if (meta) meta.content = resolved === 'light' ? '#ffffff' : '#080b10';
+transition(() => {
+  document.documentElement.dataset.theme = resolved;
+  const meta = $('meta[name="theme-color"]');
+  if (meta) meta.content = resolved === 'light' ? '#ffffff' : '#080b10';
+});
 }
 
 function applyAccent(name) {
-if (name) document.documentElement.dataset.accent = name;
-else delete document.documentElement.dataset.accent;
+transition(() => {
+  if (name) document.documentElement.dataset.accent = name;
+  else delete document.documentElement.dataset.accent;
+});
 }
 
 (function initTheme() {
@@ -130,7 +153,20 @@ window.matchMedia('(prefers-color-scheme: light)')
 (function reveal() {
 const els = $$('.reveal');
 if (!els.length) return;
-const show = (el) => el.classList.add('is-in');
+/* The reveal classes carry the hidden state *and* the stagger delay
+   (--reveal-delay), and a card keeps transitioning hover changes long
+   after it has arrived. Leaving the classes on would make every hover
+   on a revealed project card run at the reveal's timing, so once the
+   fade has finished they come off: the element is then an ordinary
+   .card again, at full opacity, with its own transitions. */
+const show = (el) => {
+  el.classList.add('is-in');
+  el.addEventListener('transitionend', (e) => {
+    if (e.target === el && e.propertyName === 'opacity') {
+      el.classList.remove('reveal', 'is-in');
+    }
+  }, { once: true });
+};
 
 if (!('IntersectionObserver' in window)) {
   els.forEach(show);
@@ -158,6 +194,123 @@ requestAnimationFrame(() => {
 
 // last resort: nothing may stay hidden
 setTimeout(() => els.forEach(show), 1500);
+})();
+
+/* ══ typing section intros ═════════════════════════════════
+ The `$ cat …` line above a section types itself once, the first
+ time it scrolls into view. Purely decorative: the finished
+ command is what ships in the HTML, and this only runs when motion
+ is allowed. Without JS -- or with an observer the browser never
+ provides -- the line is simply there, which is what it always was. */
+(function typeCmds() {
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+if (!('IntersectionObserver' in window)) return;
+const cmds = $$('.cmd-line .p-cmd');
+if (!cmds.length) return;
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    io.unobserve(e.target);
+    const el = e.target;
+    const full = el.textContent;
+    if (!full) return;
+    el.textContent = '';
+    el.classList.add('is-typing');
+    // the clip is in ch and the font is monospace, so one character is
+    // exactly one ch; the jitter below only makes it read as typing
+    // rather than as a width animation
+    let i = 0;
+    const step = () => {
+      i += 1;
+      el.style.maxWidth = i + 'ch';
+      el.textContent = full.slice(0, i);
+      if (i < full.length) {
+        setTimeout(step, 16 + Math.random() * 42);
+      } else {
+        el.classList.remove('is-typing');
+        el.style.maxWidth = '';
+      }
+    };
+    setTimeout(step, 200);
+  });
+}, { rootMargin: '0px 0px -8% 0px', threshold: 0.4 });
+
+cmds.forEach(el => io.observe(el));
+})();
+
+/* ══ stat count-up ═════════════════════════════════════════
+ Each stat rolls from zero when the strip first enters view. The
+ final value is what ships in the HTML (build.py only adds the
+ data-count hooks), so this animates *through* the truth rather
+ than to it, and only when motion is allowed. Tabular figures in
+ components.css keep every step the same width. */
+(function countStats() {
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+if (!('IntersectionObserver' in window)) return;
+const nums = $$('.stat b[data-count]');
+if (!nums.length) return;
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    io.unobserve(e.target);
+    const el = e.target;
+    const end = parseInt(el.dataset.count, 10);
+    if (Number.isNaN(end)) return;
+    const pre = el.dataset.prefix || '';
+    const post = el.dataset.suffix || '';
+    const dur = 750;
+    const t0 = performance.now();
+    el.textContent = pre + '0' + post;
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);   // ease-out: fast, then settle
+      el.textContent = pre + Math.round(end * eased) + post;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = pre + end + post;
+    };
+    requestAnimationFrame(tick);
+  });
+}, { threshold: 0.6 });
+
+nums.forEach(el => io.observe(el));
+})();
+
+/* ══ card spotlight ════════════════════════════════════════
+ The accent pool that follows the pointer across a card (the
+ ::before in components.css). One passive listener for the whole
+ page, writing two custom properties on the card under the
+ pointer, rAF-throttled. Fine pointers only -- the CSS hides the
+ ::before on touch, so nothing lights there. */
+(function spotlight() {
+if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+let card = null, x = 0, y = 0, queued = false;
+
+document.addEventListener('pointermove', (e) => {
+  const hit = e.target.closest
+    ? e.target.closest('.card, .writeup-card, .cert-row')
+    : null;
+  if (hit !== card) {
+    if (card) {
+      card.style.removeProperty('--mx');
+      card.style.removeProperty('--my');
+    }
+    card = hit;
+  }
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  x = e.clientX - r.left;
+  y = e.clientY - r.top;
+  if (queued) return;
+  queued = true;
+  requestAnimationFrame(() => {
+    queued = false;
+    if (!card) return;
+    card.style.setProperty('--mx', x + 'px');
+    card.style.setProperty('--my', y + 'px');
+  });
+}, { passive: true });
 })();
 
 /* ══ nav: sticky state, active section, mobile menu ═══════ */

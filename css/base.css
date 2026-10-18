@@ -74,6 +74,42 @@ img, svg, video { display: block; max-width: 100%; height: auto; }
 /* ── selection ──────────────────────────────────────────── */
 ::selection { background: var(--accent); color: var(--accent-ink); }
 
+/* ── film grain ─────────────────────────────────────────────
+   A fixed, pointer-transparent layer of SVG turbulence so the
+   dark surfaces have texture instead of reading as flat fill.
+   z-index --z-raised puts it over the page and under the nav,
+   modals and toast; nothing else has to know it exists.
+
+   It is a token because on white it is only noise: the light
+   theme sets --grain-alpha to 0 rather than inheriting a value
+   meant for a dark page. The SVG is desaturated by feColorMatrix
+   so it grains in greyscale, not in the random hues a bare
+   feTurbulence produces. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-raised);
+  pointer-events: none;
+  opacity: var(--grain-alpha);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* ── theme crossfade ─────────────────────────────────────────
+   js/main.js wraps theme/accent switches in
+   document.startViewTransition when the API exists, the page has
+   already painted, and motion is allowed. This only shortens the
+   default crossfade; without the API the switch is instant, which
+   is what it always was. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--t-vt);
+    animation-timing-function: var(--ease);
+  }
+}
+
 /* ── focus ──────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--accent-text);
@@ -138,13 +174,25 @@ img, svg, video { display: block; max-width: 100%; height: auto; }
 
 /* ── progressive enhancement guard ──────────────────────────
    .reveal hides content only when JS is running, so the page
-   is never blank if the script fails to load. */
+   is never blank if the script fails to load.
+
+   --reveal-delay staggers siblings that reveal together. It is
+   cleared along with the reveal classes once the transition has
+   run (js/main.js), so it never lingers onto a card's own hover
+   transitions. */
 .js .reveal {
   opacity: 0;
   transform: translateY(14px);
   transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease);
+  transition-delay: var(--reveal-delay, 0s);
 }
 .js .reveal.is-in { opacity: 1; transform: none; }
+
+.grid .reveal:nth-child(2) { --reveal-delay: .05s; }
+.grid .reveal:nth-child(3) { --reveal-delay: .1s; }
+.grid .reveal:nth-child(4) { --reveal-delay: .15s; }
+.grid .reveal:nth-child(5) { --reveal-delay: .2s; }
+.grid .reveal:nth-child(n+6) { --reveal-delay: .25s; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

@@ -181,6 +181,19 @@ Anything listed as generated is overwritten by `tools/build.py`. Edit
 - **The accent is a hue, not a colour.** `css/tokens.css` derives every accent
   from `--hue`, so the phosphor / nord / crimson variants and both light and
   dark themes are one-line changes rather than a second palette to maintain.
+- **Ambient decoration is a token, not a value.** The hero aurora, the CRT
+  scanlines on the terminal panels and the page-wide film grain are strengths
+  (`--aurora-alpha`, `--scanline-alpha`, `--grain-alpha`) that the light theme
+  turns down or off, because CRT lines and grain on white are dirt, not
+  texture. Scanlines are painted *behind* the terminal's content, so glyphs
+  stay fully opaque: decoration is never allowed to be a contrast tax on the
+  text.
+- **Every animation is progressive enhancement.** The typing section intros,
+  the stat count-up, the card spotlight and the hero entrance all degrade to
+  the same static page without JS or under `prefers-reduced-motion` — the
+  finished text is what ships in the HTML, and the effects only ever animate
+  through it. `js/main.js` writes two custom properties for the spotlight from
+  a single passive listener; nothing else about them touches the DOM.
 - **Semantic colours are never used for branding.** Difficulty badges
   (easy/medium/hard) use the green/amber/red semantic ramp; the brand green is
   reserved for the site itself. Conflating the two makes "hard" read as

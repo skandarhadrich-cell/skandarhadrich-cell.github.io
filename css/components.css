@@ -4,13 +4,32 @@
 
 /* ══ terminal window ═════════════════════════════════════ */
 .term {
+  position: relative;
   background: var(--bg-1);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   overflow: hidden;
   box-shadow: var(--sh-2);
 }
+/* CRT scanlines, painted *behind* the content: .term-bar and
+   .term-body are lifted above this, so glyphs stay fully opaque
+   and the lines only darken the panel between them. Decoration
+   is not allowed to be a contrast tax on the text, and the
+   computed-style audit never sees it -- it measures the elements,
+   not what their backgrounds are painted over. The light theme
+   sets --scanline-alpha to 0: scanlines on white are dirt. */
+.term::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg,
+    rgb(0 0 0 / var(--scanline-alpha)) 0 1px, transparent 1px 3px);
+}
 .term-bar {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--sp-2);
@@ -34,7 +53,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.term-body { padding: var(--sp-6); }
+.term-body { position: relative; z-index: 1; padding: var(--sp-6); }
 
 /* shell prompt */
 .prompt {
@@ -53,6 +72,8 @@
 
 /* ══ buttons ═════════════════════════════════════════════ */
 .btn {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
@@ -71,6 +92,29 @@
               border-color var(--t-fast) var(--ease),
               color var(--t-fast) var(--ease),
               transform var(--t-fast) var(--ease);
+}
+/* A diagonal gleam crossing the button on hover. It parks off the
+   left edge where the gradient is fully transparent, so it costs
+   nothing until a pointer lands. Transform-only: the streak is
+   painted once and moved by the compositor. */
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -55%;
+  width: 40%;
+  background: linear-gradient(105deg, transparent, rgb(255 255 255 / .18), transparent);
+  transform: skewX(-18deg);
+  pointer-events: none;
+}
+.btn:hover::after { animation: btn-shine .65s var(--ease); }
+@keyframes btn-shine {
+  from { transform: skewX(-18deg) translateX(0); }
+  to   { transform: skewX(-18deg) translateX(400%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn::after { display: none; }
 }
 .btn:hover { background: var(--bg-3); border-color: var(--accent-line); text-decoration: none; transform: translateY(-1px); }
 .btn:active { transform: none; }
@@ -174,6 +218,35 @@
 .card h3 { font-size: var(--fs-lg); font-weight: 600; }
 .card p { color: var(--text-dim); font-size: var(--fs-md); }
 
+/* ── hover spotlight ───────────────────────────────────────
+   A pool of accent light that follows the pointer across a card.
+   js/main.js writes --mx/--my -- rAF-throttled, one passive
+   listener for the page, hover-capable pointers only -- so
+   without JS, or on touch, the ::before never lights and the
+   card is exactly what it was. The glow is meant to wash over
+   the text, the way a lamp washes over a page: at --accent-glow
+   (22% alpha) the glyphs underneath keep their colour and
+   contrast. */
+.card::before, .writeup-card::before, .cert-row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t) var(--ease);
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%),
+              var(--accent-glow), transparent 68%);
+}
+.card:hover::before, .card:focus-within::before,
+.writeup-card:hover::before, .writeup-card:focus-within::before,
+.cert-row:hover::before, .cert-row:focus-within::before { opacity: 1; }
+/* A tap leaves :hover stuck on, which would park the glow at its
+   last position for good -- same failure the room zoom has. */
+@media (hover: none) {
+  .card::before, .writeup-card::before, .cert-row::before { display: none; }
+}
+
 /* ── stat strip ─────────────────────────────────────────
    Moved out of its own section and into the hero, so the block closes on the
    numbers that back the headline instead of leaving a near-empty band between
@@ -213,6 +286,9 @@
   line-height: 1;
   color: var(--text-hi);
   white-space: nowrap;
+  /* the count-up animation (js/main.js) rolls through these digits;
+     tabular figures keep every step the same width so nothing shifts */
+  font-variant-numeric: tabular-nums;
 }
 .stat span { font-size: var(--fs-2xs); color: var(--text-faint); }
 
@@ -332,6 +408,10 @@
 
 /* ══ projects ═════════════════════════════════════════════ */
 .project-card { gap: var(--sp-4); }
+/* --ang is registered so the conic gradient's angle can animate;
+   where @property is unsupported the border still paints, it just
+   never walks. */
+@property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 .project-card--featured {
   grid-column: 1 / -1;
   background:
@@ -340,6 +420,28 @@
   border-color: var(--accent-line);
   padding: var(--sp-8);
 }
+/* A hairline of accent walking around the featured card's edge.
+   The mask keeps the middle empty: content-box then full box, with
+   the two masks excluding each other, leaves only the 1px ring.
+   The card's own border sits underneath; this rides on top of it. */
+.project-card--featured::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--ang),
+    var(--accent-line), var(--accent-2), var(--line-strong), var(--accent-line));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .project-card--featured::after { animation: border-walk 7s linear infinite; }
+}
+@keyframes border-walk { to { --ang: 360deg; } }
 .project-head { display: flex; align-items: flex-start; gap: var(--sp-3); }
 .project-head h3 { flex: 1; }
 .project-flag {
