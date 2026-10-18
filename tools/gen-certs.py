@@ -48,6 +48,8 @@ CERTS = {
     "Certif DevSecOps.pdf":          "thm-devsecops",
     "Certif Security Engineer.pdf":  "thm-security-engineer",
     "Certif webFun.pdf":             "thm-web-fundamentals",
+    "Certif CCEP.pdf":               "ccep",
+    "Certif SECURINETS CTF.pdf":     "securinets-ctf",
 }
 
 # Long edge of the overlay rung, in pixels. A certificate is read in the overlay

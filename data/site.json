@@ -9,7 +9,7 @@
     "description": "Reverse engineer, malware analyst and SOC automation engineer. ICT student at ENIT, top 1% on TryHackMe, 77th at HTB University CTF 2025. Open to internships.",
     "locale": "en",
     "lang": "en",
-    "last_updated": "2026-10-17"
+    "last_updated": "2026-10-18"
   },
   "identity": {
     "role": "ICT Engineering Student",
@@ -43,7 +43,7 @@
       "label": "HTB University CTF 2025"
     },
     {
-      "value": "8",
+      "value": "10",
       "label": "certifications"
     },
     {
@@ -82,10 +82,11 @@
     }
   ],
   "about": {
+    "portrait": "me",
     "bio": [
       "I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF.",
       "Most notably, I architected a 9-stage, 5-phase nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation.",
-      "I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly.",
+      "I hold 10 certifications—including NVIDIA LLM Fine-Tuning and the CCEP cybersecurity educator credential—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly.",
       "I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security."
     ],
     "fields": [
@@ -210,6 +211,7 @@
   "experience": [
     {
       "org": "Keystone Group",
+      "logo": "keystone",
       "role": "Security Engineering Intern — Malware Analysis",
       "period": "Jul 2026 – Sep 2026",
       "place": "Tunis, TN",
@@ -222,6 +224,7 @@
     },
     {
       "org": "Tunisie Telecom",
+      "logo": "tunisie-telecom",
       "role": "Network Operations Intern",
       "period": "Jun 2025 – Jul 2025",
       "place": "Sfax, TN",
@@ -240,6 +243,7 @@
     },
     {
       "org": "IPEIS — Preparatory Institute for Engineering Studies of Sfax",
+      "logo": "ipeis",
       "degree": "Pre-Engineering — Mathematics & Physics",
       "period": "2022 – 2024",
       "note": "National entrance rank 440 / 1800 — top 24%."
@@ -252,6 +256,11 @@
       "badge": "flagship",
       "state": "code",
       "repo": "https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring",
+      "image": {
+        "src": "nested-vm",
+        "alt": "Architecture diagram of the 9-stage nested-VM malware analysis pipeline: static triage, live QEMU/KVM detonation with eBPF tracing, IOC extraction and scoring, clustering and ATT&CK attribution, PDF reporting.",
+        "mode": "banner"
+      },
       "desc": "An end-to-end 9-stage automated malware analysis pipeline in five phases. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.",
       "metrics": [
         "9 stages",
@@ -274,6 +283,11 @@
       "name": "CFG Function Localization via Graph Neural Networks",
       "state": "writeup",
       "repo": "https://github.com/skandarhadrich-cell/CFG-Function-Localization-via-Graph-Neural-Networks",
+      "image": {
+        "src": "cfg-gnn",
+        "alt": "Diagram of the CFG function-localisation pipeline: binaries disassembled with Ghidra and angr into control-flow graphs, classified by GCN and GAT models.",
+        "mode": "thumb"
+      },
       "desc": "Stripped ELF/PE binaries disassembled with headless Ghidra and angr, then mapped into directed control-flow graphs whose node features are x86/ARM opcode distributions and API call references. GCNs and GATs (PyTorch Geometric) are trained for node-level classification of malicious functions — anti-debug loops, keyloggers and process-injection routines.",
       "metrics": [
         "GCN / GAT",
@@ -293,6 +307,11 @@
       "name": "RL-Based Intrusion Detection & Response",
       "state": "writeup",
       "repo": "https://github.com/skandarhadrich-cell/RL-Based-Intrusion-Detection-Project",
+      "image": {
+        "src": "rl-ids",
+        "alt": "Banner diagram of the RL-based intrusion detection system: a Double DQN agent choosing among six response actions in a Gymnasium environment.",
+        "mode": "thumb"
+      },
       "desc": "Network defense formulated as an MDP with six response actions (DPI, throttle, honeypot, block, isolate, quarantine) inside a custom Gymnasium environment. A Double DQN agent with prioritized experience replay is trained on CSE-CIC-IDS2018 telemetry to choose response actions instead of only raising alerts.",
       "metrics": [
         "Double DQN + PER",
@@ -311,6 +330,11 @@
       "name": "Open-Source SOC Automation",
       "state": "code",
       "repo": "https://github.com/skandarhadrich-cell/Automation-of-Deployment-and-Detection-Engineering-in-an-Open-Source-SOC-Environment",
+      "image": {
+        "src": "soc-automation",
+        "alt": "Architecture diagram of the open-source SOC: Wazuh SIEM and Shuffle SOAR deployed with Ansible and Docker, with a Python suppression microservice filtering alert noise.",
+        "mode": "thumb"
+      },
       "desc": "A Wazuh SIEM + Shuffle SOAR lab deployed automatically with Ansible and Docker. A Python suppression microservice filters 33,022 noisy events down to a single actionable incident — over 95% noise reduction — with a human-in-the-loop VirusTotal enrichment pipeline and custom detection rules validated against simulated brute force, lateral movement and privilege escalation.",
       "metrics": [
         "33,022 → 1 incident",
@@ -346,6 +370,11 @@
       "name": "Village Under Attack — C++ Strategy Game",
       "state": "code",
       "repo": "https://github.com/skandarhadrich-cell/Village-under-attack",
+      "image": {
+        "src": "village",
+        "alt": "Screenshot of Village Under Attack, a real-time terminal strategy game in C++ with NPC pathfinding and collision detection.",
+        "mode": "thumb"
+      },
       "desc": "A real-time terminal strategy game in C++ built on OOP principles, non-blocking I/O, NPC pathfinding and collision detection. Systems programming and algorithmic design outside a security context — the discipline that makes the reversing work easier.",
       "metrics": [
         "Real-time",
@@ -379,6 +408,15 @@
     }
   ],
   "certs": [
+    {
+      "issuer": "Red Team Leaders",
+      "name": "Certified Cybersecurity Educator Professional (CCEP)",
+      "date": "Oct 2026",
+      "preview": "ccep",
+      "skills": "Security education · Curriculum design",
+      "verify": "https://courses.redteamleaders.com/exam-completion/264f1a383bf08134",
+      "published": true
+    },
     {
       "issuer": "NVIDIA",
       "name": "Efficient Large Language Model Customization",
@@ -431,6 +469,15 @@
       "id": "THM-CTUG1AAPGR",
       "preview": "thm-web-fundamentals",
       "skills": "HTTP · Web servers · Attack surface",
+      "published": true
+    },
+    {
+      "issuer": "SECURINETS ENIT",
+      "name": "CTF Battleground — Certificate of Merit",
+      "date": "2026",
+      "id": "rank 13 · 2300 pts",
+      "preview": "securinets-ctf",
+      "skills": "CTF · Reverse engineering · Team ranking",
       "published": true
     },
     {

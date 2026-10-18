@@ -188,7 +188,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
     <div class="stat-strip reveal">
       <div class="stat"><b data-count="1" data-prefix="Top " data-suffix="%">Top 1%</b><span>TryHackMe, globally</span></div>
       <div class="stat"><b data-count="77" data-suffix="th">77th</b><span>HTB University CTF 2025</span></div>
-      <div class="stat"><b data-count="8">8</b><span>certifications</span></div>
+      <div class="stat"><b data-count="10">10</b><span>certifications</span></div>
       <div class="stat"><b data-count="5">5</b><span>production projects</span></div>
     </div>
   </div>
@@ -211,13 +211,14 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <span class="term-title">0xmrerror@terminal:~/whoami.txt</span>
       </div>
       <div class="term-body">
+        <img class="about-portrait" src="/assets/me.webp" alt="Skandar Hadrich" width="400" height="400" decoding="async">
         <dl class="about-grid">
           <div class="about-field"><dt>handle</dt><dd>0xmrerror</dd></div><div class="about-field"><dt>location</dt><dd>Tunis, Tunisia 🇹🇳</dd></div><div class="about-field"><dt>affiliation</dt><dd>ENIT — ICT Engineering</dd></div><div class="about-field"><dt>focus</dt><dd>Malware Analysis · Reverse Engineering · Penetration Testing</dd></div>
         </dl>
         <div class="about-bio">
           <p>I am Skandar Hadrich, an ICT Engineering student at ENIT specializing in cybersecurity, low-level systems, and ML-for-security. My research centers on automated malware analysis, reverse engineering, and threat research using GNNs, RL, and eBPF.</p>
           <p>Most notably, I architected a 9-stage, 5-phase nested-VM malware analysis sandbox with live hypervisor eBPF tracing and Volatility3 VMI correlation.</p>
-          <p>I hold 8 certifications—including NVIDIA LLM Fine-Tuning—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly.</p>
+          <p>I hold 10 certifications—including NVIDIA LLM Fine-Tuning and the CCEP cybersecurity educator credential—and maintain a Top 1% global ranking on TryHackMe along with a #77 global HTB Uni CTF team finish. My engineering expertise spans SOC automation, DevSecOps pipelines, network intrusion detection, and binary disassembly.</p>
           <p>I am currently seeking a 6-month research internship starting early 2027 in systems security, binary analysis, or AI security.</p>
         </div>
         <div class="about-badges">
@@ -287,12 +288,12 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <h3 class="col-head">work</h3>
         <div class="timeline">
                     <div class="tl-item">
-            <div class="tl-top"><span class="tl-org">Keystone Group</span><span class="tl-when">Jul 2026 – Sep 2026 · Tunis, TN</span></div>
+            <div class="tl-top"><span class="tl-org"><img class="org-logo" src="/assets/orgs/keystone.webp" alt="" aria-hidden="true" width="128" height="128" loading="lazy" decoding="async">Keystone Group</span><span class="tl-when">Jul 2026 – Sep 2026 · Tunis, TN</span></div>
             <div class="tl-role">Security Engineering Intern — Malware Analysis</div>
             <ul><li>Architected an end-to-end 9-stage automated malware analysis pipeline in five phases: static triage with a .NET/native fork, live KVM/QEMU detonation with concurrent eBPF, VMI and network telemetry, then IOC extraction, threat-intel pivoting, weighted scoring, MinHash/LSH clustering and MITRE ATT&amp;CK mapping into an automated PDF report.</li><li>Correlated host-side eBPF KVM tracepoints with Volatility3 VMI on a live guest, and patched <code>KUSER_SHARED_DATA.TickCount</code> in guest memory to defeat anti-sandbox timing checks. Validated against live AsyncRAT, AgentTesla and njRAT samples.</li><li>Deployed a multi-layer C2 sinkhole (iptables + DNSChef + INetSim) to capture malware traffic and extract actionable IOCs with false-positive filtering against Windows telemetry.</li><li>Automated threat attribution by matching IOCs against VirusTotal, AlienVault OTX and MalwareBazaar, grouping behavioural families with MinHash LSH clustering and generating PDF reports automatically.</li></ul>
           </div>
           <div class="tl-item">
-            <div class="tl-top"><span class="tl-org">Tunisie Telecom</span><span class="tl-when">Jun 2025 – Jul 2025 · Sfax, TN</span></div>
+            <div class="tl-top"><span class="tl-org"><img class="org-logo" src="/assets/orgs/tunisie-telecom.svg" alt="" aria-hidden="true" width="146" height="95" loading="lazy" decoding="async">Tunisie Telecom</span><span class="tl-when">Jun 2025 – Jul 2025 · Sfax, TN</span></div>
             <div class="tl-role">Network Operations Intern</div>
             <ul><li>Triaged 15+ daily technical support tickets and provisioned network modems at scale, cutting average per-unit configuration time by 20% through scripted workflows.</li><li>Maintained network uptime across multiple customer sites.</li></ul>
           </div>
@@ -310,7 +311,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
             <span class="note">Cybersecurity specialization: malware analysis, network security, cryptography, secure systems design.</span>
           </div>
           <div class="edu-item">
-            <b>IPEIS — Preparatory Institute for Engineering Studies of Sfax</b>
+            <b><img class="org-logo" src="/assets/orgs/ipeis.webp" alt="" aria-hidden="true" width="128" height="128" loading="lazy" decoding="async">IPEIS — Preparatory Institute for Engineering Studies of Sfax</b>
             <span class="deg">Pre-Engineering — Mathematics &amp; Physics</span>
             <span class="tl-when">2022 – 2024</span>
             <span class="note">National entrance rank 440 / 1800 — top 24%.</span>
@@ -337,54 +338,68 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
     </div>
 
     <div class="grid grid--projects">
-            <article class="card project-card project-card--featured reveal span-all">
+            <article class="card project-card project-card--featured reveal span-all project-card--has-img project-card--banner">
+        <img class="project-img project-img--banner" src="/assets/projects/nested-vm.webp" alt="Architecture diagram of the 9-stage nested-VM malware analysis pipeline: static triage, live QEMU/KVM detonation with eBPF tracing, IOC extraction and scoring, clustering and ATT&amp;CK attribution, PDF reporting." width="1200" height="675" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>Nested-VM Malware Analysis Pipeline</h3><span class="project-flag">flagship</span></div>
         <p>An end-to-end 9-stage automated malware analysis pipeline in five phases. QEMU/KVM live detonation with host-side eBPF syscall tracing correlated against Volatility3 VMI, anti-sandbox evasion via KUSER_SHARED_DATA patching in guest memory, multi-layer C2 sinkholing with DNSChef + INetSim + iptables, and automated MITRE ATT&amp;CK attribution with MinHash LSH clustering. Validated against live AsyncRAT, AgentTesla and njRAT samples.</p>
         <div class="project-metrics"><span>9 stages</span><span>5 phases</span><span>eBPF + VMI</span><span>3 malware families</span></div>
         <div class="skill-list"><span class="tag">Python</span><span class="tag">QEMU-KVM</span><span class="tag">eBPF</span><span class="tag">Volatility3</span><span class="tag">Speakeasy</span><span class="tag">de4dot</span><span class="tag">INetSim</span><span class="tag">DNSChef</span></div>
         <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/-Nested-VM-Malware-Analysis-Pipeline-with-eBPF-Monitoring" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+        </div>
       </article>
-      <article class="card project-card reveal">
+      <article class="card project-card reveal project-card--has-img project-card--thumb">
+        <img class="project-img project-img--thumb" src="/assets/projects/cfg-gnn-thumb.webp" alt="Diagram of the CFG function-localisation pipeline: binaries disassembled with Ghidra and angr into control-flow graphs, classified by GCN and GAT models." width="400" height="225" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>CFG Function Localization via Graph Neural Networks</h3></div>
         <p>Stripped ELF/PE binaries disassembled with headless Ghidra and angr, then mapped into directed control-flow graphs whose node features are x86/ARM opcode distributions and API call references. GCNs and GATs (PyTorch Geometric) are trained for node-level classification of malicious functions — anti-debug loops, keyloggers and process-injection routines.</p>
         <div class="project-metrics"><span>GCN / GAT</span><span>angr + Ghidra</span><span>node classification</span></div>
         <div class="skill-list"><span class="tag">Python</span><span class="tag">PyTorch Geometric</span><span class="tag">Ghidra</span><span class="tag">angr</span><span class="tag">GCN</span><span class="tag">GAT</span></div>
         <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/CFG-Function-Localization-via-Graph-Neural-Networks" rel="noopener" title="Repository holds a technical write-up, not source">read the write-up <span aria-hidden="true">↗</span></a><span class="project-state">write-up only — no source in the repo</span></div>
+        </div>
       </article>
-      <article class="card project-card reveal">
+      <article class="card project-card reveal project-card--has-img project-card--thumb">
+        <img class="project-img project-img--thumb" src="/assets/projects/rl-ids-thumb.webp" alt="Banner diagram of the RL-based intrusion detection system: a Double DQN agent choosing among six response actions in a Gymnasium environment." width="400" height="225" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>RL-Based Intrusion Detection &amp; Response</h3></div>
         <p>Network defense formulated as an MDP with six response actions (DPI, throttle, honeypot, block, isolate, quarantine) inside a custom Gymnasium environment. A Double DQN agent with prioritized experience replay is trained on CSE-CIC-IDS2018 telemetry to choose response actions instead of only raising alerts.</p>
         <div class="project-metrics"><span>Double DQN + PER</span><span>6 actions</span><span>CSE-CIC-IDS2018</span></div>
         <div class="skill-list"><span class="tag">Python</span><span class="tag">Gymnasium</span><span class="tag">PyTorch</span><span class="tag">CSE-CIC-IDS2018</span><span class="tag">Double DQN</span></div>
         <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/RL-Based-Intrusion-Detection-Project" rel="noopener" title="Repository holds a technical write-up, not source">read the write-up <span aria-hidden="true">↗</span></a><span class="project-state">write-up only — no source in the repo</span></div>
+        </div>
       </article>
-      <article class="card project-card reveal">
+      <article class="card project-card reveal project-card--has-img project-card--thumb">
+        <img class="project-img project-img--thumb" src="/assets/projects/soc-automation-thumb.webp" alt="Architecture diagram of the open-source SOC: Wazuh SIEM and Shuffle SOAR deployed with Ansible and Docker, with a Python suppression microservice filtering alert noise." width="400" height="225" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>Open-Source SOC Automation</h3></div>
         <p>A Wazuh SIEM + Shuffle SOAR lab deployed automatically with Ansible and Docker. A Python suppression microservice filters 33,022 noisy events down to a single actionable incident — over 95% noise reduction — with a human-in-the-loop VirusTotal enrichment pipeline and custom detection rules validated against simulated brute force, lateral movement and privilege escalation.</p>
         <div class="project-metrics"><span>33,022 → 1 incident</span><span>&gt;95% noise reduction</span><span>Ansible + Docker</span></div>
         <div class="skill-list"><span class="tag">Wazuh</span><span class="tag">Shuffle SOAR</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag">Python</span><span class="tag">Docker</span><span class="tag">Ansible</span></div>
         <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/Automation-of-Deployment-and-Detection-Engineering-in-an-Open-Source-SOC-Environment" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+        </div>
       </article>
       <article class="card project-card reveal">
+        <div class="project-body">
         <div class="project-head"><h3>Wi-Fi Security Research</h3></div>
         <p>Demonstrated WPA2 and ARP-spoofing weaknesses with Wireshark and Bettercap in an isolated lab. Documented the MITM attack chain end to end and proposed concrete mitigations: 802.1X, HSTS enforcement and certificate pinning.</p>
         <div class="project-metrics"><span>MITM chain</span><span>802.1X / HSTS</span></div>
         <div class="skill-list"><span class="tag">Wireshark</span><span class="tag">Bettercap</span><span class="tag">Kali Linux</span><span class="tag">WPA2</span></div>
         <div class="project-foot"><span class="project-state">lab work — nothing published</span></div>
+        </div>
       </article>
-      <article class="card project-card reveal">
+      <article class="card project-card reveal project-card--has-img project-card--thumb">
+        <img class="project-img project-img--thumb" src="/assets/projects/village-thumb.webp" alt="Screenshot of Village Under Attack, a real-time terminal strategy game in C++ with NPC pathfinding and collision detection." width="400" height="225" loading="lazy" decoding="async"><div class="project-body">
         <div class="project-head"><h3>Village Under Attack — C++ Strategy Game</h3></div>
         <p>A real-time terminal strategy game in C++ built on OOP principles, non-blocking I/O, NPC pathfinding and collision detection. Systems programming and algorithmic design outside a security context — the discipline that makes the reversing work easier.</p>
         <div class="project-metrics"><span>Real-time</span><span>Non-blocking I/O</span><span>Pathfinding</span></div>
         <div class="skill-list"><span class="tag">C++</span><span class="tag">OOP</span><span class="tag">Non-blocking I/O</span><span class="tag">Pathfinding</span></div>
         <div class="project-foot"><a class="btn btn--sm" href="https://github.com/skandarhadrich-cell/Village-under-attack" rel="noopener" title="Source on GitHub">view code <span aria-hidden="true">↗</span></a><span class="project-state">source published</span></div>
+        </div>
       </article>
       <article class="card project-card reveal">
+        <div class="project-body">
         <div class="project-head"><h3>Embedded Face Recognition &amp; Hardware Automation</h3></div>
         <p>A real-time facial recognition pipeline in Python/OpenCV driving an Arduino microcontroller over UART. Identity verification triggers a physical hardware action, demonstrating secure serial protocol design and embedded security.</p>
         <div class="project-metrics"><span>Real-time</span><span>UART</span><span>OpenCV</span></div>
         <div class="skill-list"><span class="tag">Python</span><span class="tag">OpenCV</span><span class="tag">Arduino</span><span class="tag">Embedded</span><span class="tag">UART</span></div>
         <div class="project-foot"><span class="project-state">lab work — nothing published</span></div>
+        </div>
       </article>
     </div>
 
@@ -599,7 +614,7 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
   <div class="container">
     <p class="cmd-line">
       <span class="p-pre"><span class="p-user">0xmrerror</span><span class="p-at">@</span><span class="p-host">terminal</span><span class="p-colon">:</span><span class="p-path">~</span><span class="p-sym">$</span></span><span class="p-cmd">jq . ~/certs/verified.json</span>
-      <span class="p-out">8 certifications</span>
+      <span class="p-out">10 certifications</span>
     </p>
 
     <div class="section-head">
@@ -608,6 +623,22 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
     </div>
 
     <ul class="cert-list">
+      <li class="cert-row reveal">
+        <div class="cert-side">
+          <span class="cert-issuer">Red Team Leaders</span>
+          <span class="cert-date">Oct 2026</span>
+        </div>
+        <div class="cert-main">
+          <h3 class="cert-name">Certified Cybersecurity Educator Professional (CCEP)</h3>
+          <div class="cert-foot">
+            <span class="cert-skills">Security education · Curriculum design</span>
+            <a class="cert-verify" href="https://courses.redteamleaders.com/exam-completion/264f1a383bf08134" rel="noopener">verify ↗</a>
+          </div>
+        </div>
+        <div class="cert-thumb"><img class="cert-thumb-img" src="/assets/certs/preview/ccep-thumb.webp" alt="" width="640" height="495" loading="lazy" decoding="async"></div>
+        <a class="cert-open" href="/assets/certs/preview/ccep.webp" data-cert-open data-issuer="Red Team Leaders" data-name="Certified Cybersecurity Educator Professional (CCEP)" data-date="Oct 2026" data-cert-id=""><span class="sr-only">View the Certified Cybersecurity Educator Professional (CCEP) certificate</span></a>
+        <template data-cert><img src="/assets/certs/preview/ccep.webp" width="1200" height="928" alt="Red Team Leaders certificate — Certified Cybersecurity Educator Professional (CCEP), Oct 2026" decoding="async"></template>
+      </li>
       <li class="cert-row reveal">
         <div class="cert-side">
           <span class="cert-issuer">NVIDIA</span>
@@ -703,6 +734,22 @@ d.dataset.theme=t;var a=localStorage.getItem('0xmrerror:accent');if(a){d.dataset
         <div class="cert-thumb"><img class="cert-thumb-img" src="/assets/certs/preview/thm-web-fundamentals-thumb.webp" alt="" width="640" height="453" loading="lazy" decoding="async"></div>
         <a class="cert-open" href="/assets/certs/preview/thm-web-fundamentals.webp" data-cert-open data-issuer="TryHackMe" data-name="Web Fundamentals" data-date="Mar 2026" data-cert-id="THM-CTUG1AAPGR"><span class="sr-only">View the Web Fundamentals certificate</span></a>
         <template data-cert><img src="/assets/certs/preview/thm-web-fundamentals.webp" width="1200" height="850" alt="TryHackMe certificate — Web Fundamentals, Mar 2026, certificate THM-CTUG1AAPGR" decoding="async"></template>
+      </li>
+      <li class="cert-row reveal">
+        <div class="cert-side">
+          <span class="cert-issuer">SECURINETS ENIT</span>
+          <span class="cert-date">2026</span>
+        </div>
+        <div class="cert-main">
+          <h3 class="cert-name">CTF Battleground — Certificate of Merit</h3>
+          <div class="cert-foot">
+            <span class="cert-skills">CTF · Reverse engineering · Team ranking</span>
+            <span class="cert-id">rank 13 · 2300 pts</span>
+          </div>
+        </div>
+        <div class="cert-thumb"><img class="cert-thumb-img" src="/assets/certs/preview/securinets-ctf-thumb.webp" alt="" width="640" height="402" loading="lazy" decoding="async"></div>
+        <a class="cert-open" href="/assets/certs/preview/securinets-ctf.webp" data-cert-open data-issuer="SECURINETS ENIT" data-name="CTF Battleground — Certificate of Merit" data-date="2026" data-cert-id="rank 13 · 2300 pts"><span class="sr-only">View the CTF Battleground — Certificate of Merit certificate</span></a>
+        <template data-cert><img src="/assets/certs/preview/securinets-ctf.webp" width="1200" height="753" alt="SECURINETS ENIT certificate — CTF Battleground — Certificate of Merit, 2026, certificate rank 13 · 2300 pts" decoding="async"></template>
       </li>
       <li class="cert-row reveal">
         <div class="cert-side">

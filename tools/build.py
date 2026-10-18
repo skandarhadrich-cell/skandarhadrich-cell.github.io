@@ -816,8 +816,18 @@ def block_whoami(site: dict) -> str:
         f'<span>{esc(b["text"])}</span><b>{esc(b["strong"])}</b><small>{esc(b["sub"])}</small></div>'
         for b in a["badges"]
     )
+    # The portrait is the one photograph on the site, so it earns a real alt:
+    # unlike the room thumbnails it is not redundant with anything on the page.
+    portrait = ""
+    if a.get("portrait"):
+        src = f'/assets/{esc(a["portrait"])}.webp'
+        pw, ph = webp_size(os.path.join(ROOT, "assets", a["portrait"] + ".webp"))
+        portrait = (f'<img class="about-portrait" src="{src}"'
+                    f' alt="Skandar Hadrich" width="{pw}" height="{ph}"'
+                    f' decoding="async">')
     return render("_whoami.html", {
         "HANDLE": esc(site["site"]["handle"]),
+        "PORTRAIT": portrait,
         "ABOUT_FIELDS": fields,
         "BIO": bio,
         "ABOUT_BADGES": badges,
@@ -841,10 +851,34 @@ def block_arsenal(site: dict) -> str:
 
 
 
+def org_logo(logo: str) -> str:
+    """An organisation's mark, or "" — decorative, so alt is empty.
+
+    The org's name is set in the site's own type right next to the image in
+    every place this is used, which is what makes the empty alt correct: a
+    screen reader would otherwise read the name twice. Dimensions are read
+    off the file (SVG carries them in its viewBox) rather than assumed, so a
+    swapped logo cannot introduce layout shift.
+    """
+    if not logo:
+        return ""
+    svg = os.path.join(ROOT, "assets", "orgs", logo + ".svg")
+    if os.path.exists(svg):
+        head = read(svg)[:400]
+        m = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', head)
+        w, h = (round(float(m.group(1))), round(float(m.group(2)))) if m else (0, 0)
+        src = f"/assets/orgs/{esc(logo)}.svg"
+    else:
+        w, h = webp_size(os.path.join(ROOT, "assets", "orgs", logo + ".webp"))
+        src = f"/assets/orgs/{esc(logo)}.webp"
+    return (f'<img class="org-logo" src="{src}" alt="" aria-hidden="true"'
+            f' width="{w}" height="{h}" loading="lazy" decoding="async">')
+
+
 def block_experience(site: dict) -> str:
     exp = "".join(
         f'          <div class="tl-item">\n'
-        f'            <div class="tl-top"><span class="tl-org">{esc(j["org"])}</span>'
+        f'            <div class="tl-top"><span class="tl-org">{org_logo(j.get("logo"))}{esc(j["org"])}</span>'
         f'<span class="tl-when">{esc(j["period"])} · {esc(j["place"])}</span></div>\n'
         f'            <div class="tl-role">{esc(j["role"])}</div>\n'
         f'            <ul>' + "".join(f"<li>{trusted_inline(b)}</li>" for b in j["bullets"]) + "</ul>\n"
@@ -852,7 +886,8 @@ def block_experience(site: dict) -> str:
         for j in site["experience"]
     )
     edu = "".join(
-        f'          <div class="edu-item">\n            <b>{esc(e["org"])}</b>\n'
+        f'          <div class="edu-item">\n'
+        f'            <b>{org_logo(e.get("logo"))}{esc(e["org"])}</b>\n'
         f'            <span class="deg">{esc(e["degree"])}</span>\n'
         f'            <span class="tl-when">{esc(e["period"])}</span>\n'
         f'            <span class="note">{esc(e["note"])}</span>\n'
@@ -935,6 +970,28 @@ def render_pipeline(pipeline: dict) -> str:
     return "\n".join(out)
 
 
+def project_image(p: dict) -> str:
+    """A project's banner or thumbnail, or "" when it has none.
+
+    Two rungs per project: <slug>.webp at 1200w for the featured banner,
+    <slug>-thumb.webp at 400w for the card thumbnail. Converted once from the
+    source PNGs (which are not committed) and kept as assets, the same way the
+    room screenshots are -- the build must not need Pillow. Dimensions are
+    read off the file, so both stay honest if the artwork is ever replaced.
+    Unlike the room thumbnails these carry real alt text: the diagram shows
+    structure the title does not name.
+    """
+    im = p.get("image")
+    if not im:
+        return ""
+    mode = im.get("mode", "thumb")
+    slug = im["src"] if mode == "banner" else im["src"] + "-thumb"
+    w, h = webp_size(os.path.join(ROOT, "assets", "projects", slug + ".webp"))
+    return (f'<img class="project-img project-img--{esc(mode)}"'
+            f' src="/assets/projects/{esc(slug)}.webp" alt="{esc(im["alt"])}"'
+            f' width="{w}" height="{h}" loading="lazy" decoding="async">')
+
+
 def block_work(site: dict) -> str:
     cards = []
     for p in site["projects"]:
@@ -942,6 +999,12 @@ def block_work(site: dict) -> str:
         flag = f'<span class="project-flag">{esc(p["badge"])}</span>' if p.get("badge") else ""
         metrics = "".join(f'<span>{esc(m)}</span>' for m in p.get("metrics", []))
         stack = "".join(f'<span class="tag">{esc(t)}</span>' for t in p.get("stack", []))
+        img = project_image(p)
+        if img:
+            # banner mode is a figure above the copy and spans the card; thumb
+            # mode joins the grid as a left track. Either way the copy moves
+            # into .project-body so the two modes share one content wrapper.
+            cls += " project-card--has-img project-card--" + p["image"].get("mode", "thumb")
         if p.get("repo"):
             label, title_attr = PROJECT_STATE.get(p.get("state", "code"), ("view code", "Source on GitHub"))
             cta = (f'<a class="btn btn--sm" href="{esc(p["repo"])}" rel="noopener" title="{esc(title_attr)}">'
@@ -954,11 +1017,13 @@ def block_work(site: dict) -> str:
             "lab": "lab work — nothing published",
         }[p.get("state", "code")]
         cards.append(f"""      <article class="{cls}">
+        {img}<div class="project-body">
         <div class="project-head"><h3>{esc(p['name'])}</h3>{flag}</div>
         <p>{esc(p['desc'])}</p>
         <div class="project-metrics">{metrics}</div>
         <div class="skill-list">{stack}</div>
         <div class="project-foot">{cta}<span class="project-state">{esc(state_note)}</span></div>
+        </div>
       </article>""")
     stages = render_pipeline(site["pipeline"])
     return render("_work.html", {
@@ -1084,6 +1149,13 @@ def cert_row(c: dict) -> str:
              f'      <span class="cert-skills">{esc(c.get("skills", ""))}</span>']
     if c.get("id"):
         lines.append(f'      <span class="cert-id">{esc(c["id"])}</span>')
+    if c.get("verify"):
+        # An issuer-hosted verification page (the CCEP's "Verify" line). It is
+        # a real external link, not a button: unlike the certificate image --
+        # which this row's stretched <a> already opens -- the issuer keeps this
+        # URL alive, so it can be pointed at directly.
+        lines.append(f'      <a class="cert-verify" href="{esc(c["verify"])}"'
+                     f' rel="noopener">verify ↗</a>')
     lines += ['    </div>',
               '  </div>',
               f'  <div class="cert-thumb">{cert_thumb(c, "-thumb")}</div>']
@@ -1092,7 +1164,7 @@ def cert_row(c: dict) -> str:
         # never published, so there is nothing on the server to download. The
         # trigger is an <a> stretched over the row so it still works without the
         # script; certs.js upgrades it to the overlay. The <template> holds the
-        # full-size <img>, so the eight overlays are not fetched until one is
+        # full-size <img>, so the ten overlays are not fetched until one is
         # asked for -- the row itself only ever loads the 640px thumbnail.
         ow, oh = webp_size(os.path.join(ROOT, "assets", "certs", "preview",
                                         slug + ".webp"))

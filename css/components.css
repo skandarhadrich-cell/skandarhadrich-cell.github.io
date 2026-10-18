@@ -335,6 +335,24 @@
   color: var(--text-hi);
 }
 .about-badges { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
+
+/* The portrait sits at the top of the whoami terminal, floated right of
+   the handle/location grid. Float, not grid, so it needs no restructure
+   of .about-grid and drops out of flow on a phone without a second
+   layout: below 560px it becomes a centred block above the fields,
+   which is the width the grid collapses to anyway. */
+.about-portrait {
+  float: right;
+  width: 172px;
+  height: 172px;
+  object-fit: cover;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  margin: 0 0 var(--sp-4) var(--sp-6);
+}
+@media (max-width: 560px) {
+  .about-portrait { display: block; float: none; margin: 0 auto var(--sp-5); }
+}
 .rank-badge {
   display: inline-flex;
   align-items: center;
@@ -406,6 +424,23 @@
 .edu-item .deg { color: var(--text-dim); font-size: var(--fs-md); }
 .edu-item .note { flex-basis: 100%; font-size: var(--fs-sm); color: var(--text-faint); }
 
+/* An organisation's mark, next to its name in the site's own type.
+   Both source logos are photographed on white (their JPEGs are 100%
+   white-cornered), and the SVG is transparent, so every mark gets the same
+   white chip: the white-background ones stop being a bright square floating
+   on the dark theme, and the transparent one gains the contrast its blues
+   need. Decorative -- alt is empty in the markup. */
+.org-logo {
+  height: 22px;
+  width: auto;
+  background: #fff;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  vertical-align: -5px;
+  margin-right: var(--sp-2);
+}
+
 /* ══ projects ═════════════════════════════════════════════ */
 .project-card { gap: var(--sp-4); }
 /* --ang is registered so the conic gradient's angle can animate;
@@ -471,6 +506,45 @@
   font-size: var(--fs-3xs);
   color: var(--text-faint);
   margin-left: auto;
+}
+
+/* ── project images ────────────────────────────────────────
+   Two modes. Banner: full-bleed figure at the top of the featured
+   card, negative-margined past the card's padding so it meets the
+   border edge to edge. Thumb: a fixed track in a 2-column grid,
+   150px wide, so the summary column narrows instead of the row
+   growing -- the same trick .room-icon uses on write-up cards.
+   Both carry the same hairline border and dim-at-rest treatment
+   as the room thumbnails: one gesture across the site. */
+.project-img {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--bg-inset);
+  transition: opacity var(--t) var(--ease);
+}
+.project-img:hover { opacity: .92; }
+.project-card--banner .project-img {
+  width: calc(100% + var(--sp-8) * 2);
+  margin: calc(var(--sp-8) * -1) calc(var(--sp-8) * -1) var(--sp-4);
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+/* The featured card is the only banner and the only card whose padding is
+   --sp-8, so this pairing is deliberate, not a coincidence to preserve. */
+.project-card--thumb .project-img { width: 150px; }
+.project-card--has-img.project-card--thumb {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: var(--sp-5);
+  align-items: start;
+}
+.project-card--has-img .project-body { min-width: 0; }
+@media (max-width: 480px) {
+  .project-card--has-img.project-card--thumb { grid-template-columns: 1fr; }
+  .project-card--thumb .project-img { width: 100%; }
 }
 
 /* ══ certifications ═════════════════════════════════════════
@@ -588,6 +662,17 @@
 }
 .cert-open:focus-visible { outline: 2px solid var(--accent-text); outline-offset: -2px; }
 .cert-id { position: relative; z-index: 3; }
+/* Same reasoning as .cert-id above: the stretched .cert-open covers the
+   whole row, so anything inside it that must take the click itself needs
+   to sit above it. */
+.cert-verify {
+  position: relative;
+  z-index: 3;
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  color: var(--accent-text);
+}
+.cert-verify:hover { text-decoration: underline; }
 
 /* Narrow screens drop the label column first: issuer and date move under the
    name, where there is width for them, and the thumbnail shrinks rather than

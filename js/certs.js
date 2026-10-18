@@ -3,8 +3,8 @@
    Opens a certificate image in the overlay defined by certlightbox().
 
    Each row carries its full-size image inside a <template>, which is inert and
-   so never fetched. Cloning it in on click is what keeps the eight 1200px
-   renders off the initial load -- the rows themselves only load the 640px
+   so never fetched. Cloning it in on click is what keeps the 1200px renders
+   off the initial load -- the rows themselves only load the 640px
    thumbnails. The trigger is a plain <a> stretched over the row, so if this
    file never runs the link still shows the certificate, just on its own page.
 
