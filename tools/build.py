@@ -711,6 +711,31 @@ def scripts() -> str:
 
 # ── index page blocks ──────────────────────────────────────────────────────
 
+def hero_phases(site: dict) -> str:
+    """The five phases at a glance, for the hero.
+
+    A summary of the full diagram further down the page, not a second copy of
+    it: this one carries the phase name and how many stages sit in it, so the
+    shape of the pipeline is legible in the first screen and the module names
+    and per-stage notes arrive only when the reader reaches the detail. The
+    counts are derived from the flow, so moving a stage between phases cannot
+    leave this lying.
+    """
+    counts: dict[int, int] = {}
+    for stage in site["pipeline"]["flow"]:
+        counts[stage["phase"]] = counts.get(stage["phase"], 0) + 1
+
+    out = []
+    for p in site["pipeline"]["phases"]:
+        n = counts.get(p["n"], 0)
+        out.append(
+            f'          <li><i>{p["n"]:02d}</i>'
+            f'<b>{esc(p["name"])}</b>'
+            f'<span>{n} stage{"" if n == 1 else "s"}</span></li>'
+        )
+    return "\n".join(out)
+
+
 def block_hero(site: dict, writeups: list[dict]) -> str:
     ident, s = site["identity"], site["site"]
     return render("_hero.html", {
@@ -723,6 +748,8 @@ def block_hero(site: dict, writeups: list[dict]) -> str:
         "AVAILABILITY": esc(ident["availability"]["text"]),
         "GITHUB": esc(ident["github"]),
         "GITHUB_URL": esc(ident["links"]["github"]),
+        "HERO_PHASES": hero_phases(site),
+        "STATS": block_stats(site),
     })
 
 
@@ -1127,7 +1154,6 @@ def build_index(site: dict, writeups: list[dict]) -> bool:
         "RAIL": rail(site, writeups),
         "NAVBAR": navbar(site),
         "HERO": block_hero(site, writeups),
-        "STATS": block_stats(site),
         "WHOAMI": block_whoami(site),
         "ARSENAL": block_arsenal(site),
         "EXPERIENCE": block_experience(site),

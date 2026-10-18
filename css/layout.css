@@ -48,8 +48,13 @@
 }
 .rail-link::before { content: './'; color: var(--text-faint); }
 .rail-link:hover { color: var(--text-hi); background: var(--bg-2); text-decoration: none; }
+/* --text-hi, not --accent-text: the tint is a surface, and --accent-tl is
+   only solved for 4.5:1 against the page. Green accent text on its own 10%
+   tint over the light page measured 4.27:1 (phosphor 4.35:1). This is the
+   same pairing .palette-item[aria-selected] uses -- tint plus --text-hi --
+   with the accent carried by the 2px rail on the left instead. */
 .rail-link[aria-current="true"] {
-  color: var(--accent-text);
+  color: var(--text-hi);
   border-left-color: var(--accent);
   background: var(--accent-soft);
 }
@@ -167,7 +172,7 @@
   }
   .nav-links.is-open { display: flex; }
   .nav-links a { display: block; padding: var(--sp-3) var(--gutter); font-size: var(--fs-sm); }
-  .nav-links a[aria-current="true"] { background: var(--accent-soft); }
+  .nav-links a[aria-current="true"] { background: var(--accent-soft); color: var(--text-hi); }
   .nav-cv, .nav-kbd { display: none; }
 }
 
@@ -246,53 +251,179 @@
 }
 .hero > .container { position: relative; }
 
-.hero-kicker {
-  display: inline-flex;
+/* ══ hero ════════════════════════════════════════════════
+   Editorial rather than terminal. The headline is Inter at display size and
+   mono is demoted to a garnish here, because every section below already
+   speaks mono and a hero that shouts in the same voice as the rest of the page
+   leaves nothing to build towards.
+
+   The block answers three questions in order -- who/where, what, prove it: the
+   eyebrow, then headline + lede + CTA, then the stat strip closing it out.
+   The pipeline card takes the right column so the widest band of the page is
+   not half empty grid, which is what it was: at a 1080px container an 18ch
+   headline is ~610px, so the right ~470px carried nothing. */
+.hero-eyebrow {
+  display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  font-family: var(--font-mono);
-  font-size: var(--fs-3xs);
-  letter-spacing: .08em;
+  gap: var(--sp-3);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: .13em;
   text-transform: uppercase;
-  color: var(--text-dim);
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  padding: 5px var(--sp-3);
-  margin-bottom: var(--sp-5);
-  background: var(--bg-1);
+  color: var(--text-faint);
+  margin-bottom: var(--sp-6);
 }
-.hero-kicker b { color: var(--accent-text); font-weight: 500; }
+.hero-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
+.hero-eyebrow .sep { color: var(--line-strong); }
 
-.hero h1 { max-width: 18ch; }
+.hero h1 {
+  font-size: var(--fs-5xl);
+  line-height: 1.05;
+  letter-spacing: -.035em;
+  max-width: 22ch;
+}
 .hero h1 em { font-style: normal; color: var(--accent-text); }
-.hero-lede {
-  margin-top: var(--sp-5);
-  font-size: var(--fs-lg);
-  color: var(--text-dim);
-  max-width: 58ch;
+
+.hero-split {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: clamp(var(--sp-8), 4vw, var(--sp-12));
+  align-items: start;
+  margin-top: var(--sp-8);
 }
 
-.hero-cta { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-8); }
+.hero-lede {
+  font-size: var(--fs-xl);
+  line-height: 1.62;
+  color: var(--text);
+  max-width: 46ch;
+}
 
-.hero-meta {
+/* One primary action; the other three are inline links. Four competing
+   buttons is why the old hero had no clear next step. */
+.hero-cta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--sp-3) var(--sp-6);
+  gap: var(--sp-3) var(--sp-5);
   margin-top: var(--sp-8);
-  padding-top: var(--sp-6);
-  border-top: 1px solid var(--line-soft);
+}
+.hero-cta .lnk {
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  padding: 2px 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+.hero-cta .lnk:hover { color: var(--accent-text); border-color: var(--accent-line); }
+.hero-cta .lnk kbd {
   font-family: var(--font-mono);
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-3xs);
+  color: var(--text-faint);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 1px 4px;
+}
+
+.hero-avail {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-6);
+  font-size: var(--fs-sm);
   color: var(--text-dim);
 }
-.hero-meta span { display: inline-flex; align-items: center; gap: 7px; }
-.hero-meta .dot {
-  width: 6px; height: 6px; border-radius: 50%;
+.hero-avail .dot {
+  width: 8px; height: 8px; border-radius: 50%;
   background: var(--ok);
-  box-shadow: 0 0 0 0 var(--ok-soft);
   animation: pulse 2.4s var(--ease) infinite;
 }
+
+/* ── the pipeline card ───────────────────────────────────
+   The same five phases the projects section expands on. Here they
+   are only names and stage counts, so this stays a table of
+   contents rather than competing with the diagram below. */
+.hero-phases {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5) var(--sp-5) var(--sp-4);
+  box-shadow: var(--sh-2);
+}
+.hero-phases-title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-faint);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--line-soft);
+}
+.hero-phases ol { list-style: none; position: relative; }
+.hero-phases ol::before {
+  content: '';
+  position: absolute;
+  left: 13px; top: 18px; bottom: 18px;
+  width: 1px;
+  background: linear-gradient(var(--accent-line), var(--line));
+}
+.hero-phases li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 9px 0;
+}
+.hero-phases li i {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 27px; height: 27px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  font-style: normal;
+  color: var(--accent-text);
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+.hero-phases li b { font-size: var(--fs-sm); font-weight: 600; color: var(--text-hi); }
+.hero-phases li span {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/* The card needs ~325px before "Clustering & attribution" and its stage count
+   stop fighting for the row, and the split gives it 40% of the container. Below
+   ~935px viewport width the stack is the honest layout. */
+@media (max-width: 940px) {
+  .hero-split { grid-template-columns: 1fr; gap: var(--sp-8); }
+  .hero h1 { max-width: none; }
+}
+
+/* Under ~420px of container the eyebrow's two runs of text and the CTA's four
+   items both run out of room. In a flex row every contiguous text run is its
+   own anonymous item, so "Tunisia · ICT engineering student @ ENIT" split into
+   two ragged columns that each wrapped mid-phrase, and "search K" was stranded
+   on a line of its own. Stacked, the sentence wraps as prose and the primary
+   action gets the full width. */
+@media (max-width: 520px) {
+  .hero-eyebrow { display: block; }
+  .hero-eyebrow::after { display: none; }
+  .hero-cta { gap: var(--sp-4) var(--sp-5); }
+  .hero-cta .btn { flex: 1 0 100%; justify-content: center; }
+}
+
 @keyframes pulse {
   0%   { box-shadow: 0 0 0 0 rgb(63 185 80 / .45); }
   70%  { box-shadow: 0 0 0 7px rgb(63 185 80 / 0); }

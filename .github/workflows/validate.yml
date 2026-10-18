@@ -377,6 +377,19 @@ jobs:
             const pages = ['/', '/cv.html', '/writeups/', '/writeups/keygenme/'];
             const accents = [null, 'phosphor', 'nord', 'crimson'];
             const themes = ['dark', 'light'];
+            // This step used to run at puppeteer's default 800x600, where the
+            // rail is display:none and the phone nav panel is collapsed, so
+            // neither state was ever measured. An accent-text-on-accent-tint
+            // pair in the rail sat at 4.27:1 in the light theme through a
+            // green CI. A state that is never on screen at the audited width
+            // is a state nothing is checking, so each combination is measured
+            // three times: desktop (rail visible), the TOC scrolled, and the
+            // phone nav panel open.
+            const views = [
+              { name: 'desktop', w: 1440, h: 900, mobile: false, toc: false, panel: false },
+              { name: 'toc',     w: 1440, h: 900, mobile: false, toc: true,  panel: false },
+              { name: 'panel',   w: 390,  h: 844, mobile: true,  toc: false, panel: true  },
+            ];
             let failures = 0, checked = 0;
 
             for (const p of pages) {
@@ -396,24 +409,33 @@ jobs:
                   // The blinking cursor is `infinite`, so its `finished`
                   // promise never settles — only finite animations are
                   // waited on, and the whole wait is bounded regardless.
-                  await page.evaluate(() => Promise.race([
-                    Promise.all([...document.getAnimations()]
-                      .filter((a) => a.playState === 'running'
-                                 && a.effect?.getComputedTiming().iterations !== Infinity)
-                      .map((a) => a.finished.catch(() => {}))),
-                    new Promise((r) => setTimeout(r, 1500)),
-                  ]));
-                  const label = `${p} ${theme}/${accent || 'green'}`;
-                  const bad = await page.evaluate(audit);
-                  checked += 1;
-                  if (bad.length) {
-                    failures += bad.length;
-                    console.log(`  XX ${label}`);
-                    for (const b of bad.slice(0, 4)) {
-                      console.log(`       ${b.sel} ${b.ratio}:1 (needs ${b.need}) "${b.text}"`);
+                  for (const v of views) {
+                    await page.setViewport({ width: v.w, height: v.h, isMobile: v.mobile });
+                    await page.evaluate((v) => {
+                      const toc = document.querySelector('.toc a');
+                      if (toc) toc.classList.toggle('is-active', v.toc);
+                      const panel = document.querySelector('.nav-links');
+                      if (panel) panel.classList.toggle('is-open', v.panel);
+                    }, v);
+                    await page.evaluate(() => Promise.race([
+                      Promise.all([...document.getAnimations()]
+                        .filter((a) => a.playState === 'running'
+                                   && a.effect?.getComputedTiming().iterations !== Infinity)
+                        .map((a) => a.finished.catch(() => {}))),
+                      new Promise((r) => setTimeout(r, 1500)),
+                    ]));
+                    const label = `${p} ${theme}/${accent || 'green'} ${v.name}`;
+                    const bad = await page.evaluate(audit);
+                    checked += 1;
+                    if (bad.length) {
+                      failures += bad.length;
+                      console.log(`  XX ${label}`);
+                      for (const b of bad.slice(0, 4)) {
+                        console.log(`       ${b.sel} ${b.ratio}:1 (needs ${b.need}) "${b.text}"`);
+                      }
+                    } else {
+                      console.log(`  ok ${label}`);
                     }
-                  } else {
-                    console.log(`  ok ${label}`);
                   }
                 }
               }

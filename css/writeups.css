@@ -73,7 +73,9 @@
   line-height: 1.5;
 }
 .toc a:hover { color: var(--text-hi); text-decoration: none; border-left-color: var(--line-strong); }
-.toc a.is-active { color: var(--accent-text); border-left-color: var(--accent); background: var(--accent-soft); }
+/* --text-hi for the same reason as .rail-link[aria-current]: see layout.css.
+   The accent is the left rule and the tint, not the glyph colour. */
+.toc a.is-active { color: var(--text-hi); border-left-color: var(--accent); background: var(--accent-soft); }
 
 /* ══ reading progress ════════════════════════════════════ */
 .read-progress {

@@ -155,25 +155,6 @@
 .badge-platform[data-platform="htb"]     { color: var(--plat-htb);     border-color: color-mix(in srgb, var(--plat-htb) 40%, transparent); }
 .badge-platform[data-platform="picoctf"] { color: var(--plat-picoctf); border-color: color-mix(in srgb, var(--plat-picoctf) 40%, transparent); }
 
-/* availability chip */
-.chip-available {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-family: var(--font-mono);
-  font-size: var(--fs-2xs);
-  color: var(--ok);
-  background: var(--ok-soft);
-  border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
-  border-radius: var(--r-pill);
-  padding: 6px var(--sp-4);
-}
-.chip-available .dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--ok);
-  animation: pulse 2.4s var(--ease) infinite;
-}
-
 /* ══ generic card ════════════════════════════════════════ */
 .card {
   position: relative;
@@ -193,32 +174,53 @@
 .card h3 { font-size: var(--fs-lg); font-weight: 600; }
 .card p { color: var(--text-dim); font-size: var(--fs-md); }
 
-/* ══ stat strip ══════════════════════════════════════════ */
+/* ── stat strip ─────────────────────────────────────────
+   Moved out of its own section and into the hero, so the block closes on the
+   numbers that back the headline instead of leaving a near-empty band between
+   the hero and whoami.
+
+   Editorial, not terminal: Inter at display size behind hairline rules rather
+   than another row of mono chips. By this point the reader has already had the
+   mono treatment from the eyebrow and the pipeline card, and a third helping
+   is what made the old page read as one flat texture.
+
+   `white-space: nowrap` on the value is load-bearing -- "Top 1%" otherwise
+   breaks across the space once the tracks narrow, leaving a bare "%" under a
+   "Top 1" and looking broken. */
 .stat-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  overflow: hidden;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: clamp(var(--sp-10), 5vw, var(--sp-16));
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--line);
 }
 .stat {
-  background: var(--bg-1);
-  padding: var(--sp-5) var(--sp-4);
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  text-align: center;
+  gap: var(--sp-2);
+  padding-right: var(--sp-4);
+  text-align: left;
+}
+.stat + .stat {
+  border-left: 1px solid var(--line-soft);
+  padding-left: clamp(var(--sp-4), 2.5vw, var(--sp-7));
 }
 .stat b {
-  font-family: var(--font-mono);
-  font-size: var(--fs-2xl);
-  font-weight: 600;
-  color: var(--accent-text);
-  line-height: 1.2;
+  font-family: var(--font-body);
+  font-size: var(--fs-4xl);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1;
+  color: var(--text-hi);
+  white-space: nowrap;
 }
-.stat span { font-family: var(--font-mono); font-size: var(--fs-3xs); color: var(--text-faint); text-transform: uppercase; letter-spacing: .07em; }
+.stat span { font-size: var(--fs-2xs); color: var(--text-faint); }
+
+@media (max-width: 760px) {
+  .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-6) 0; }
+  .stat + .stat { border-left: 0; padding-left: 0; }
+  .stat:nth-child(even) { border-left: 1px solid var(--line-soft); padding-left: var(--sp-5); }
+}
 
 /* ══ about ═══════════════════════════════════════════════ */
 .about-grid {

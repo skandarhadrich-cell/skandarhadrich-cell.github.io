@@ -1,20 +1,33 @@
 <section class="hero">
   <div class="container">
-    <p class="hero-kicker">{{FLAG}} {{LOCATION}} &nbsp;·&nbsp; {{ROLE}} @ {{ORG}}</p>
-    <h1>{{HEADLINE_HTML}}</h1>
-    <p class="hero-lede">{{SUBLINE}}</p>
+    <p class="hero-eyebrow">{{FLAG}} {{LOCATION}} <span class="sep" aria-hidden="true">·</span> {{ROLE}} @ {{ORG}}</p>
 
-    <div class="hero-cta">
-      <a class="btn btn--primary" href="#writeups">Read the writeups <span aria-hidden="true">→</span></a>
-      <a class="btn" href="cv.html">CV</a>
-      <a class="btn btn--ghost" href="{{GITHUB_URL}}" rel="noopener">github/{{GITHUB}}</a>
-      <button class="btn btn--ghost" type="button" data-palette-open>
-        <span aria-hidden="true">⌘</span> Search <kbd>K</kbd>
-      </button>
+    <h1>{{HEADLINE_HTML}}</h1>
+
+    <div class="hero-split">
+      <div class="hero-lead">
+        <p class="hero-lede">{{SUBLINE}}</p>
+
+        <div class="hero-cta">
+          <a class="btn btn--primary" href="#writeups">Read the writeups <span aria-hidden="true">→</span></a>
+          <a class="lnk" href="cv.html">CV</a>
+          <a class="lnk" href="{{GITHUB_URL}}" rel="noopener">github</a>
+          <button class="lnk" type="button" data-palette-open>search <kbd>K</kbd></button>
+        </div>
+
+        <p class="hero-avail"><span class="dot" aria-hidden="true"></span>{{AVAILABILITY}}</p>
+      </div>
+
+      <aside class="hero-phases" aria-label="The malware analysis pipeline at a glance">
+        <p class="hero-phases-title">the pipeline, at a glance</p>
+        <ol>
+{{HERO_PHASES}}
+        </ol>
+      </aside>
     </div>
 
-    <div class="hero-meta">
-      <span class="chip-available"><span class="dot" aria-hidden="true"></span>{{AVAILABILITY}}</span>
+    <div class="stat-strip reveal">
+{{STATS}}
     </div>
   </div>
 </section>

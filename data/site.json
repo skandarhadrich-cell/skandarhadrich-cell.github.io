@@ -17,7 +17,7 @@
     "location": "Tunis, Tunisia",
     "timezone": "UTC+1",
     "flag": "🇹🇳",
-    "headline": "I break websites and reverse binaries for a living — and write down exactly how.",
+    "headline": "I break websites and reverse binaries *for a living* — and write down exactly how.",
     "subline": "Reverse engineering, malware analysis and SOC automation. Solo-built a 9-stage, 5-phase nested-VM malware pipeline; ENIT placed 77th globally at HTB University CTF 2025.",
     "availability": {
       "status": "available",

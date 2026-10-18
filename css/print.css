@@ -34,7 +34,7 @@ html, body {
 .rail, #nav, .read-progress, .palette, .toast, .skip-link,
 .writeup-filters, .filters, .wu-nav, .wu-back, .hero-cta,
 .hero::before, .site-footer, .footer-base, .card:hover,
-.code-copy, .cursor-block, .chip-available .dot,
+.code-copy, .cursor-block, .hero-avail .dot,
 .certbox, .room-icon {
   display: none !important;
 }
@@ -71,7 +71,7 @@ p, li, dd, .cert-skills, .stage small { color: #18181b !important; font-size: 10
 .project-card a::after, .footer-col a::after { content: "" !important; }
 
 .card, .term, .stat, .about-field, .edu-item, .writeup-card, .stage,
-.cert-row, .badge-diff, .badge-platform, .tag {
+.cert-row, .badge-diff, .badge-platform, .tag, .hero-phases, .hero-phases li i {
   background: #fff !important;
   border: 1px solid var(--line) !important;
   box-shadow: none !important;
@@ -134,6 +134,5 @@ p, li, dd, .cert-skills, .stage small { color: #18181b !important; font-size: 10
 .section-head p { color: #3f3f46 !important; }
 
 .hero { padding-block: 0 !important; }
-.hero-meta { border-top: 1px solid var(--line) !important; }
 
 .print-only { display: block !important; }
