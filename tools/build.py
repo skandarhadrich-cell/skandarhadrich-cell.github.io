@@ -879,10 +879,14 @@ def org_logo(logo: str) -> str:
 
 
 def block_experience(site: dict) -> str:
+    # The organisation's mark is a flex sibling of the text, not an inline
+    # glyph: at 96px it needs its own track, with the name and period stacked
+    # beside it. .tl-item drops its dot when a mark is present (see CSS).
     exp = "".join(
         f'          <div class="tl-item">\n'
-        f'            <div class="tl-top"><span class="tl-org">{org_logo(j.get("logo"))}{esc(j["org"])}</span>'
-        f'<span class="tl-when">{esc(j["period"])} · {esc(j["place"])}</span></div>\n'
+        f'            <div class="tl-top">{org_logo(j.get("logo"))}'
+        f'<div class="tl-heading"><span class="tl-org">{esc(j["org"])}</span>'
+        f'<span class="tl-when">{esc(j["period"])} · {esc(j["place"])}</span></div></div>\n'
         f'            <div class="tl-role">{esc(j["role"])}</div>\n'
         f'            <ul>' + "".join(f"<li>{trusted_inline(b)}</li>" for b in j["bullets"]) + "</ul>\n"
         f'          </div>\n'
@@ -890,9 +894,10 @@ def block_experience(site: dict) -> str:
     )
     edu = "".join(
         f'          <div class="edu-item">\n'
-        f'            <b>{org_logo(e.get("logo"))}{esc(e["org"])}</b>\n'
+        f'            {org_logo(e.get("logo"))}'
+        f'<div class="edu-heading"><b>{esc(e["org"])}</b>\n'
         f'            <span class="deg">{esc(e["degree"])}</span>\n'
-        f'            <span class="tl-when">{esc(e["period"])}</span>\n'
+        f'            <span class="tl-when">{esc(e["period"])}</span></div>\n'
         f'            <span class="note">{esc(e["note"])}</span>\n'
         f'          </div>\n'
         for e in site["education"]
@@ -974,19 +979,17 @@ def render_pipeline(pipeline: dict) -> str:
 
 
 def project_image(p: dict) -> str:
-    """A project's artwork as one centred figure, or "" when it has none.
+    """A project's artwork, or "" when it has none.
 
-    Every card carries the same figure now: the two-rung split (a banner on the
-    featured card, a 150px track on the rest) read as two different sections
-    rather than one list. Both rungs still exist -- <slug>-thumb.webp at 400w
-    and <slug>.webp at 1200w -- and are offered as a srcset, so a phone still
-    fetches the 15KB thumbnail while a desktop gets the sharp 1200w render
-    scaled into the card's 640px column. Converted once from the source PNGs
-    (which are not committed) and kept as assets, the same way the room
-    screenshots are -- the build must not need Pillow. Dimensions are read off
-    the file, so they stay honest if the artwork is ever replaced. Unlike the
-    room thumbnails these carry real alt text: the diagram shows structure the
-    title does not name.
+    Every card carries one figure now, inside .project-media (a 16:9 frame in
+    the CSS). Both rungs still exist -- <slug>-thumb.webp at 400w and
+    <slug>.webp at 1200w -- and are offered as a srcset, so a phone still
+    fetches the ~15KB thumbnail while a desktop gets the sharp 1200w render.
+    Converted once from the source PNGs (which are not committed) and kept as
+    assets, the same way the room screenshots are -- the build must not need
+    Pillow. Dimensions are read off the file, so they stay honest if the
+    artwork is ever replaced. Unlike the room thumbnails these carry real alt
+    text: the diagram shows structure the title does not name.
     """
     im = p.get("image")
     if not im:
@@ -1002,6 +1005,28 @@ def project_image(p: dict) -> str:
             f' loading="lazy" decoding="async">')
 
 
+def project_tags(p: dict) -> str:
+    """The first four stack tags, plus a chip naming the rest.
+
+    The brief asks for 3-4 tags per card; the data carries 4-6. Nothing is
+    deleted: tags beyond the fourth collapse into a dashed "+N" chip whose
+    title lists them, so the card stays restrained without the stack
+    becoming invisible. Four is a hard cut rather than a line-measured fit,
+    which keeps cards of the same width showing the same number of rows.
+    """
+    stack = p.get("stack", [])
+    tags = "".join(f'<span class="tag">{esc(t)}</span>' for t in stack[:4])
+    rest = stack[4:]
+    if rest:
+        # The title is the pointer affordance; the sr-only text is what a
+        # screen reader gets, so the hidden tags are announced rather than
+        # merely hinted at with a tooltip.
+        hidden = esc(", ".join(rest))
+        tags += (f'<span class="tag tag--more" title="Also: {hidden}">'
+                 f'+{len(rest)}<span class="sr-only">: {hidden}</span></span>')
+    return tags
+
+
 def block_work(site: dict) -> str:
     cards = []
     for p in site["projects"]:
@@ -1011,8 +1036,9 @@ def block_work(site: dict) -> str:
         cls = "card project-card project-card--featured reveal" if p.get("featured") else "card project-card reveal"
         flag = f'<span class="project-flag">{esc(p["badge"])}</span>' if p.get("badge") else ""
         metrics = "".join(f'<span>{esc(m)}</span>' for m in p.get("metrics", []))
-        stack = "".join(f'<span class="tag">{esc(t)}</span>' for t in p.get("stack", []))
+        stack = project_tags(p)
         img = project_image(p)
+        media = f'<div class="project-media">{img}</div>' if img else ""
         if p.get("repo"):
             label, title_attr = PROJECT_STATE.get(p.get("state", "code"), ("GitHub", "Source on GitHub"))
             cta = (f'<a class="btn btn--sm" href="{esc(p["repo"])}" rel="noopener" title="{esc(title_attr)}">'
@@ -1025,7 +1051,7 @@ def block_work(site: dict) -> str:
             "lab": "lab work — nothing published",
         }[p.get("state", "code")]
         cards.append(f"""      <article class="{cls}">
-        {img}<div class="project-body">
+        {media}<div class="project-body">
         <div class="project-head"><h3>{esc(p['name'])}</h3>{flag}</div>
         <p>{esc(p['desc'])}</p>
         <div class="project-metrics">{metrics}</div>

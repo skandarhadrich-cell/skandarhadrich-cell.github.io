@@ -404,7 +404,8 @@
   border: 2px solid var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft);
 }
-.tl-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3); }
+.tl-top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); }
+.tl-heading { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .tl-org { font-size: var(--fs-lg); font-weight: 600; color: var(--text-hi); }
 .tl-when { font-family: var(--font-mono); font-size: var(--fs-2xs); color: var(--text-faint); }
 .tl-role { font-size: var(--fs-md); color: var(--accent-text); margin-top: 2px; }
@@ -414,31 +415,44 @@
 
 .edu-list { display: grid; gap: var(--sp-4); margin-top: var(--sp-8); }
 .edu-item {
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4);
   padding: var(--sp-4) var(--sp-5);
   background: var(--bg-2);
   border: 1px solid var(--line);
   border-radius: var(--r);
 }
+.edu-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3); flex: 1 1 260px; min-width: 0; }
 .edu-item b { color: var(--text-hi); font-weight: 600; }
 .edu-item .deg { color: var(--text-dim); font-size: var(--fs-md); }
 .edu-item .note { flex-basis: 100%; font-size: var(--fs-sm); color: var(--text-faint); }
 
-/* An organisation's mark, next to its name in the site's own type.
-   Both source logos are photographed on white (their JPEGs are 100%
-   white-cornered), and the SVG is transparent, so every mark gets the same
-   white chip: the white-background ones stop being a bright square floating
-   on the dark theme, and the transparent one gains the contrast its blues
-   need. Decorative -- alt is empty in the markup. */
+/* An organisation's mark, as an avatar-style block beside its name.
+
+   At 96px it is no longer an inline glyph, so every row that carries one is
+   a flex row built around it: mark on the left, name and period stacked in
+   .tl-heading/.edu-heading beside it. The sources are white-cornered JPEGs
+   (and one transparent SVG), so all marks get the same white chip: without
+   it the white-backed ones are bright squares on the dark theme and the
+   transparent one loses its blues. Decorative -- alt is empty in the markup
+   because the adjacent text already names the organisation. */
 .org-logo {
-  height: 32px;
+  display: block;
+  height: 96px;
   width: auto;
+  flex: none;
   background: #fff;
-  padding: 3px;
+  padding: 5px;
   border: 1px solid var(--line);
-  border-radius: 5px;
-  vertical-align: -9px;
-  margin-right: var(--sp-2);
+  border-radius: 8px;
+}
+/* The mark replaces the timeline dot when a row has one: a 96px logo and an
+   11px dot on the same left edge fight for the eye, and the logo already
+   marks the row. :has() is fine here -- the stylesheet already requires
+   @property, aspect-ratio and overflow: clip. */
+.tl-item:has(.org-logo) { padding-left: 0; }
+.tl-item:has(.org-logo)::before { display: none; }
+@media (max-width: 560px) {
+  .org-logo { height: 72px; }
 }
 
 /* ══ projects ═════════════════════════════════════════════ */
@@ -448,10 +462,21 @@
    never walks. */
 @property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 .project-card--featured {
+  /* The flagship is a full-width row of its own: diagram on the left, copy
+     on the right, so it reads as the lead project without the tall
+     full-bleed banner that used to dominate the section. */
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  align-items: start;
+  gap: var(--sp-6);
   background:
     linear-gradient(180deg, var(--accent-soft), transparent 42%),
     var(--bg-2);
   border-color: var(--accent-line);
+}
+@media (max-width: 720px) {
+  .project-card--featured { grid-template-columns: 1fr; gap: var(--sp-4); }
 }
 /* A hairline of accent walking around the featured card's edge.
    The mask keeps the middle empty: content-box then full box, with
@@ -506,30 +531,50 @@
   margin-left: auto;
 }
 
-/* ── project images ────────────────────────────────────────
-   One figure per card, centred: the diagram sits at the top of the
-   rectangle in a 640px column and the copy runs underneath it. Same
-   hairline border and inset background as the room thumbnails, so the
-   artwork reads as a screenshot of the project rather than decoration.
-   The two rungs are offered as a srcset (400w thumb, 1200w banner), so
-   a phone fetches ~15KB and a desktop gets the sharp render. */
-.project-img {
+/* ── project media ────────────────────────────────────────
+   A 16:9 frame per project. The source art is 1672x941 (1.776, effectively
+   16:9), so object-fit: cover crops nothing -- the frame exists to make the
+   standard cards line up and to keep the images responsive. The overflow
+   clip is what lets the 3% hover zoom sit inside the frame instead of
+   spilling over the card's border. */
+.project-media {
   display: block;
-  width: min(100%, 640px);
-  margin-inline: auto;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--bg-inset);
 }
+.project-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 150ms var(--ease);
+}
+.project-card:hover .project-img { transform: scale(1.03); }
+@media (prefers-reduced-motion: reduce) {
+  .project-img { transition: none; }
+  .project-card:hover .project-img { transform: none; }
+}
 /* The copy is a flex column so its footer can be pushed to the bottom of
-   a card taller than its content -- which, with equal card heights, is
-   most of them. */
+   a card taller than its content. */
 .project-body {
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
   flex: 1;
   min-width: 0;
+}
+/* The overflow chip for tags beyond the fourth: dashed like the metric
+   chips so it reads as "more of the same", and its title carries the full
+   list. Yes, hover-only on a phone -- the first four tags are the ones that
+   communicate the stack; this is a pointer affordance, not content. */
+.tag--more {
+  color: var(--text-faint);
+  background: transparent;
+  border-style: dashed;
+  cursor: help;
 }
 
 /* ══ certifications ═════════════════════════════════════════
